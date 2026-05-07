@@ -1,15 +1,19 @@
 import React from 'react';
-import './HomePage.css';
+import './ProductsPage.css';
 import logo from '../../assets/logo.png';
-import cctvHero from '../../assets/cctv_hero.png';
+import bulletCam from '../../assets/bullet_camera.png';
+import nvrRecorder from '../../assets/nvr_recorder.png';
+import domeCam from '../../assets/dome_camera.png';
+import powerSupply from '../../assets/power_supply.png';
 
-interface HomePageProps {
+interface ProductsPageProps {
   onLogout: () => void;
   onNavigate: (view: 'home' | 'products' | 'about') => void;
 }
 
-const HomePage: React.FC<HomePageProps> = ({ onLogout, onNavigate }) => {
+const ProductsPage: React.FC<ProductsPageProps> = ({ onLogout, onNavigate }) => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+  const [selectedCategory, setSelectedCategory] = React.useState('All Categories');
 
   React.useEffect(() => {
     if (isMenuOpen) {
@@ -20,8 +24,30 @@ const HomePage: React.FC<HomePageProps> = ({ onLogout, onNavigate }) => {
     return () => { document.body.style.overflow = 'unset'; };
   }, [isMenuOpen]);
 
+  const allProducts = [
+    { img: bulletCam, name: '4K Ultra HD Bullet Camera', price: '₹12,499', sub: 'High-definition outdoor surveillance with night vision', category: 'Cameras' },
+    { img: nvrRecorder, name: '16-Channel 4K NVR', price: '₹42,500', sub: 'Network Video Recorder with 4TB HDD pre-installed', category: 'DVR & NVR' },
+    { img: domeCam, name: 'Dome Security Camera', price: '₹9,999', sub: 'Vandal-proof indoor/outdoor camera with wide-angle lens', category: 'Cameras' },
+    { img: powerSupply, name: 'CCTV Power Supply Box', price: '₹6,450', sub: '18-Channel 12V DC distributed power box', category: 'Power Supply' }
+  ];
+
+  const filteredProducts = selectedCategory === 'All Categories' 
+    ? allProducts 
+    : allProducts.filter(p => p.category === selectedCategory);
+
+  const categories = [
+    { name: 'All Categories', count: allProducts.length, icon: <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7" y2="7"/></svg> },
+    { name: 'Accessories', count: 0, icon: <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 7V4a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v3"/><path d="M7 21h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2Z"/><path d="M12 11v4"/><path d="M10 13h4"/></svg> },
+    { name: 'Cameras', count: allProducts.filter(p => p.category === 'Cameras').length, icon: <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg> },
+    { name: 'DVR & NVR', count: allProducts.filter(p => p.category === 'DVR & NVR').length, icon: <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6" y2="6"/><line x1="6" y1="18" x2="6" y2="18"/></svg> },
+    { name: 'Networking', count: 0, icon: <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2"><rect x="16" y="16" width="6" height="6" rx="1"/><rect x="2" y="16" width="6" height="6" rx="1"/><rect x="9" y="2" width="6" height="6" rx="1"/><path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3"/><path d="M12 12V8"/></svg> },
+    { name: 'Power Supply', count: allProducts.filter(p => p.category === 'Power Supply').length, icon: <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7" y2="7"/></svg> },
+    { name: 'Storage', count: 0, icon: <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg> },
+    { name: 'Uncategorized', count: 0, icon: <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7" y2="7"/></svg> }
+  ];
+
   return (
-    <div className="home-container">
+    <div className="products-container">
       {/* Navigation */}
       <nav className="navbar">
         <div className="navbar-container">
@@ -31,8 +57,8 @@ const HomePage: React.FC<HomePageProps> = ({ onLogout, onNavigate }) => {
               <span className="nav-brand">TN Automation</span>
             </div>
             <div className="nav-links">
-              <a onClick={() => onNavigate('home')} className="active" style={{ cursor: 'pointer' }}>Home</a>
-              <a onClick={() => onNavigate('products')} style={{ cursor: 'pointer' }}>Products</a>
+              <a onClick={() => onNavigate('home')} style={{ cursor: 'pointer' }}>Home</a>
+              <a className="active">Products</a>
               <a onClick={() => onNavigate('about')} style={{ cursor: 'pointer' }}>About</a>
               <a href="#contact">Contact</a>
             </div>
@@ -40,14 +66,14 @@ const HomePage: React.FC<HomePageProps> = ({ onLogout, onNavigate }) => {
           
           <div className="nav-right">
             <div className="search-bar hide-mobile">
-              <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              <input type="text" placeholder="Search for products..." />
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" placeholder="Search..." />
             </div>
-            <button className="nav-icon-btn hide-mobile">
-              <svg viewBox="0 0 24 24" width="20" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+            <button className="nav-icon-btn">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
             </button>
-            <button className="nav-icon-btn hide-mobile" onClick={onLogout}>
-              <svg viewBox="0 0 24 24" width="20" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <button className="nav-icon-btn" onClick={onLogout}>
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             </button>
             <button className="hamburger-btn" onClick={() => setIsMenuOpen(!isMenuOpen)}>
               <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
@@ -93,117 +119,59 @@ const HomePage: React.FC<HomePageProps> = ({ onLogout, onNavigate }) => {
         </div>
       )}
 
-      {/* Hero Section */}
-      <header className="hero-section">
-        <div className="hero-content">
-          <h1 className="hero-title">Advanced CCTV & Surveillance Systems.</h1>
-          <p className="hero-description">
-            Professional-grade security cameras and recording systems for complete peace of mind.
-            Protect your home and business with our cutting-edge surveillance technology.
-          </p>
-          <div className="hero-btns">
-            <button className="btn-primary">Configure System</button>
-            <button className="btn-outline">
-              View Documentation 
-              <svg viewBox="0 0 24 24" width="16" fill="none" stroke="currentColor" strokeWidth="2" style={{marginLeft: '8px'}}><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-            </button>
-          </div>
-        </div>
-        <div className="hero-image-container">
-          <img src={cctvHero} alt="CCTV Monitoring" className="hero-main-img" />
-          <div className="performance-card">
-            <div className="perf-dot"></div>
-            <span className="perf-label">SYSTEM PERFORMANCE</span>
-            <div className="perf-value">99.998%</div>
-            <p className="perf-subtext">Uptime across 12,000+ nodes globally.</p>
-          </div>
-        </div>
-      </header>
+      <div className="products-content">
+        <header className="products-header">
+          <h1>Our Products</h1>
+          <p>Premium surveillance equipment for residential and commercial security.</p>
+        </header>
 
-      {/* Category Section */}
-      <section className="category-section" id="products">
-        <div className="category-header">
-          <div className="category-header-text">
-            <h2 className="section-title">Shop by Category</h2>
-            <p className="section-subtitle">Choose the right surveillance setup for your space</p>
-          </div>
-          <a onClick={() => onNavigate('products')} className="browse-all" style={{cursor: 'pointer'}}>Browse All →</a>
-        </div>
-        
-        <div className="category-grid">
-          {[
-            { 
-              title: 'Accessories', 
-              desc: 'Essential mounts, cables, and setup components.', 
-              icon: <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 7V4a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v3"/><path d="M7 21h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2Z"/><path d="M12 11v4"/><path d="M10 13h4"/></svg>
-            },
-            { 
-              title: 'Cameras', 
-              desc: 'Reliable coverage for indoor and outdoor surveillance.', 
-              icon: <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
-            },
-            { 
-              title: 'Networking', 
-              desc: 'Stable networking gear for uninterrupted monitoring.', 
-              icon: <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="16" y="16" width="6" height="6" rx="1"/><rect x="2" y="16" width="6" height="6" rx="1"/><rect x="9" y="2" width="6" height="6" rx="1"/><path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3"/><path d="M12 12V8"/></svg>
-            },
-            { 
-              title: 'DVR & NVR', 
-              desc: 'Smart recording solutions for secure video backups.', 
-              icon: <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6" y2="6"/><line x1="6" y1="18" x2="6" y2="18"/></svg>
-            },
-            { 
-              title: 'Power Supply', 
-              desc: 'Browse high-demand products in this category.', 
-              icon: <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7" y2="7"/></svg>
-            },
-            { 
-              title: 'Storage', 
-              desc: 'High-capacity drives for extended footage retention.', 
-              icon: <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
-            }
-          ].map((cat, i) => (
-            <div className="category-card" key={i} onClick={() => onNavigate('products')}>
-              <div className="cat-icon-wrapper">
-                {cat.icon}
+        <div className="products-layout">
+          <aside className="products-sidebar">
+            <div className="category-card-sidebar">
+              <h3>Categories</h3>
+              <div className="category-list">
+                {categories.map((cat, i) => (
+                  <div 
+                    key={i} 
+                    className={`category-item ${selectedCategory === cat.name ? 'active' : ''}`}
+                    onClick={() => setSelectedCategory(cat.name)}
+                  >
+                    <div className="cat-item-left">
+                      {cat.icon}
+                      <span>{cat.name}</span>
+                    </div>
+                    <span className="cat-count">{cat.count}</span>
+                  </div>
+                ))}
               </div>
-              <h3>{cat.title}</h3>
-              <p>{cat.desc}</p>
-              <span className="cat-explore">Explore →</span>
             </div>
-          ))}
-        </div>
-      </section>
+          </aside>
 
-      {/* CTA Section */}
-      <section className="cta-section">
-        <div className="cta-content">
-          <h2>Secure Your Premises Today</h2>
-          <p>Get expert consultation for your security needs. From residential setups to large-scale industrial surveillance, we provide tailored solutions for maximum protection.</p>
-          <div className="cta-btns">
-            <button className="btn-primary">Contact Security Experts</button>
-            <button className="btn-dark-outline">Request a Quote</button>
+          <div className="products-grid">
+            {filteredProducts.length > 0 ? (
+              filteredProducts.map((prod, i) => (
+                <div className="product-card" key={i}>
+                  <div className="product-img-wrapper">
+                    <img src={prod.img} alt={prod.name} />
+                  </div>
+                  <div className="product-info">
+                    <div className="prod-name-row">
+                      <h4>{prod.name}</h4>
+                      <span className="prod-price">{prod.price}</span>
+                    </div>
+                    <p className="prod-subtext">{prod.sub}</p>
+                    <button className="add-to-order">ADD TO ORDER</button>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="no-products">
+                <p>No products found in this category.</p>
+              </div>
+            )}
           </div>
         </div>
-        <div className="cta-stats">
-          <div className="stat-box">
-            <span className="stat-val">24/7</span>
-            <span className="stat-label">ACTIVE MONITORING</span>
-          </div>
-          <div className="stat-box">
-            <span className="stat-val">Global</span>
-            <span className="stat-label">SUPPORT ACCESS</span>
-          </div>
-          <div className="stat-box">
-            <span className="stat-val">AI</span>
-            <span className="stat-label">SMART ANALYTICS</span>
-          </div>
-          <div className="stat-box">
-            <span className="stat-val">Secured</span>
-            <span className="stat-label">ENCRYPTED FEEDS</span>
-          </div>
-        </div>
-      </section>
+      </div>
 
       {/* Premium Footer */}
       <footer className="premium-footer">
@@ -247,4 +215,4 @@ const HomePage: React.FC<HomePageProps> = ({ onLogout, onNavigate }) => {
   );
 };
 
-export default HomePage;
+export default ProductsPage;

@@ -1,1 +1,21 @@
-/* App.css cleared for LoginPage implementation */
+.page-transition {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Button hover/active global effects - Toned down */
+button {
+  transition: all 0.2s ease-out;
+  position: relative;
+  overflow: hidden;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+/* Removed ripple effect as it can be "too much" */

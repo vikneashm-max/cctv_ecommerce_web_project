@@ -1,14 +1,13 @@
 import React from 'react';
-import './HomePage.css';
+import './AboutPage.css';
 import logo from '../../assets/logo.png';
-import cctvHero from '../../assets/cctv_hero.png';
 
-interface HomePageProps {
+interface AboutPageProps {
   onLogout: () => void;
   onNavigate: (view: 'home' | 'products' | 'about') => void;
 }
 
-const HomePage: React.FC<HomePageProps> = ({ onLogout, onNavigate }) => {
+const AboutPage: React.FC<AboutPageProps> = ({ onLogout, onNavigate }) => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
   React.useEffect(() => {
@@ -21,8 +20,7 @@ const HomePage: React.FC<HomePageProps> = ({ onLogout, onNavigate }) => {
   }, [isMenuOpen]);
 
   return (
-    <div className="home-container">
-      {/* Navigation */}
+    <div className="about-container">
       <nav className="navbar">
         <div className="navbar-container">
           <div className="nav-left">
@@ -31,23 +29,23 @@ const HomePage: React.FC<HomePageProps> = ({ onLogout, onNavigate }) => {
               <span className="nav-brand">TN Automation</span>
             </div>
             <div className="nav-links">
-              <a onClick={() => onNavigate('home')} className="active" style={{ cursor: 'pointer' }}>Home</a>
+              <a onClick={() => onNavigate('home')} style={{ cursor: 'pointer' }}>Home</a>
               <a onClick={() => onNavigate('products')} style={{ cursor: 'pointer' }}>Products</a>
-              <a onClick={() => onNavigate('about')} style={{ cursor: 'pointer' }}>About</a>
+              <a className="active">About</a>
               <a href="#contact">Contact</a>
             </div>
           </div>
           
           <div className="nav-right">
             <div className="search-bar hide-mobile">
-              <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              <input type="text" placeholder="Search for products..." />
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" placeholder="Search..." />
             </div>
-            <button className="nav-icon-btn hide-mobile">
-              <svg viewBox="0 0 24 24" width="20" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+            <button className="nav-icon-btn">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
             </button>
-            <button className="nav-icon-btn hide-mobile" onClick={onLogout}>
-              <svg viewBox="0 0 24 24" width="20" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <button className="nav-icon-btn" onClick={onLogout}>
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             </button>
             <button className="hamburger-btn" onClick={() => setIsMenuOpen(!isMenuOpen)}>
               <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
@@ -94,113 +92,107 @@ const HomePage: React.FC<HomePageProps> = ({ onLogout, onNavigate }) => {
       )}
 
       {/* Hero Section */}
-      <header className="hero-section">
-        <div className="hero-content">
-          <h1 className="hero-title">Advanced CCTV & Surveillance Systems.</h1>
-          <p className="hero-description">
-            Professional-grade security cameras and recording systems for complete peace of mind.
-            Protect your home and business with our cutting-edge surveillance technology.
-          </p>
-          <div className="hero-btns">
-            <button className="btn-primary">Configure System</button>
-            <button className="btn-outline">
-              View Documentation 
-              <svg viewBox="0 0 24 24" width="16" fill="none" stroke="currentColor" strokeWidth="2" style={{marginLeft: '8px'}}><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-            </button>
-          </div>
-        </div>
-        <div className="hero-image-container">
-          <img src={cctvHero} alt="CCTV Monitoring" className="hero-main-img" />
-          <div className="performance-card">
-            <div className="perf-dot"></div>
-            <span className="perf-label">SYSTEM PERFORMANCE</span>
-            <div className="perf-value">99.998%</div>
-            <p className="perf-subtext">Uptime across 12,000+ nodes globally.</p>
-          </div>
-        </div>
-      </header>
-
-      {/* Category Section */}
-      <section className="category-section" id="products">
-        <div className="category-header">
-          <div className="category-header-text">
-            <h2 className="section-title">Shop by Category</h2>
-            <p className="section-subtitle">Choose the right surveillance setup for your space</p>
-          </div>
-          <a onClick={() => onNavigate('products')} className="browse-all" style={{cursor: 'pointer'}}>Browse All →</a>
-        </div>
-        
-        <div className="category-grid">
-          {[
-            { 
-              title: 'Accessories', 
-              desc: 'Essential mounts, cables, and setup components.', 
-              icon: <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 7V4a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v3"/><path d="M7 21h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2Z"/><path d="M12 11v4"/><path d="M10 13h4"/></svg>
-            },
-            { 
-              title: 'Cameras', 
-              desc: 'Reliable coverage for indoor and outdoor surveillance.', 
-              icon: <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
-            },
-            { 
-              title: 'Networking', 
-              desc: 'Stable networking gear for uninterrupted monitoring.', 
-              icon: <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="16" y="16" width="6" height="6" rx="1"/><rect x="2" y="16" width="6" height="6" rx="1"/><rect x="9" y="2" width="6" height="6" rx="1"/><path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3"/><path d="M12 12V8"/></svg>
-            },
-            { 
-              title: 'DVR & NVR', 
-              desc: 'Smart recording solutions for secure video backups.', 
-              icon: <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6" y2="6"/><line x1="6" y1="18" x2="6" y2="18"/></svg>
-            },
-            { 
-              title: 'Power Supply', 
-              desc: 'Browse high-demand products in this category.', 
-              icon: <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7" y2="7"/></svg>
-            },
-            { 
-              title: 'Storage', 
-              desc: 'High-capacity drives for extended footage retention.', 
-              icon: <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
-            }
-          ].map((cat, i) => (
-            <div className="category-card" key={i} onClick={() => onNavigate('products')}>
-              <div className="cat-icon-wrapper">
-                {cat.icon}
-              </div>
-              <h3>{cat.title}</h3>
-              <p>{cat.desc}</p>
-              <span className="cat-explore">Explore →</span>
-            </div>
-          ))}
+      <section className="about-hero">
+        <div className="about-hero-content">
+          <span className="about-tag">About TN Automation</span>
+          <h1>Smart CCTV Solutions for Modern Security</h1>
+          <p>We provide advanced surveillance systems including HD cameras, AI-enabled monitoring, and complete security solutions for homes and businesses.</p>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="cta-section">
-        <div className="cta-content">
-          <h2>Secure Your Premises Today</h2>
-          <p>Get expert consultation for your security needs. From residential setups to large-scale industrial surveillance, we provide tailored solutions for maximum protection.</p>
-          <div className="cta-btns">
-            <button className="btn-primary">Contact Security Experts</button>
-            <button className="btn-dark-outline">Request a Quote</button>
+      {/* Mission Section */}
+      <section className="about-content-section">
+        <div className="about-card-large">
+          <h2>Our Mission</h2>
+          <p>At TN Automation, our mission is to deliver reliable and intelligent security solutions that protect what matters most. We aim to make modern surveillance accessible, affordable, and easy to use for everyone.</p>
+        </div>
+
+        <div className="values-section">
+          <h2>Our Values</h2>
+          <div className="values-grid">
+            <div className="value-card">
+              <div className="value-icon-box blue-bg">
+                <svg viewBox="0 0 24 24" width="20" fill="none" stroke="#2563eb" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              </div>
+              <div className="value-info">
+                <h3>Security</h3>
+                <p>We prioritize safety with high-quality surveillance systems.</p>
+              </div>
+            </div>
+            <div className="value-card">
+              <div className="value-icon-box blue-bg">
+                <svg viewBox="0 0 24 24" width="20" fill="none" stroke="#2563eb" strokeWidth="2"><rect x="2" y="2" width="20" height="20" rx="2" ry="2"/><path d="M7 2v20"/><path d="M17 2v20"/><path d="M2 7h20"/><path d="M2 17h20"/><path d="M12 12l-2.5 2.5L12 17l2.5-2.5L12 12z"/></svg>
+              </div>
+              <div className="value-info">
+                <h3>Innovation</h3>
+                <p>We integrate the latest AI and smart monitoring technologies.</p>
+              </div>
+            </div>
+            <div className="value-card">
+              <div className="value-icon-box blue-bg">
+                <svg viewBox="0 0 24 24" width="20" fill="none" stroke="#2563eb" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              </div>
+              <div className="value-info">
+                <h3>Reliability</h3>
+                <p>Our products are tested for long-term durability and performance.</p>
+              </div>
+            </div>
+            <div className="value-card">
+              <div className="value-icon-box blue-bg">
+                <svg viewBox="0 0 24 24" width="20" fill="none" stroke="#2563eb" strokeWidth="2"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>
+              </div>
+              <div className="value-info">
+                <h3>Customer Support</h3>
+                <p>We provide installation guidance and 24/7 support.</p>
+              </div>
+            </div>
           </div>
         </div>
-        <div className="cta-stats">
-          <div className="stat-box">
-            <span className="stat-val">24/7</span>
-            <span className="stat-label">ACTIVE MONITORING</span>
+
+        <div className="about-card-large">
+          <h2>Why Choose Us?</h2>
+          <p>With years of experience in the CCTV and security industry, TN Automation understands the importance of protection and reliability. We offer a wide range of products including bullet cameras, dome cameras, DVR/NVR systems, and complete installation services.</p>
+          <p style={{ marginTop: '1rem' }}>Whether you're securing your home, office, or business, we provide tailored solutions to meet your needs.</p>
+        </div>
+
+        <div className="features-section">
+          <h2>Security Features</h2>
+          <div className="features-grid">
+            <div className="feature-item">
+              <div className="feature-icon-circle">
+                <svg viewBox="0 0 24 24" width="20" fill="none" stroke="#2563eb" strokeWidth="2"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
+              </div>
+              <span>HD Camera Systems</span>
+            </div>
+            <div className="feature-item">
+              <div className="feature-icon-circle">
+                <svg viewBox="0 0 24 24" width="20" fill="none" stroke="#2563eb" strokeWidth="2"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/></svg>
+              </div>
+              <span>Night Vision Technology</span>
+            </div>
+            <div className="feature-item">
+              <div className="feature-icon-circle">
+                <svg viewBox="0 0 24 24" width="20" fill="none" stroke="#2563eb" strokeWidth="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12" y2="18"/></svg>
+              </div>
+              <span>Mobile Monitoring</span>
+            </div>
+            <div className="feature-item">
+              <div className="feature-icon-circle">
+                <svg viewBox="0 0 24 24" width="20" fill="none" stroke="#2563eb" strokeWidth="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+              </div>
+              <span>Easy Installation</span>
+            </div>
           </div>
-          <div className="stat-box">
-            <span className="stat-val">Global</span>
-            <span className="stat-label">SUPPORT ACCESS</span>
+        </div>
+
+        <div className="cta-banner-dark">
+          <div className="cta-banner-text">
+            <h2>Secure Your Property with TN Automation</h2>
+            <p>Choose trusted surveillance solutions designed for modern safety.</p>
           </div>
-          <div className="stat-box">
-            <span className="stat-val">AI</span>
-            <span className="stat-label">SMART ANALYTICS</span>
-          </div>
-          <div className="stat-box">
-            <span className="stat-val">Secured</span>
-            <span className="stat-label">ENCRYPTED FEEDS</span>
+          <div className="cta-banner-btns">
+            <button className="btn-blue" onClick={() => onNavigate('products')}>Explore Products</button>
+            <button className="btn-white">Contact Us</button>
           </div>
         </div>
       </section>
@@ -247,4 +239,4 @@ const HomePage: React.FC<HomePageProps> = ({ onLogout, onNavigate }) => {
   );
 };
 
-export default HomePage;
+export default AboutPage;
