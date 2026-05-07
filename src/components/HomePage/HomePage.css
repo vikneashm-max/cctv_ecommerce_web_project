@@ -15,7 +15,6 @@
   font-family: 'Inter', sans-serif;
   color: var(--text-main);
   background-color: var(--bg-light);
-  overflow-x: hidden;
 }
 
 /* Navbar */
@@ -309,7 +308,6 @@
   display: flex;
   flex-direction: column;
   padding: 0;
-  animation: fadeIn 0.2s ease-out;
 }
 
 .mobile-menu-header-row {
@@ -395,68 +393,7 @@
   cursor: pointer;
 }
 
-@media (max-width: 768px) {
-  .navbar {
-    padding: 0 1rem;
-    height: 60px;
-  }
-  
-  .nav-left {
-    gap: 0.75rem;
-  }
 
-  .nav-brand {
-    font-size: 0.95rem;
-    white-space: nowrap;
-  }
-
-  .nav-logo-img {
-    height: 22px;
-  }
-
-  .nav-right {
-    gap: 0.5rem;
-  }
-
-  .hamburger-btn {
-    display: flex;
-  }
-  
-  .hide-mobile {
-    display: none;
-  }
-
-  .hero-section {
-    padding: 3rem 1.25rem;
-  }
-
-  .hero-title {
-    font-size: 2.25rem;
-    letter-spacing: -0.02em;
-  }
-
-  .hero-description {
-    font-size: 1rem;
-  }
-
-  .category-section {
-    padding: 4rem 1.25rem;
-  }
-
-  .category-grid {
-    grid-template-columns: 1fr;
-    gap: 1.25rem;
-  }
-
-  .cta-section {
-    padding: 3rem 1.5rem;
-    margin: 3rem 1rem;
-  }
-
-  .cta-content h2 {
-    font-size: 2rem;
-  }
-}
 
 /* Premium Footer */
 .premium-footer {
@@ -578,11 +515,13 @@
   border: 1px solid var(--border-light);
   text-align: left;
   transition: transform 0.3s, box-shadow 0.3s;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  transform: translateY(-4px);
 }
 
 .solution-card:hover {
   transform: translateY(-8px);
-  box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
 }
 
 .sol-icon {
@@ -641,6 +580,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 2rem;
+  justify-content: center;
 }
 
 .category-card {
@@ -654,11 +594,13 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  transform: translateY(-4px);
 }
 
 .category-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  transform: translateY(-10px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
   border-color: #2563eb;
 }
 
@@ -706,7 +648,7 @@
 
 /* CTA Section */
 .cta-section {
-  margin: 4rem 2rem;
+  margin: 4rem auto;
   max-width: var(--max-width);
   background: var(--dark-blue);
   border-radius: 24px;
@@ -716,6 +658,7 @@
   gap: 4rem;
   position: relative;
   overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
 }
 
 .cta-content {
@@ -835,66 +778,197 @@
 }
 
 /* Responsive Enhancements */
-@media (max-width: 1024px) {
+@media (max-width: 991px) {
+  .navbar {
+    padding: 0 1rem;
+    height: 60px;
+  }
+  
+  .nav-left {
+    gap: 0.75rem;
+  }
+
+  .nav-brand {
+    font-size: 0.95rem;
+    white-space: nowrap;
+  }
+
+  .nav-logo-img {
+    height: 22px;
+  }
+
+  .nav-right {
+    gap: 0.5rem;
+  }
+
+  .hamburger-btn {
+    display: flex;
+  }
+  
+  .hide-mobile {
+    display: none;
+  }
+
   .hero-section {
     flex-direction: column;
     text-align: center;
-    padding: 3rem 1.5rem;
+    padding: 3rem 1.25rem;
+    gap: 2rem;
+  }
+
+  .hero-title {
+    font-size: 2.25rem;
+    margin-bottom: 1rem;
   }
   
   .hero-description {
+    font-size: 1rem;
     margin: 0 auto 2rem;
   }
-  
-  .hero-btns {
-    justify-content: center;
-  }
 
-  .cta-section {
-    flex-direction: column;
-    padding: 3rem;
-    gap: 3rem;
-  }
-  
-  .cta-content {
-    text-align: center;
-  }
-  
-  .cta-content p {
-    margin: 0 auto 2.5rem;
-  }
-  
-  .cta-btns {
-    justify-content: center;
-  }
-
-  .cta-stats {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-/* Simplified mobile responsiveness - handled in previous blocks */
-
-@media (max-width: 480px) {
-  .hero-title {
-    font-size: 2rem;
-  }
-  
   .hero-btns {
     flex-direction: column;
     width: 100%;
+    gap: 1rem;
+    align-items: center;
   }
   
   .btn-primary, .btn-outline {
     width: 100%;
+    max-width: 300px;
     justify-content: center;
+    padding: 0.875rem 1.5rem;
   }
   
+  .cta-section {
+    padding: 3rem 1.5rem;
+    margin: 2rem auto;
+    width: calc(100% - 2rem);
+    flex-direction: column;
+    text-align: center;
+    gap: 2.5rem;
+  }
+
+  .cta-content h2 {
+    font-size: 2rem;
+    line-height: 1.2;
+    margin-bottom: 1rem;
+  }
+
+  .cta-content p {
+    font-size: 1rem;
+    margin: 0 auto 2rem;
+  }
+
+  .cta-btns {
+    flex-direction: column;
+    width: 100%;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  .btn-dark-outline {
+    width: 100%;
+    max-width: 300px;
+    padding: 0.875rem 1.5rem;
+  }
+
   .cta-stats {
     grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .stat-val {
+    font-size: 1.5rem;
   }
   
   .performance-card {
-    display: none; /* Hide performance card on very small screens to save space */
+    display: none;
+  }
+
+  /* Category Section Mobile Fix */
+  .category-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 4rem 1.5rem;
+  }
+
+  .category-header {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+  }
+
+  .category-header-text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .section-title {
+    margin-bottom: 1.5rem;
+  }
+
+  .section-title::after {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .section-subtitle {
+    margin-top: 0.5rem;
+    max-width: 320px;
+    font-size: 0.95rem;
+  }
+
+  .category-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+    width: 100%;
+    max-width: 500px;
+    justify-content: center;
+    margin: 0 auto;
+  }
+
+  .category-card {
+    width: 100%;
+    padding: 3rem 2rem;
+    border-radius: 20px;
+    min-height: auto;
+  }
+
+  .cat-icon-wrapper {
+    width: 70px;
+    height: 70px;
+    margin-bottom: 1.5rem;
+  }
+
+  .cat-icon-wrapper svg {
+    width: 28px;
+    height: 28px;
+  }
+
+  .category-card h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    font-weight: 800;
+  }
+
+  .category-card p {
+    font-size: 1.05rem;
+    margin-bottom: 2rem;
+    line-height: 1.6;
+    display: block;
+    overflow: visible;
+  }
+
+  .cat-explore {
+    font-size: 1rem;
+    font-weight: 800;
   }
 }
