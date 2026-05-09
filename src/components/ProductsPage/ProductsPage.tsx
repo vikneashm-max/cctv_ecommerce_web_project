@@ -1,34 +1,40 @@
 import React from 'react';
 import './ProductsPage.css';
-import logo from '../../assets/logo.png';
 import bulletCam from '../../assets/bullet_camera.png';
 import nvrRecorder from '../../assets/nvr_recorder.png';
 import domeCam from '../../assets/dome_camera.png';
 import powerSupply from '../../assets/power_supply.png';
 
-interface ProductsPageProps {
-  onLogout: () => void;
-  onNavigate: (view: 'home' | 'products' | 'about') => void;
+interface Product {
+  id: number;
+  img: string;
+  name: string;
+  price: string;
+  sub: string;
+  category: string;
 }
 
-const ProductsPage: React.FC<ProductsPageProps> = ({ onLogout, onNavigate }) => {
-  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+interface ProductsPageProps {
+  onNavigate: (view: 'home' | 'products' | 'about' | 'cart' | 'favorites' | 'contact') => void;
+  addToCart: (product: Product) => void;
+  toggleFavorite: (product: Product) => void;
+  buyNow: (product: Product) => void;
+  favorites: Product[];
+}
+
+const ProductsPage: React.FC<ProductsPageProps> = ({ onNavigate, addToCart, toggleFavorite, buyNow, favorites }) => {
+
+
   const [selectedCategory, setSelectedCategory] = React.useState('All Categories');
 
-  React.useEffect(() => {
-    if (isMenuOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    return () => { document.body.style.overflow = 'unset'; };
-  }, [isMenuOpen]);
+  const isFavorited = (id: number) => favorites.some(f => f.id === id);
+
 
   const allProducts = [
-    { img: bulletCam, name: '4K Ultra HD Bullet Camera', price: '₹12,499', sub: 'High-definition outdoor surveillance with night vision', category: 'Cameras' },
-    { img: nvrRecorder, name: '16-Channel 4K NVR', price: '₹42,500', sub: 'Network Video Recorder with 4TB HDD pre-installed', category: 'DVR & NVR' },
-    { img: domeCam, name: 'Dome Security Camera', price: '₹9,999', sub: 'Vandal-proof indoor/outdoor camera with wide-angle lens', category: 'Cameras' },
-    { img: powerSupply, name: 'CCTV Power Supply Box', price: '₹6,450', sub: '18-Channel 12V DC distributed power box', category: 'Power Supply' }
+    { id: 1, img: bulletCam, name: '4K Ultra HD Bullet Camera', price: '₹12,499', sub: 'High-definition outdoor surveillance with night vision', category: 'Cameras' },
+    { id: 2, img: nvrRecorder, name: '16-Channel 4K NVR', price: '₹42,500', sub: 'Network Video Recorder with 4TB HDD pre-installed', category: 'DVR & NVR' },
+    { id: 3, img: domeCam, name: 'Dome Security Camera', price: '₹9,999', sub: 'Vandal-proof indoor/outdoor camera with wide-angle lens', category: 'Cameras' },
+    { id: 4, img: powerSupply, name: 'CCTV Power Supply Box', price: '₹6,450', sub: '18-Channel 12V DC distributed power box', category: 'Power Supply' }
   ];
 
   const filteredProducts = selectedCategory === 'All Categories' 
@@ -48,76 +54,6 @@ const ProductsPage: React.FC<ProductsPageProps> = ({ onLogout, onNavigate }) => 
 
   return (
     <div className="products-container">
-      {/* Navigation */}
-      <nav className="navbar">
-        <div className="navbar-container">
-          <div className="nav-left">
-            <div className="nav-logo-container" onClick={() => onNavigate('home')} style={{ cursor: 'pointer' }}>
-              <img src={logo} alt="Logo" className="nav-logo-img" />
-              <span className="nav-brand">TN Automation</span>
-            </div>
-            <div className="nav-links">
-              <a onClick={() => onNavigate('home')} style={{ cursor: 'pointer' }}>Home</a>
-              <a onClick={() => onNavigate('products')} className="active" style={{ cursor: 'pointer' }}>Products</a>
-              <a onClick={() => onNavigate('about')} style={{ cursor: 'pointer' }}>About</a>
-              <a href="#contact">Contact</a>
-            </div>
-          </div>
-          
-          <div className="nav-right">
-            <div className="search-bar hide-mobile">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              <input type="text" placeholder="Search..." />
-            </div>
-            <button className="nav-icon-btn">
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-            </button>
-            <button className="nav-icon-btn" onClick={onLogout}>
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            </button>
-            <button className="hamburger-btn" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-              <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-            </button>
-          </div>
-        </div>
-      </nav>
-
-      {/* Mobile Menu Overlay */}
-      {isMenuOpen && (
-        <div className="mobile-menu-overlay">
-          <div className="mobile-menu-header-row">
-            <div className="nav-logo-container">
-              <img src={logo} alt="Logo" className="nav-logo-img" />
-            </div>
-            <div className="mobile-header-actions">
-              <svg viewBox="0 0 24 24" width="22" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              <svg viewBox="0 0 24 24" width="22" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-              <svg viewBox="0 0 24 24" width="22" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-              <svg viewBox="0 0 24 24" width="22" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-              <button className="close-menu-btn" onClick={() => setIsMenuOpen(false)}>
-                <svg viewBox="0 0 24 24" width="24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-              </button>
-            </div>
-          </div>
-
-          <div className="mobile-menu-content">
-            <div className="mobile-search-bar-container">
-              <div className="mobile-search-bar">
-                <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <input type="text" placeholder="Search products..." />
-              </div>
-            </div>
-
-            <div className="mobile-nav-list">
-              <a onClick={() => { onNavigate('home'); setIsMenuOpen(false); }}>Home</a>
-              <a onClick={() => { onNavigate('products'); setIsMenuOpen(false); }}>Products</a>
-              <a href="#services">Services</a>
-              <a onClick={() => { onNavigate('about'); setIsMenuOpen(false); }}>About</a>
-              <a href="#contact">Contact</a>
-            </div>
-          </div>
-        </div>
-      )}
 
       <div className="products-content">
         <header className="products-header">
@@ -153,6 +89,13 @@ const ProductsPage: React.FC<ProductsPageProps> = ({ onLogout, onNavigate }) => 
                 <div className="product-card" key={i}>
                   <div className="product-img-wrapper">
                     <img src={prod.img} alt={prod.name} />
+                    <button 
+                      className={`prod-fav-btn ${isFavorited(prod.id) ? 'active' : ''}`}
+                      onClick={() => toggleFavorite(prod)}
+                    >
+                      <svg viewBox="0 0 24 24" width="20" height="20" fill={isFavorited(prod.id) ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                    </button>
+
                   </div>
                   <div className="product-info">
                     <div className="prod-name-row">
@@ -160,7 +103,11 @@ const ProductsPage: React.FC<ProductsPageProps> = ({ onLogout, onNavigate }) => 
                       <span className="prod-price">{prod.price}</span>
                     </div>
                     <p className="prod-subtext">{prod.sub}</p>
-                    <button className="add-to-order">ADD TO ORDER</button>
+                    <div className="prod-actions">
+                      <button className="add-to-cart-card" onClick={() => addToCart(prod)}>ADD TO CART</button>
+                      <button className="buy-now-card" onClick={() => buyNow(prod)}>BUY NOW</button>
+                    </div>
+
                   </div>
                 </div>
               ))
