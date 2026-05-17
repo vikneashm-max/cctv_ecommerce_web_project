@@ -3,15 +3,16 @@ import LoginPage from './components/LoginPage/LoginPage'
 import SignupPage from './components/SignupPage/SignupPage'
 import HomePage from './components/HomePage/HomePage'
 import ProductsPage from './components/ProductsPage/ProductsPage'
+import ProductDetailPage from './components/ProductsPage/ProductDetailPage';
 import AboutPage from './components/AboutPage/AboutPage';
 import ServicesPage from './components/ServicesPage/ServicesPage';
 import CartPage from './components/CartPage/CartPage';
 import FavoritesPage from './components/FavoritesPage/FavoritesPage';
 import ContactPage from './components/ContactPage/ContactPage';
 import Navbar from './components/Navbar/Navbar';
+import AdminPage from './components/AdminPage/AdminPage';
+import { productsData } from './components/ProductsPage/productsData';
 import './App.css'
-
-type View = 'login' | 'signup' | 'home' | 'products' | 'services' | 'about' | 'cart' | 'favorites' | 'contact';
 
 interface Product {
   id: number;
@@ -22,11 +23,35 @@ interface Product {
   category: string;
 }
 
+type View = 'login' | 'signup' | 'home' | 'products' | 'services' | 'about' | 'cart' | 'favorites' | 'contact' | 'product-detail' | 'admin';
+
 function App() {
+  const [products, setProducts] = useState<any[]>(() => {
+    const savedProducts = localStorage.getItem('appProducts');
+    return savedProducts ? JSON.parse(savedProducts) : productsData;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('appProducts', JSON.stringify(products));
+  }, [products]);
+
   const [view, setView] = useState<View>(() => {
     const savedView = sessionStorage.getItem('currentView');
     return (savedView as View) || 'login';
   });
+
+  const [selectedProductId, setSelectedProductId] = useState<number | null>(() => {
+    const savedProductId = sessionStorage.getItem('selectedProductId');
+    return savedProductId ? parseInt(savedProductId, 10) : null;
+  });
+
+  useEffect(() => {
+    if (selectedProductId !== null) {
+      sessionStorage.setItem('selectedProductId', selectedProductId.toString());
+    } else {
+      sessionStorage.removeItem('selectedProductId');
+    }
+  }, [selectedProductId]);
 
   const [cart, setCart] = useState<Product[]>(() => {
     const savedCart = localStorage.getItem('appCart');
@@ -51,9 +76,12 @@ function App() {
   useEffect(() => {
     const handlePopState = (event: PopStateEvent) => {
       // Direct force-to-home logic for main sub-pages
-      const mainSubPages = ['products', 'services', 'about', 'contact'];
+      const mainSubPages = ['products', 'services', 'about', 'contact', 'product-detail'];
       
-      if (mainSubPages.includes(view)) {
+      if (view === 'product-detail') {
+        setView('products');
+        window.history.pushState({ view: 'products' }, '', '#products');
+      } else if (mainSubPages.includes(view)) {
         // If we were on a main sub-page, always go back to home
         setView('home');
         window.history.pushState({ view: 'home' }, '', '#home');
@@ -69,8 +97,39 @@ function App() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, [view]);
 
+  // Secret Admin Page Trigger: press 'a' 5 times (outside inputs)
+  useEffect(() => {
+    let count = 0;
+    let timer: number;
 
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeEl = document.activeElement;
+      if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.getAttribute('contenteditable') === 'true')) {
+        return;
+      }
 
+      if (e.key && e.key.toLowerCase() === 'a') {
+        count++;
+        window.clearTimeout(timer);
+        if (count === 5) {
+          count = 0;
+          setView('admin');
+        } else {
+          timer = window.setTimeout(() => {
+            count = 0;
+          }, 2000);
+        }
+      } else {
+        count = 0;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.clearTimeout(timer);
+    };
+  }, []);
 
   useEffect(() => {
     localStorage.setItem('appCart', JSON.stringify(cart));
@@ -145,14 +204,16 @@ function App() {
           </div>
         </div>
       )}
-      <Navbar 
-        currentView={view} 
-        onNavigate={navigateTo} 
-        onLogout={handleLogout}
-        isLoggedIn={view !== 'login' && view !== 'signup'}
-        cartCount={cart.length}
-        favoritesCount={favorites.length}
-      />
+      {view !== 'admin' && (
+        <Navbar 
+          currentView={view} 
+          onNavigate={navigateTo} 
+          onLogout={handleLogout}
+          isLoggedIn={view !== 'login' && view !== 'signup'}
+          cartCount={cart.length}
+          favoritesCount={favorites.length}
+        />
+      )}
       <main className="main-content">
         {view === 'login' && (
           <LoginPage onToggle={toggleToSignup} onLogin={handleLoginSuccess} />
@@ -161,7 +222,9 @@ function App() {
           <SignupPage onToggle={toggleToLogin} onLogin={handleLoginSuccess} />
         )}
         {view === 'home' && (
-          <HomePage onNavigate={navigateTo} />
+          <HomePage 
+            onNavigate={navigateTo}
+          />
         )}
         {view === 'products' && (
           <ProductsPage 
@@ -169,6 +232,34 @@ function App() {
             toggleFavorite={toggleFavorite}
             buyNow={buyNow}
             favorites={favorites}
+            onSelectProduct={(id) => {
+              setSelectedProductId(id);
+              setView('product-detail');
+            }}
+            products={products}
+          />
+        )}
+        {view === 'product-detail' && selectedProductId !== null && (
+          <ProductDetailPage 
+            productId={selectedProductId}
+            onBack={() => setView('products')}
+            onNavigate={navigateTo}
+            addToCart={addToCart}
+            toggleFavorite={toggleFavorite}
+            buyNow={buyNow}
+            favorites={favorites}
+            onSelectProduct={(id) => {
+              setSelectedProductId(id);
+            }}
+            products={products}
+          />
+        )}
+
+        {view === 'admin' && (
+          <AdminPage 
+            products={products}
+            setProducts={setProducts}
+            onBack={() => setView('home')}
           />
         )}
 

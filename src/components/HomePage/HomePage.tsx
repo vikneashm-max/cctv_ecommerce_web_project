@@ -95,7 +95,6 @@ const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
           ))}
         </div>
       </section>
-
       {/* CTA Section */}
       <section className="cta-section">
         <div className="cta-content">

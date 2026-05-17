@@ -1,9 +1,5 @@
 import React from 'react';
 import './ProductsPage.css';
-import bulletCam from '../../assets/bullet_camera.png';
-import nvrRecorder from '../../assets/nvr_recorder.png';
-import domeCam from '../../assets/dome_camera.png';
-import powerSupply from '../../assets/power_supply.png';
 
 interface Product {
   id: number;
@@ -19,9 +15,11 @@ interface ProductsPageProps {
   toggleFavorite: (product: Product) => void;
   buyNow: (product: Product) => void;
   favorites: Product[];
+  onSelectProduct: (id: number) => void;
+  products: Product[];
 }
 
-const ProductsPage: React.FC<ProductsPageProps> = ({ addToCart, toggleFavorite, buyNow, favorites }) => {
+const ProductsPage: React.FC<ProductsPageProps> = ({ addToCart, toggleFavorite, buyNow, favorites, onSelectProduct, products }) => {
 
 
   const [selectedCategory, setSelectedCategory] = React.useState('All Categories');
@@ -29,12 +27,7 @@ const ProductsPage: React.FC<ProductsPageProps> = ({ addToCart, toggleFavorite, 
   const isFavorited = (id: number) => favorites.some(f => f.id === id);
 
 
-  const allProducts = [
-    { id: 1, img: bulletCam, name: '4K Ultra HD Bullet Camera', price: '₹12,499', sub: 'High-definition outdoor surveillance with night vision', category: 'Cameras' },
-    { id: 2, img: nvrRecorder, name: '16-Channel 4K NVR', price: '₹42,500', sub: 'Network Video Recorder with 4TB HDD pre-installed', category: 'DVR & NVR' },
-    { id: 3, img: domeCam, name: 'Dome Security Camera', price: '₹9,999', sub: 'Vandal-proof indoor/outdoor camera with wide-angle lens', category: 'Cameras' },
-    { id: 4, img: powerSupply, name: 'CCTV Power Supply Box', price: '₹6,450', sub: '18-Channel 12V DC distributed power box', category: 'Power Supply' }
-  ];
+  const allProducts = products;
 
   const filteredProducts = selectedCategory === 'All Categories' 
     ? allProducts 
@@ -42,13 +35,13 @@ const ProductsPage: React.FC<ProductsPageProps> = ({ addToCart, toggleFavorite, 
 
   const categories = [
     { name: 'All Categories', count: allProducts.length, icon: <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7" y2="7"/></svg> },
-    { name: 'Accessories', count: 0, icon: <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 7V4a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v3"/><path d="M7 21h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2Z"/><path d="M12 11v4"/><path d="M10 13h4"/></svg> },
+    { name: 'Accessories', count: allProducts.filter(p => p.category === 'Accessories').length, icon: <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 7V4a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v3"/><path d="M7 21h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2Z"/><path d="M12 11v4"/><path d="M10 13h4"/></svg> },
     { name: 'Cameras', count: allProducts.filter(p => p.category === 'Cameras').length, icon: <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg> },
     { name: 'DVR & NVR', count: allProducts.filter(p => p.category === 'DVR & NVR').length, icon: <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6" y2="6"/><line x1="6" y1="18" x2="6" y2="18"/></svg> },
-    { name: 'Networking', count: 0, icon: <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2"><rect x="16" y="16" width="6" height="6" rx="1"/><rect x="2" y="16" width="6" height="6" rx="1"/><rect x="9" y="2" width="6" height="6" rx="1"/><path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3"/><path d="M12 12V8"/></svg> },
+    { name: 'Networking', count: allProducts.filter(p => p.category === 'Networking').length, icon: <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2"><rect x="16" y="16" width="6" height="6" rx="1"/><rect x="2" y="16" width="6" height="6" rx="1"/><rect x="9" y="2" width="6" height="6" rx="1"/><path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3"/><path d="M12 12V8"/></svg> },
     { name: 'Power Supply', count: allProducts.filter(p => p.category === 'Power Supply').length, icon: <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7" y2="7"/></svg> },
-    { name: 'Storage', count: 0, icon: <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg> },
-    { name: 'Uncategorized', count: 0, icon: <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7" y2="7"/></svg> }
+    { name: 'Storage', count: allProducts.filter(p => p.category === 'Storage').length, icon: <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg> },
+    { name: 'Uncategorized', count: allProducts.filter(p => p.category === 'Uncategorized').length, icon: <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7" y2="7"/></svg> }
   ];
 
   return (
@@ -86,11 +79,14 @@ const ProductsPage: React.FC<ProductsPageProps> = ({ addToCart, toggleFavorite, 
             {filteredProducts.length > 0 ? (
               filteredProducts.map((prod, i) => (
                 <div className="product-card" key={i}>
-                  <div className="product-img-wrapper">
+                  <div className="product-img-wrapper" onClick={() => onSelectProduct(prod.id)} style={{cursor: 'pointer'}}>
                     <img src={prod.img} alt={prod.name} />
                     <button 
                       className={`prod-fav-btn ${isFavorited(prod.id) ? 'active' : ''}`}
-                      onClick={() => toggleFavorite(prod)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleFavorite(prod);
+                      }}
                     >
                       <svg viewBox="0 0 24 24" width="20" height="20" fill={isFavorited(prod.id) ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
                     </button>
@@ -98,7 +94,7 @@ const ProductsPage: React.FC<ProductsPageProps> = ({ addToCart, toggleFavorite, 
                   </div>
                   <div className="product-info">
                     <div className="prod-name-row">
-                      <h4>{prod.name}</h4>
+                      <h4 onClick={() => onSelectProduct(prod.id)} style={{cursor: 'pointer', transition: 'color 0.2s'}} className="prod-card-title">{prod.name}</h4>
                       <span className="prod-price">{prod.price}</span>
                     </div>
                     <p className="prod-subtext">{prod.sub}</p>

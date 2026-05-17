@@ -44,7 +44,7 @@ const Navbar: React.FC<NavbarProps> = ({
             </div>
             <div className="nav-links">
               <a onClick={() => onNavigate('home')} className={currentView === 'home' ? 'active' : ''} style={{ cursor: 'pointer' }}>Home</a>
-              <a onClick={() => onNavigate('products')} className={currentView === 'products' ? 'active' : ''} style={{ cursor: 'pointer' }}>Products</a>
+              <a onClick={() => onNavigate('products')} className={currentView === 'products' || currentView === 'product-detail' ? 'active' : ''} style={{ cursor: 'pointer' }}>Products</a>
               <a onClick={() => onNavigate('services')} className={currentView === 'services' ? 'active' : ''} style={{ cursor: 'pointer' }}>Services</a>
               <a onClick={() => onNavigate('about')} className={currentView === 'about' ? 'active' : ''} style={{ cursor: 'pointer' }}>About</a>
               <a onClick={() => onNavigate('contact')} className={currentView === 'contact' ? 'active' : ''} style={{ cursor: 'pointer' }}>Contact</a>
@@ -103,7 +103,7 @@ const Navbar: React.FC<NavbarProps> = ({
                 <svg viewBox="0 0 24 24" width="20" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
                 Home
               </a>
-              <a onClick={() => { onNavigate('products'); setIsMenuOpen(false); }} className={currentView === 'products' ? 'active' : ''}>
+              <a onClick={() => { onNavigate('products'); setIsMenuOpen(false); }} className={currentView === 'products' || currentView === 'product-detail' ? 'active' : ''}>
                 <svg viewBox="0 0 24 24" width="20" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7" y2="7"/></svg>
                 Products
               </a>
