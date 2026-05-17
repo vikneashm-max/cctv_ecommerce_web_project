@@ -4,13 +4,14 @@ import SignupPage from './components/SignupPage/SignupPage'
 import HomePage from './components/HomePage/HomePage'
 import ProductsPage from './components/ProductsPage/ProductsPage'
 import AboutPage from './components/AboutPage/AboutPage';
+import ServicesPage from './components/ServicesPage/ServicesPage';
 import CartPage from './components/CartPage/CartPage';
 import FavoritesPage from './components/FavoritesPage/FavoritesPage';
 import ContactPage from './components/ContactPage/ContactPage';
 import Navbar from './components/Navbar/Navbar';
 import './App.css'
 
-type View = 'login' | 'signup' | 'home' | 'products' | 'about' | 'cart' | 'favorites' | 'contact';
+type View = 'login' | 'signup' | 'home' | 'products' | 'services' | 'about' | 'cart' | 'favorites' | 'contact';
 
 interface Product {
   id: number;
@@ -23,7 +24,7 @@ interface Product {
 
 function App() {
   const [view, setView] = useState<View>(() => {
-    const savedView = localStorage.getItem('currentView');
+    const savedView = sessionStorage.getItem('currentView');
     return (savedView as View) || 'login';
   });
 
@@ -38,7 +39,7 @@ function App() {
   });
 
   useEffect(() => {
-    localStorage.setItem('currentView', view);
+    sessionStorage.setItem('currentView', view);
     window.scrollTo({ top: 0, behavior: 'smooth' });
     
     // Sync URL hash with view for browser history support
@@ -50,7 +51,7 @@ function App() {
   useEffect(() => {
     const handlePopState = (event: PopStateEvent) => {
       // Direct force-to-home logic for main sub-pages
-      const mainSubPages = ['products', 'about', 'contact'];
+      const mainSubPages = ['products', 'services', 'about', 'contact'];
       
       if (mainSubPages.includes(view)) {
         // If we were on a main sub-page, always go back to home
@@ -83,7 +84,7 @@ function App() {
   const toggleToLogin = () => setView('login')
   const handleLoginSuccess = () => setView('home')
   const handleLogout = () => {
-    localStorage.removeItem('currentView');
+    sessionStorage.removeItem('currentView');
     setView('login');
   };
   const navigateTo = (newView: View) => {
@@ -171,6 +172,9 @@ function App() {
           />
         )}
 
+        {view === 'services' && (
+          <ServicesPage />
+        )}
         {view === 'about' && (
           <AboutPage onNavigate={navigateTo} />
         )}

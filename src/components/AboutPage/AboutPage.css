@@ -115,7 +115,7 @@
 }
 
 .about-hero {
-  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #06b6d4 100%);
+  background: linear-gradient(135deg, #e65100 0%, #ff5722 50%, #ff9800 100%);
   padding: 8rem 2rem 10rem;
   color: white;
   text-align: center;
@@ -195,16 +195,16 @@
 
 .values-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
 }
 
 .value-card {
   background: white;
-  padding: 1.5rem;
+  padding: 1.15rem 1.25rem;
   border-radius: 16px;
   display: flex;
-  gap: 1.25rem;
+  gap: 1rem;
   border: 1px solid rgba(0, 0, 0, 0.05);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.04);
@@ -227,7 +227,7 @@
 }
 
 .blue-bg {
-  background: #eff6ff;
+  background: #fff3e0;
 }
 
 .value-info h3 {
@@ -265,7 +265,7 @@
 .feature-icon-circle {
   width: 56px;
   height: 56px;
-  background: #eff6ff;
+  background: #fff3e0;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -306,13 +306,18 @@
 }
 
 .btn-blue {
-  background: #2563eb;
+  background: #ff5722;
   color: white;
   padding: 0.875rem 1.5rem;
   border: none;
   border-radius: 10px;
   font-weight: 700;
   cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.btn-blue:hover {
+  background: #e65100;
 }
 
 .btn-white {
@@ -412,6 +417,12 @@
   text-decoration: none;
 }
 
+@media (max-width: 1024px) {
+  .values-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 @media (max-width: 900px) {
   .cta-banner-dark {
     flex-direction: column;
@@ -421,6 +432,39 @@
   .footer-main {
     flex-direction: column;
     gap: 3rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .about-hero {
+    padding: 6rem 1.25rem 8rem;
+  }
+
+  .about-content-section {
+    margin: -3rem auto 0;
+    padding: 0 1rem 4rem;
+    gap: 2.5rem;
+  }
+
+  .about-card-large {
+    padding: 2rem 1.5rem;
+    border-radius: 16px;
+  }
+
+  .about-card-large h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .about-card-large p {
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+}
+
+@media (max-width: 640px) {
+  .values-grid {
+    grid-template-columns: 1fr;
   }
 }
 

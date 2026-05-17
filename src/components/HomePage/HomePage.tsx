@@ -102,8 +102,7 @@ const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
           <h2>Secure Your Premises Today</h2>
           <p>Get expert consultation for your security needs. From residential setups to large-scale industrial surveillance, we provide tailored solutions for maximum protection.</p>
           <div className="cta-btns">
-            <button className="btn-primary">Contact Security Experts</button>
-            <button className="btn-dark-outline">Request a Quote</button>
+            <button className="btn-primary" onClick={() => onNavigate('contact')}>Contact Security Experts</button>
           </div>
         </div>
         <div className="cta-stats">
