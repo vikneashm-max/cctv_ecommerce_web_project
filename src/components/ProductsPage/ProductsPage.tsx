@@ -8,6 +8,7 @@ interface Product {
   price: string;
   sub: string;
   category: string;
+  inStock?: boolean;
 }
 
 interface ProductsPageProps {
@@ -19,7 +20,8 @@ interface ProductsPageProps {
   products: Product[];
 }
 
-const ProductsPage: React.FC<ProductsPageProps> = ({ addToCart, toggleFavorite, buyNow, favorites, onSelectProduct, products }) => {
+const ProductsPage: React.FC<ProductsPageProps> = (props) => {
+  const { toggleFavorite, favorites, onSelectProduct, products } = props;
 
 
   const [selectedCategory, setSelectedCategory] = React.useState('All Categories');
@@ -78,9 +80,17 @@ const ProductsPage: React.FC<ProductsPageProps> = ({ addToCart, toggleFavorite, 
           <div className="products-grid">
             {filteredProducts.length > 0 ? (
               filteredProducts.map((prod, i) => (
-                <div className="product-card" key={i}>
-                  <div className="product-img-wrapper" onClick={() => onSelectProduct(prod.id)} style={{cursor: 'pointer'}}>
+                <div 
+                  className="product-card" 
+                  key={i} 
+                  onClick={() => onSelectProduct(prod.id)}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <div className="product-img-wrapper">
                     <img src={prod.img} alt={prod.name} />
+                    {prod.inStock === false && (
+                      <div className="out-of-stock-badge">OUT OF STOCK</div>
+                    )}
                     <button 
                       className={`prod-fav-btn ${isFavorited(prod.id) ? 'active' : ''}`}
                       onClick={(e) => {
@@ -90,19 +100,13 @@ const ProductsPage: React.FC<ProductsPageProps> = ({ addToCart, toggleFavorite, 
                     >
                       <svg viewBox="0 0 24 24" width="20" height="20" fill={isFavorited(prod.id) ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
                     </button>
-
                   </div>
                   <div className="product-info">
                     <div className="prod-name-row">
-                      <h4 onClick={() => onSelectProduct(prod.id)} style={{cursor: 'pointer', transition: 'color 0.2s'}} className="prod-card-title">{prod.name}</h4>
+                      <h4 className="prod-card-title">{prod.name}</h4>
                       <span className="prod-price">{prod.price}</span>
                     </div>
-                    <p className="prod-subtext">{prod.sub}</p>
-                    <div className="prod-actions">
-                      <button className="add-to-cart-card" onClick={() => addToCart(prod)}>ADD TO CART</button>
-                      <button className="buy-now-card" onClick={() => buyNow(prod)}>BUY NOW</button>
-                    </div>
-
+                    <p className="prod-subtext" style={{ marginBottom: 0 }}>{prod.sub}</p>
                   </div>
                 </div>
               ))

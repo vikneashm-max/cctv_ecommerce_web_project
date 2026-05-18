@@ -1,6 +1,30 @@
 import React, { useState } from 'react';
 import './ProductDetailPage.css';
 
+interface WarrantyInfo {
+  icon: string;
+  title: string;
+  desc: string;
+}
+
+const defaultWarranty: WarrantyInfo[] = [
+  {
+    icon: '🛡️',
+    title: '3-Year Dynamic Warranty',
+    desc: 'All hardware items are backed by a replacement warranty. In case of failure, we exchange the unit within 48 hours.'
+  },
+  {
+    icon: '⚡',
+    title: 'Professional Setup',
+    desc: 'Certified engineers from TN Automation deploy, lay fiber cables, and configure feeds on your phone and monitors.'
+  },
+  {
+    icon: '📞',
+    title: '24/7 Helpline Access',
+    desc: 'Continuous helpline support for remote camera health checks, storage settings, and recording query adjustments.'
+  }
+];
+
 interface ProductDetailPageProps {
   productId: number;
   onBack: () => void;
@@ -28,6 +52,7 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
   const [quantity, setQuantity] = useState<number>(1);
   const [activeTab, setActiveTab] = useState<'description' | 'specs' | 'shipping'>('description');
   const [addedMessage, setAddedMessage] = useState<boolean>(false);
+  const [activeImg, setActiveImg] = useState<string | null>(null);
 
   if (!product) {
     return (
@@ -59,6 +84,9 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
   // Find related products in same category
   const relatedProducts = products.filter(p => p.category === product.category && p.id !== product.id);
 
+  const currentProductImg = product ? product.img : '';
+  const displayImg = activeImg && (product?.images?.includes(activeImg) || activeImg === product?.img) ? activeImg : currentProductImg;
+
   return (
     <div className="product-detail-container">
       {/* Breadcrumb Navigation Bar */}
@@ -70,23 +98,45 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
 
       {/* Main Product Showcase Section */}
       <div className="prod-main-showcase">
-        {/* Left Side: Product Image Display */}
-        <div className="prod-image-wrapper">
-          <img src={product.img} alt={product.name} className="prod-main-img" />
-          <span className="prod-badge-category">{product.category}</span>
-          <button 
-            className={`prod-fav-toggle ${isFavorited ? 'active' : ''}`}
-            onClick={() => toggleFavorite(product)}
-            title={isFavorited ? 'Remove from Favorites' : 'Add to Favorites'}
-          >
-            <svg viewBox="0 0 24 24" width="24" height="24" fill={isFavorited ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-          </button>
+        {/* Left Side: Product Image Display with gallery support */}
+        <div className="prod-image-wrapper-container">
+          <div className="prod-image-wrapper">
+            <img src={displayImg} alt={product.name} className="prod-main-img" />
+            <span className="prod-badge-category">{product.category}</span>
+            <button 
+              className={`prod-fav-toggle ${isFavorited ? 'active' : ''}`}
+              onClick={() => toggleFavorite(product)}
+              title={isFavorited ? 'Remove from Favorites' : 'Add to Favorites'}
+            >
+              <svg viewBox="0 0 24 24" width="24" height="24" fill={isFavorited ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </button>
+          </div>
+
+          {/* Thumbnails Gallery */}
+          {product.images && product.images.length > 1 && (
+            <div className="prod-thumbnails-gallery">
+              {product.images.map((thumbUrl: string, idx: number) => (
+                <div 
+                  key={idx} 
+                  className={`prod-thumbnail-item ${displayImg === thumbUrl ? 'active' : ''}`}
+                  onClick={() => setActiveImg(thumbUrl)}
+                  onMouseEnter={() => setActiveImg(thumbUrl)}
+                >
+                  <img src={thumbUrl} alt={`${product.name} gallery image ${idx + 1}`} />
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Right Side: Product Details & Purchase controls */}
         <div className="prod-buying-details">
           <header className="prod-buying-header">
-            <span className="stock-badge">✓ In Stock & Ready to Install</span>
+            {product.inStock !== false ? (
+              <span className="stock-badge">✓ In Stock & Ready to Install</span>
+            ) : (
+              <span className="stock-badge out-of-stock">⚠️ Temporarily Out of Stock</span>
+            )}
             <h1>{product.name}</h1>
             
             {/* Reviews and Ratings */}
@@ -148,13 +198,22 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
 
           {/* Action Buttons */}
           <div className="purchase-actions-grid">
-            <button className="btn-add-cart" onClick={handleAddToCart}>
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" style={{marginRight: '10px'}}><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-              ADD TO CART
-            </button>
-            <button className="btn-buy-now" onClick={handleBuyNow}>
-              BUY NOW
-            </button>
+            {product.inStock !== false ? (
+              <>
+                <button className="btn-add-cart" onClick={handleAddToCart}>
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" style={{marginRight: '10px'}}><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                  ADD TO CART
+                </button>
+                <button className="btn-buy-now" onClick={handleBuyNow}>
+                  BUY NOW
+                </button>
+              </>
+            ) : (
+              <button className="btn-out-of-stock-detail" disabled style={{ gridColumn: 'span 2' }}>
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" style={{marginRight: '10px'}}><path d="M18.36 6.64a9 9 0 1 1-12.73 0M12 2v10"/></svg>
+                OUT OF STOCK
+              </button>
+            )}
           </div>
 
           {addedMessage && (
@@ -225,21 +284,13 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
             <div className="tab-pane-content installation-pane">
               <h3>Installation Support & Warranty</h3>
               <div className="shipping-info-grid">
-                <div className="ship-card">
-                  <div className="ship-icon">🛡️</div>
-                  <h4>3-Year Dynamic Warranty</h4>
-                  <p>All hardware items are backed by a replacement warranty. In case of failure, we exchange the unit within 48 hours.</p>
-                </div>
-                <div className="ship-card">
-                  <div className="ship-icon">⚡</div>
-                  <h4>Professional Setup</h4>
-                  <p>Certified engineers from TN Automation deploy, lay fiber cables, and configure feeds on your phone and monitors.</p>
-                </div>
-                <div className="ship-card">
-                  <div className="ship-icon">📞</div>
-                  <h4>24/7 Helpline Access</h4>
-                  <p>Continuous helpline support for remote camera health checks, storage settings, and recording query adjustments.</p>
-                </div>
+                {(product.warranty || defaultWarranty).map((w: WarrantyInfo, idx: number) => (
+                  <div className="ship-card" key={idx}>
+                    <div className="ship-icon">{w.icon}</div>
+                    <h4>{w.title}</h4>
+                    <p>{w.desc}</p>
+                  </div>
+                ))}
               </div>
             </div>
           )}

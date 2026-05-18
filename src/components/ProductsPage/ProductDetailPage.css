@@ -626,7 +626,7 @@
 .premium-footer {
   background-color: #5850ec; /* Flat Indigo background matching home page */
   color: #ffffff;
-  padding: 5rem 2rem 2.5rem;
+  padding: 1.25rem 2rem;
   width: 100%;
   box-sizing: border-box;
 }
@@ -874,3 +874,87 @@
     gap: 1rem;
   }
 }
+
+/* ================= PRODUCT DETAILS THUMBNAIL GALLERY ================= */
+.prod-image-wrapper-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  width: 100%;
+}
+
+.prod-thumbnails-gallery {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-start;
+  align-items: center;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.prod-thumbnail-item {
+  width: 76px;
+  height: 76px;
+  border-radius: 12px;
+  border: 2px solid var(--border-light);
+  background: var(--bg-soft);
+  cursor: pointer;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem;
+  box-sizing: border-box;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+}
+
+.prod-thumbnail-item:hover {
+  border-color: var(--primary-orange);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(249, 115, 22, 0.1);
+}
+
+.prod-thumbnail-item.active {
+  border-color: var(--primary-orange);
+  background: #fffaf7;
+  box-shadow: 0 10px 15px -3px rgba(249, 115, 22, 0.15);
+}
+
+.prod-thumbnail-item img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  transition: transform 0.2s ease;
+}
+
+.prod-thumbnail-item:hover img {
+  transform: scale(1.05);
+}
+
+/* Stock Status Adjustments */
+.stock-badge.out-of-stock {
+  color: #dc2626;
+  background: #fef2f2;
+}
+
+.btn-out-of-stock-detail {
+  background: #cbd5e1;
+  color: #64748b;
+  border: none;
+  border-radius: 30px;
+  padding: 1.25rem;
+  font-size: 1rem;
+  font-weight: 700;
+  text-align: center;
+  cursor: not-allowed;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: all 0.2s ease;
+}
+

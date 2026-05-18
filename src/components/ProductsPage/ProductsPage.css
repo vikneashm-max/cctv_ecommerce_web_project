@@ -421,7 +421,7 @@
 .premium-footer {
   background-color: #5850ec; /* Flat Indigo background matching home page */
   color: #ffffff;
-  padding: 5rem 2rem 2.5rem;
+  padding: 1.25rem 2rem;
 }
 
 .footer-content {
@@ -891,4 +891,36 @@
 .mobile-nav-list a:focus {
   color: var(--primary-orange) !important;
   padding-left: 0.5rem !important;
+}
+
+/* Out of Stock Card Overlay Badge */
+.out-of-stock-badge {
+  position: absolute;
+  top: 1.25rem;
+  left: 1.25rem;
+  background: #dc2626;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  box-shadow: 0 4px 10px rgba(220, 38, 38, 0.25);
+  letter-spacing: 0.05em;
+  z-index: 10;
+}
+
+/* Out of Stock Card Action Button */
+.out-of-stock-btn-card {
+  grid-column: span 2;
+  padding: 0.875rem 0.5rem;
+  border: none;
+  border-radius: 8px;
+  background: #e2e8f0;
+  color: #94a3b8;
+  font-weight: 700;
+  font-size: 0.75rem;
+  text-align: center;
+  cursor: not-allowed;
+  letter-spacing: 0.05em;
+  width: 100%;
 }

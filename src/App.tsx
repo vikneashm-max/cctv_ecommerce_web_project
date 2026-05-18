@@ -15,13 +15,22 @@ import AdminLoginPage from './components/AdminPage/AdminLoginPage';
 import { productsData } from './components/ProductsPage/productsData';
 import './App.css'
 
+interface WarrantyInfo {
+  icon: string;
+  title: string;
+  desc: string;
+}
+
 interface Product {
   id: number;
   img: string;
+  images?: string[];
+  warranty?: WarrantyInfo[];
   name: string;
   price: string;
   sub: string;
   category: string;
+  inStock?: boolean;
 }
 
 type View = 'login' | 'signup' | 'home' | 'products' | 'services' | 'about' | 'cart' | 'favorites' | 'contact' | 'product-detail' | 'admin';

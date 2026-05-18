@@ -4,9 +4,17 @@ import domeCam from '../../assets/dome_camera.png';
 import logo from '../../assets/logo.png';
 
 // Type definitions
+interface WarrantyInfo {
+  icon: string;
+  title: string;
+  desc: string;
+}
+
 interface Product {
   id: number;
   img: string;
+  images?: string[];
+  warranty?: WarrantyInfo[];
   name: string;
   price: string;
   sub: string;
@@ -16,6 +24,7 @@ interface Product {
   reviews: number;
   specs: Record<string, string>;
   features: string[];
+  inStock?: boolean;
 }
 
 interface Customer {
@@ -72,6 +81,13 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, onBack }) 
   const [adminCurrentPassword, setAdminCurrentPassword] = useState('admin123');
   const [adminNewPassword, setAdminNewPassword] = useState('');
   const [adminConfirmPassword, setAdminConfirmPassword] = useState('');
+  const [adminAvatar, setAdminAvatar] = useState(() => {
+    return localStorage.getItem('sgAdminAvatar') || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('sgAdminAvatar', adminAvatar);
+  }, [adminAvatar]);
 
   // ------------------ IMAGE PRESETS REMOVED FOR LOCAL UPLOADS ------------------
 
@@ -256,20 +272,51 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, onBack }) 
   const [prodSub, setProdSub] = useState('');
   const [prodCategory, setProdCategory] = useState('Cameras');
   const [prodDescription, setProdDescription] = useState('');
-  const [prodImg, setProdImg] = useState('');
-  const [prodUseCustomUrl, setProdUseCustomUrl] = useState(false);
+  const [prodImages, setProdImages] = useState<string[]>([]);
+  const [slotUseUrl, setSlotUseUrl] = useState(false);
+  const [newImageUrl, setNewImageUrl] = useState('');
+  const [prodInStock, setProdInStock] = useState(true);
+  const [prodWarranty, setProdWarranty] = useState<WarrantyInfo[]>([
+    { icon: '🛡️', title: '', desc: '' },
+    { icon: '⚡', title: '', desc: '' },
+    { icon: '📞', title: '', desc: '' }
+  ]);
   const [prodFeatures, setProdFeatures] = useState<string[]>(['']);
   const [prodSpecs, setProdSpecs] = useState<{ key: string; value: string }[]>([{ key: '', value: '' }]);
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAddNewImageFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setProdImg(reader.result as string);
+        setProdImages(prev => [...prev, reader.result as string].slice(0, 5));
       };
       reader.readAsDataURL(file);
     }
+    e.target.value = '';
+  };
+
+  const handleAdminAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAdminAvatar(reader.result as string);
+        alert('Admin profile photo updated successfully!');
+      };
+      reader.readAsDataURL(file);
+    }
+    e.target.value = '';
+  };
+
+  const handleAddNewImageUrl = () => {
+    if (newImageUrl.trim() === '') return;
+    setProdImages(prev => [...prev, newImageUrl.trim()].slice(0, 5));
+    setNewImageUrl('');
+  };
+
+  const handleRemoveImage = (index: number) => {
+    setProdImages(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleProductSubmit = (e: React.FormEvent) => {
@@ -278,12 +325,32 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, onBack }) 
       alert('Please fill out basic fields');
       return;
     }
+    if (prodImages.length === 0) {
+      alert('Please add at least one product image');
+      return;
+    }
     const cleanFeatures = prodFeatures.filter(f => f.trim() !== '');
     const cleanSpecs: Record<string, string> = {};
     prodSpecs.forEach(s => {
       if (s.key.trim() !== '' && s.value.trim() !== '') cleanSpecs[s.key] = s.value;
     });
-    const finalImg = prodImg || domeCam;
+    const finalImg = prodImages[0] || domeCam;
+    const finalImages = prodImages.length > 0 ? prodImages : [finalImg];
+
+    const finalWarranty = prodWarranty.map((w, index) => {
+      const defaultIcon = index === 0 ? '🛡️' : index === 1 ? '⚡' : '📞';
+      const defaultTitle = index === 0 ? '3-Year Dynamic Warranty' : index === 1 ? 'Professional Setup' : '24/7 Helpline Access';
+      const defaultDesc = index === 0 
+        ? 'All hardware items are backed by a replacement warranty. In case of failure, we exchange the unit within 48 hours.'
+        : index === 1
+        ? 'Certified engineers from TN Automation deploy, lay fiber cables, and configure feeds on your phone and monitors.'
+        : 'Continuous helpline support for remote camera health checks, storage settings, and recording query adjustments.';
+      return {
+        icon: w.icon.trim() || defaultIcon,
+        title: w.title.trim() || defaultTitle,
+        desc: w.desc.trim() || defaultDesc
+      };
+    });
 
     if (editingId !== null) {
       setProducts(prev => prev.map(p => p.id === editingId ? {
@@ -294,6 +361,9 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, onBack }) 
         category: prodCategory,
         description: prodDescription,
         img: finalImg,
+        images: finalImages,
+        inStock: prodInStock,
+        warranty: finalWarranty,
         features: cleanFeatures.length > 0 ? cleanFeatures : ['Premium component'],
         specs: Object.keys(cleanSpecs).length > 0 ? cleanSpecs : { Type: 'Hardware' }
       } : p));
@@ -308,6 +378,9 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, onBack }) 
         category: prodCategory,
         description: prodDescription,
         img: finalImg,
+        images: finalImages,
+        inStock: prodInStock,
+        warranty: finalWarranty,
         rating: 5.0,
         reviews: 1,
         features: cleanFeatures.length > 0 ? cleanFeatures : ['Premium component'],
@@ -325,8 +398,15 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, onBack }) 
     setProdSub('');
     setProdCategory('Cameras');
     setProdDescription('');
-    setProdImg('');
-    setProdUseCustomUrl(false);
+    setProdImages([]);
+    setSlotUseUrl(false);
+    setNewImageUrl('');
+    setProdInStock(true);
+    setProdWarranty([
+      { icon: '🛡️', title: '', desc: '' },
+      { icon: '⚡', title: '', desc: '' },
+      { icon: '📞', title: '', desc: '' }
+    ]);
     setProdFeatures(['']);
     setProdSpecs([{ key: '', value: '' }]);
   };
@@ -338,11 +418,22 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, onBack }) 
     setProdSub(p.sub);
     setProdCategory(p.category);
     setProdDescription(p.description);
-    setProdImg(p.img);
-    if (p.img.startsWith('data:image') || !p.img.startsWith('http')) {
-      setProdUseCustomUrl(false);
+    if (p.images && p.images.length > 0) {
+      setProdImages(p.images);
+    } else if (p.img) {
+      setProdImages([p.img]);
     } else {
-      setProdUseCustomUrl(true);
+      setProdImages([]);
+    }
+    setProdInStock(p.inStock !== false);
+    if (p.warranty && p.warranty.length === 3) {
+      setProdWarranty(p.warranty);
+    } else {
+      setProdWarranty([
+        { icon: '🛡️', title: '', desc: '' },
+        { icon: '⚡', title: '', desc: '' },
+        { icon: '📞', title: '', desc: '' }
+      ]);
     }
     setProdFeatures(p.features.length > 0 ? p.features : ['']);
     setProdSpecs(Object.entries(p.specs).map(([key, value]) => ({ key, value })).length > 0 
@@ -420,11 +511,13 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, onBack }) 
             className={`sg-sidebar-profile-item ${activeTab === 'profile' ? 'active' : ''}`}
             onClick={() => { setActiveTab('profile'); setSearchQuery(''); }}
             title="Manage admin account details"
+            style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}
           >
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" className="profile-svg">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-              <circle cx="12" cy="7" r="4" />
-            </svg>
+            <img 
+              src={adminAvatar} 
+              alt="Admin Avatar" 
+              style={{ width: '22px', height: '22px', borderRadius: '50%', objectFit: 'cover', border: '1px solid rgba(255,255,255,0.25)' }} 
+            />
             <span>Admin Profile</span>
           </button>
 
@@ -554,57 +647,160 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, onBack }) 
                           </select>
                         </div>
                         <div className="form-input-box">
-                          <label>Product Picture Source *</label>
-                          <div className="image-toggle-row">
-                            <button type="button" className={`img-toggle-btn ${!prodUseCustomUrl ? 'active' : ''}`} onClick={() => setProdUseCustomUrl(false)}>Local Computer</button>
-                            <button type="button" className={`img-toggle-btn ${prodUseCustomUrl ? 'active' : ''}`} onClick={() => setProdUseCustomUrl(true)}>Web URL</button>
-                          </div>
+                          <label>Inventory Stock Status *</label>
+                          <select value={prodInStock ? 'Available' : 'Out of Stock'} onChange={(e) => setProdInStock(e.target.value === 'Available')}>
+                            <option value="Available">🟢 In Stock / Available</option>
+                            <option value="Out of Stock">🔴 Out of Stock</option>
+                          </select>
                         </div>
                       </div>
 
-                      {!prodUseCustomUrl ? (
-                        <div className="form-input-box">
-                          <label>Upload Image from Local Computer *</label>
-                          <div className="local-file-uploader">
-                            <input 
-                              type="file" 
-                              accept="image/*" 
-                              onChange={handleImageUpload} 
-                              id="admin-image-file-input"
-                              className="file-upload-input"
-                            />
-                            <label htmlFor="admin-image-file-input" className="btn-file-upload-trigger">
-                              <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '8px' }}>
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                                <polyline points="17 8 12 3 7 8"/>
-                                <line x1="12" y1="3" x2="12" y2="15"/>
-                              </svg>
-                              Choose Image File
-                            </label>
-                            {prodImg && !prodUseCustomUrl && (
-                              <div className="uploaded-preview-box">
-                                <img src={prodImg} alt="Uploaded preview" />
-                                <span className="preview-label">Selected File Loaded</span>
+                      <div className="form-input-box">
+                          <label>Product Images (Up to 5) *</label>
+                          <span className="form-input-subtext" style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.5rem', display: 'block' }}>
+                            The first image is the main catalog cover image. You can upload or link up to 5 images.
+                          </span>
+                          
+                          <div className="admin-images-grid">
+                            {prodImages.map((img, index) => (
+                              <div key={index} className="admin-image-card-preview">
+                                <img src={img} alt={`Preview ${index + 1}`} onError={(e) => { (e.target as HTMLImageElement).src = domeCam; }} />
+                                <span className="image-index-badge">{index === 0 ? 'Cover' : `#${index + 1}`}</span>
+                                <button 
+                                  type="button" 
+                                  className="btn-delete-preview-img" 
+                                  onClick={() => handleRemoveImage(index)}
+                                  title="Remove Image"
+                                >
+                                  &times;
+                                </button>
+                              </div>
+                            ))}
+
+                            {prodImages.length < 5 && (
+                              <div className="admin-image-card-add">
+                                <div className="add-image-toggle">
+                                  <button 
+                                    type="button" 
+                                    className={`toggle-sub-btn ${!slotUseUrl ? 'active' : ''}`}
+                                    onClick={() => setSlotUseUrl(false)}
+                                  >
+                                    File
+                                  </button>
+                                  <button 
+                                    type="button" 
+                                    className={`toggle-sub-btn ${slotUseUrl ? 'active' : ''}`}
+                                    onClick={() => setSlotUseUrl(true)}
+                                  >
+                                    URL
+                                  </button>
+                                </div>
+                                
+                                {!slotUseUrl ? (
+                                  <div className="add-file-trigger-box">
+                                    <input 
+                                      type="file" 
+                                      accept="image/*" 
+                                      id="add-new-image-file" 
+                                      className="file-upload-input" 
+                                      onChange={handleAddNewImageFile}
+                                    />
+                                    <label htmlFor="add-new-image-file" className="btn-file-upload-trigger small">
+                                      <svg viewBox="0 0 24 24" width="14" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ marginRight: '4px' }}>
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                        <polyline points="17 8 12 3 7 8"/>
+                                        <line x1="12" y1="3" x2="12" y2="15"/>
+                                      </svg>
+                                      Upload File
+                                    </label>
+                                  </div>
+                                ) : (
+                                  <div className="add-url-input-box">
+                                    <input 
+                                      type="url" 
+                                      placeholder="Paste URL..." 
+                                      value={newImageUrl}
+                                      onChange={(e) => setNewImageUrl(e.target.value)}
+                                      className="slot-url-input-field"
+                                      onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                          e.preventDefault();
+                                          handleAddNewImageUrl();
+                                        }
+                                      }}
+                                    />
+                                    <button 
+                                      type="button" 
+                                      className="btn-add-url-img"
+                                      onClick={handleAddNewImageUrl}
+                                    >
+                                      Add Image URL
+                                    </button>
+                                  </div>
+                                )}
                               </div>
                             )}
                           </div>
                         </div>
-                      ) : (
-                        <div className="form-input-box">
-                          <label>Surveillance Product Picture URL *</label>
-                          <input 
-                            type="url" 
-                            placeholder="https://example.com/cctv-picture.png" 
-                            value={prodImg} 
-                            onChange={(e) => setProdImg(e.target.value)} 
-                          />
-                          {prodImg && prodUseCustomUrl && (
-                            <div className="uploaded-preview-box url-mode">
-                              <img src={prodImg} alt="URL preview" onError={(e) => { (e.target as HTMLImageElement).src = domeCam; }} />
+
+                      <div className="form-input-box" style={{ gridColumn: 'span 2', marginTop: '1rem', marginBottom: '1.25rem' }}>
+                        <label style={{ fontSize: '1rem', fontWeight: '800', color: '#ea580c', borderBottom: '2px solid #ea580c', paddingBottom: '0.25rem', marginBottom: '1rem', display: 'inline-block' }}>
+                          🛡️ Warranty & Installation (Three Support Cards)
+                        </label>
+                        <div className="admin-warranty-fields-container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
+                          {prodWarranty.map((w, index) => (
+                            <div key={index} className="warranty-card-input-box" style={{ background: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '12px', padding: '1rem' }}>
+                              <span style={{ fontWeight: '700', fontSize: '0.85rem', color: '#1f2937', marginBottom: '0.75rem', display: 'block' }}>
+                                Support Card #{index + 1}
+                              </span>
+                              <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                                <div style={{ width: '60px' }}>
+                                  <label style={{ fontSize: '0.7rem', color: '#64748b' }}>Icon</label>
+                                  <input 
+                                    type="text" 
+                                    value={w.icon} 
+                                    onChange={(e) => {
+                                      const newW = [...prodWarranty];
+                                      newW[index].icon = e.target.value;
+                                      setProdWarranty(newW);
+                                    }}
+                                    placeholder={index === 0 ? '🛡️' : index === 1 ? '⚡' : '📞'}
+                                    style={{ textAlign: 'center', padding: '0.4rem' }}
+                                  />
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                  <label style={{ fontSize: '0.7rem', color: '#64748b' }}>Title</label>
+                                  <input 
+                                    type="text" 
+                                    value={w.title} 
+                                    onChange={(e) => {
+                                      const newW = [...prodWarranty];
+                                      newW[index].title = e.target.value;
+                                      setProdWarranty(newW);
+                                    }}
+                                    placeholder={index === 0 ? '3-Year Dynamic Warranty' : index === 1 ? 'Professional Setup' : '24/7 Helpline Access'}
+                                    style={{ padding: '0.4rem' }}
+                                  />
+                                </div>
+                              </div>
+                              <div>
+                                <label style={{ fontSize: '0.7rem', color: '#64748b' }}>Description</label>
+                                <textarea 
+                                  rows={2} 
+                                  value={w.desc} 
+                                  onChange={(e) => {
+                                    const newW = [...prodWarranty];
+                                    newW[index].desc = e.target.value;
+                                    setProdWarranty(newW);
+                                  }}
+                                  placeholder={index === 0 ? 'All hardware items are backed...' : index === 1 ? 'Certified engineers from TN Automation deploy...' : 'Continuous helpline support...'}
+                                  style={{ padding: '0.4rem', fontSize: '0.75rem', width: '100%', resize: 'none', minHeight: '50px' }}
+                                />
+                              </div>
                             </div>
-                          )}
+                          ))}
                         </div>
-                      )}
+                      </div>
 
                       <div className="form-input-box">
                         <label>Detailed System Description *</label>
@@ -1164,21 +1360,28 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, onBack }) 
                   <div className="profile-card photo-card">
                     <div className="photo-card-banner"></div>
                     <div className="photo-card-avatar-wrapper">
-                      <div className="photo-card-avatar">
-                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" alt="Admin Avatar" />
-                        <button className="avatar-edit-btn" title="Edit avatar" onClick={() => alert("Upload dialog unlocked. Click 'Upload New Photo' to upload a local asset.")}>
+                      <div className="photo-card-avatar" style={{ position: 'relative' }}>
+                        <img src={adminAvatar} alt="Admin Avatar" />
+                        <input 
+                          type="file" 
+                          accept="image/*" 
+                          id="admin-avatar-file-input" 
+                          style={{ display: 'none' }} 
+                          onChange={handleAdminAvatarUpload}
+                        />
+                        <label htmlFor="admin-avatar-file-input" className="avatar-edit-btn" title="Edit avatar" style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                           <svg viewBox="0 0 24 24" width="14" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-                        </button>
+                        </label>
                       </div>
                     </div>
                     <div className="photo-card-info">
                       <h2>{adminName}</h2>
                       <span>SYSTEM LEAD</span>
                     </div>
-                    <button className="btn-upload-photo" onClick={() => alert("Avatar update system engaged. Select an image from your secure local drive.")}>
+                    <label htmlFor="admin-avatar-file-input" className="btn-upload-photo" style={{ cursor: 'pointer' }}>
                       <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ marginRight: '8px' }}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                       Upload New Photo
-                    </button>
+                    </label>
                   </div>
 
                   {/* Account Preferences Card */}

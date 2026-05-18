@@ -3,9 +3,17 @@ import nvrRecorder from '../../assets/nvr_recorder.png';
 import domeCam from '../../assets/dome_camera.png';
 import powerSupply from '../../assets/power_supply.png';
 
+export interface WarrantyInfo {
+  icon: string;
+  title: string;
+  desc: string;
+}
+
 export interface Product {
   id: number;
   img: string;
+  images?: string[];
+  warranty?: WarrantyInfo[];
   name: string;
   price: string;
   sub: string;
@@ -15,12 +23,19 @@ export interface Product {
   reviews: number;
   specs: Record<string, string>;
   features: string[];
+  inStock?: boolean;
 }
 
 export const productsData: Product[] = [
   { 
     id: 1, 
     img: bulletCam, 
+    images: [
+      bulletCam,
+      'https://images.unsplash.com/photo-1557597774-9d273605dfa9?w=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1524055988636-4360fa403d02?w=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&auto=format&fit=crop&q=80'
+    ],
     name: '4K Ultra HD Bullet Camera', 
     price: '₹12,499', 
     sub: 'High-definition outdoor surveillance with night vision', 
@@ -49,6 +64,12 @@ export const productsData: Product[] = [
   { 
     id: 2, 
     img: nvrRecorder, 
+    images: [
+      nvrRecorder,
+      'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1601524909162-be87252be298?w=600&auto=format&fit=crop&q=80'
+    ],
     name: '16-Channel 4K NVR', 
     price: '₹42,500', 
     sub: 'Network Video Recorder with 4TB HDD pre-installed', 
@@ -77,6 +98,12 @@ export const productsData: Product[] = [
   { 
     id: 3, 
     img: domeCam, 
+    images: [
+      domeCam,
+      'https://images.unsplash.com/photo-1548345680-f5475ea5df84?w=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1563206767-5b18f218e8de?w=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1582139329536-e7284fece509?w=600&auto=format&fit=crop&q=80'
+    ],
     name: 'Dome Security Camera', 
     price: '₹9,999', 
     sub: 'Vandal-proof indoor/outdoor camera with wide-angle lens', 
@@ -105,6 +132,11 @@ export const productsData: Product[] = [
   { 
     id: 4, 
     img: powerSupply, 
+    images: [
+      powerSupply,
+      'https://images.unsplash.com/photo-1581092335397-9583fe92d232?w=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1590301157890-4810ed352733?w=600&auto=format&fit=crop&q=80'
+    ],
     name: 'CCTV Power Supply Box', 
     price: '₹6,450', 
     sub: '18-Channel 12V DC distributed power box', 
