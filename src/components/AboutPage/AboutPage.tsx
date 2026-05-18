@@ -34,7 +34,7 @@ const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
           <div className="values-grid">
             <div className="value-card">
               <div className="value-icon-box blue-bg">
-                <svg viewBox="0 0 24 24" width="20" fill="none" stroke="#ff5722" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                <svg viewBox="0 0 24 24" width="20" fill="none" stroke="#f97316" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
               </div>
               <div className="value-info">
                 <h3>Security</h3>
@@ -43,7 +43,7 @@ const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
             </div>
             <div className="value-card">
               <div className="value-icon-box blue-bg">
-                <svg viewBox="0 0 24 24" width="20" fill="none" stroke="#ff5722" strokeWidth="2"><rect x="2" y="2" width="20" height="20" rx="2" ry="2"/><path d="M7 2v20"/><path d="M17 2v20"/><path d="M2 7h20"/><path d="M2 17h20"/><path d="M12 12l-2.5 2.5L12 17l2.5-2.5L12 12z"/></svg>
+                <svg viewBox="0 0 24 24" width="20" fill="none" stroke="#f97316" strokeWidth="2"><rect x="2" y="2" width="20" height="20" rx="2" ry="2"/><path d="M7 2v20"/><path d="M17 2v20"/><path d="M2 7h20"/><path d="M2 17h20"/><path d="M12 12l-2.5 2.5L12 17l2.5-2.5L12 12z"/></svg>
               </div>
               <div className="value-info">
                 <h3>Innovation</h3>
@@ -52,7 +52,7 @@ const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
             </div>
             <div className="value-card">
               <div className="value-icon-box blue-bg">
-                <svg viewBox="0 0 24 24" width="20" fill="none" stroke="#ff5722" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                <svg viewBox="0 0 24 24" width="20" fill="none" stroke="#f97316" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
               </div>
               <div className="value-info">
                 <h3>Reliability</h3>
@@ -61,7 +61,7 @@ const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
             </div>
             <div className="value-card">
               <div className="value-icon-box blue-bg">
-                <svg viewBox="0 0 24 24" width="20" fill="none" stroke="#ff5722" strokeWidth="2"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>
+                <svg viewBox="0 0 24 24" width="20" fill="none" stroke="#f97316" strokeWidth="2"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>
               </div>
               <div className="value-info">
                 <h3>Customer Support</h3>
@@ -82,25 +82,25 @@ const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
           <div className="features-grid">
             <div className="feature-item">
               <div className="feature-icon-circle">
-                <svg viewBox="0 0 24 24" width="20" fill="none" stroke="#ff5722" strokeWidth="2"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
+                <svg viewBox="0 0 24 24" width="20" fill="none" stroke="#f97316" strokeWidth="2"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
               </div>
               <span>HD Camera Systems</span>
             </div>
             <div className="feature-item">
               <div className="feature-icon-circle">
-                <svg viewBox="0 0 24 24" width="20" fill="none" stroke="#ff5722" strokeWidth="2"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/></svg>
+                <svg viewBox="0 0 24 24" width="20" fill="none" stroke="#f97316" strokeWidth="2"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/></svg>
               </div>
               <span>Night Vision Technology</span>
             </div>
             <div className="feature-item">
               <div className="feature-icon-circle">
-                <svg viewBox="0 0 24 24" width="20" fill="none" stroke="#ff5722" strokeWidth="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12" y2="18"/></svg>
+                <svg viewBox="0 0 24 24" width="20" fill="none" stroke="#f97316" strokeWidth="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12" y2="18"/></svg>
               </div>
               <span>Mobile Monitoring</span>
             </div>
             <div className="feature-item">
               <div className="feature-icon-circle">
-                <svg viewBox="0 0 24 24" width="20" fill="none" stroke="#ff5722" strokeWidth="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                <svg viewBox="0 0 24 24" width="20" fill="none" stroke="#f97316" strokeWidth="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
               </div>
               <span>Easy Installation</span>
             </div>

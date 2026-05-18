@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 :root {
-  --primary-orange: #ff5722;
+  --primary-orange: #f97316;
   --dark-blue: #0f172a;
   --text-main: #1e293b;
   --text-muted: #64748b;
@@ -168,12 +168,12 @@
 }
 
 .form-group input:focus, .form-group textarea:focus {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  border-color: var(--primary-orange, #f97316);
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.12);
 }
 
 .send-btn {
-  background: #2563eb;
+  background: var(--primary-orange, #f97316);
   color: white;
   padding: 1.125rem;
   border: none;
@@ -186,7 +186,7 @@
 }
 
 .send-btn:hover {
-  background: #1d4ed8;
+  background: #ea580c;
 }
 
 /* Details Card */
@@ -197,7 +197,7 @@
 }
 
 .blue-text {
-  color: #2563eb;
+  color: var(--primary-orange, #f97316);
 }
 
 .detail-label {
@@ -232,7 +232,7 @@
   align-items: center;
   gap: 0.75rem;
   margin-bottom: 1.5rem;
-  color: #2563eb;
+  color: var(--primary-orange, #f97316);
 }
 
 .hours-header h3 {
@@ -261,9 +261,9 @@
 
 /* Premium Footer */
 .premium-footer {
-  background: linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #8b5cf6 100%);
+  background-color: #5850ec;
   color: white;
-  padding: 3rem 2rem 1rem;
+  padding: 5rem 2rem 2.5rem;
 }
 
 .footer-content {
@@ -557,7 +557,7 @@
 .mobile-nav-list a:hover, 
 .mobile-nav-list a:active,
 .mobile-nav-list a:focus {
-  color: #ff5722 !important;
+  color: var(--primary-orange) !important;
   padding-left: 0.5rem !important;
 }
 

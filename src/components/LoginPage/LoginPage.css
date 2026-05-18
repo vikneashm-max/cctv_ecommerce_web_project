@@ -2,8 +2,8 @@
 
 :root {
   --auth-bg: #0f172a;
-  --auth-accent: #3b82f6;
-  --auth-accent-glow: rgba(59, 130, 246, 0.5);
+  --auth-accent: #f97316;
+  --auth-accent-glow: rgba(249, 115, 22, 0.15);
   --auth-text-main: #1e293b;
   --auth-text-muted: #64748b;
   --auth-border: #e2e8f0;
@@ -125,7 +125,7 @@
   padding: 3rem;
   border-radius: 24px;
   box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.1), 0 20px 25px -5px rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(59, 130, 246, 0.1); /* Subtle blue tint border */
+  border: 1px solid rgba(249, 115, 22, 0.15); /* Subtle orange tint border */
 }
 
 .form-header {
@@ -204,7 +204,7 @@
 .input-with-icon input:focus {
   outline: none;
   border-color: var(--auth-accent);
-  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.15);
 }
 
 .remember-row {
@@ -272,7 +272,7 @@
 
 .auth-submit-btn {
   width: 100%;
-  background: var(--auth-bg);
+  background: var(--auth-accent, #f97316);
   color: #ffffff;
   padding: 1rem;
   border: none;
@@ -288,9 +288,9 @@
 }
 
 .auth-submit-btn:hover {
-  background: #1e293b;
+  background: #ea580c;
   transform: translateY(-2px);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 15px -3px rgba(249, 115, 22, 0.3);
 }
 
 .social-auth {

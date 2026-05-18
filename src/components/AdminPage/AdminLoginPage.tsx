@@ -126,6 +126,16 @@ const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onLogin, onCancel }) =>
               </>
             )}
           </button>
+
+          <button 
+            type="button" 
+            className="admin-abort-btn" 
+            onClick={onCancel}
+            disabled={isLoading}
+            style={{ width: '100%', marginTop: '4px' }}
+          >
+            Cancel and Return to Store
+          </button>
         </form>
       </div>
     </div>

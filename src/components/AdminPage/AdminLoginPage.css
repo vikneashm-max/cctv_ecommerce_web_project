@@ -102,7 +102,7 @@
 }
 
 .admin-input-group .forgot-link {
-  color: #2563eb;
+  color: #ea580c;
   font-size: 0.85rem;
   font-weight: 500;
   text-decoration: none;
@@ -110,7 +110,7 @@
 }
 
 .admin-input-group .forgot-link:hover {
-  color: #1d4ed8;
+  color: #c2410c;
   text-decoration: underline;
 }
 
@@ -279,7 +279,7 @@
 
 .admin-contact-link {
   display: block; /* Force wrapped to secondary line */
-  color: #2563eb;
+  color: #ea580c;
   text-decoration: none;
   font-weight: 600;
   margin-top: 4px;
@@ -287,7 +287,7 @@
 }
 
 .admin-contact-link:hover {
-  color: #1d4ed8;
+  color: #c2410c;
   text-decoration: underline;
 }
 
@@ -350,7 +350,7 @@
 }
 
 .footer-copyright {
-  color: #2563eb; /* Blue copyright font */
+  color: #ea580c; /* Orange copyright font */
   font-weight: 500;
 }
 

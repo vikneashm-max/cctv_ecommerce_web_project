@@ -1,6 +1,6 @@
 /* Navigation Navbar Styles */
 :root {
-  --primary-orange: #ff5722;
+  --primary-orange: #f97316;
   --dark-blue: #0f172a;
   --text-main: #1e293b;
   --text-muted: #64748b;
@@ -48,7 +48,13 @@
 .nav-left {
   display: flex;
   align-items: center;
-  gap: 3rem;
+}
+
+.nav-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
 }
 
 .nav-logo-container {
@@ -75,7 +81,8 @@
 }
 
 @media (max-width: 1024px) {
-  .nav-links {
+  .nav-links,
+  .nav-center {
     display: none;
   }
   .nav-left {

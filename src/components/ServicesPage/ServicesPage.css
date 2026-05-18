@@ -96,7 +96,7 @@
 .starting-badge {
   font-size: 0.75rem;
   font-weight: 700;
-  color: #ff5722;
+  color: #f97316;
   background: #fff3e0;
   padding: 0.35rem 0.85rem;
   border-radius: 100px;
@@ -107,12 +107,12 @@
 .service-price {
   font-size: 2rem;
   font-weight: 800;
-  color: #ff5722;
+  color: #f97316;
   margin-bottom: 1.75rem;
 }
 
 .get-service-btn {
-  background: #ff5722;
+  background: #f97316;
   color: #ffffff;
   border: none;
   border-radius: 12px;
@@ -129,7 +129,7 @@
 }
 
 .get-service-btn:hover {
-  background: #e65100;
+  background: #ea580c;
 }
 
 .get-service-btn:active {
@@ -193,9 +193,9 @@
 .step-badge {
   font-size: 0.7rem;
   font-weight: 800;
-  color: #ff5722;
+  color: #f97316;
   background: #fff3e0;
-  padding: 0.3rem 0.75rem;
+  padding: 0.35rem 0.75rem;
   border-radius: 100px;
   letter-spacing: 0.05em;
   margin-bottom: 1.25rem;
@@ -227,9 +227,9 @@
 
 /* Premium Footer */
 .premium-footer {
-  background: linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #8b5cf6 100%);
+  background-color: #5850ec;
   color: white;
-  padding: 1.5rem 2rem 1rem;
+  padding: 5rem 2rem 2.5rem;
 }
 
 .footer-content {
@@ -475,8 +475,8 @@
 }
 
 .modal-input:focus, .modal-textarea:focus {
-  border-color: #ff5722;
-  box-shadow: 0 0 0 3px rgba(255, 87, 34, 0.12);
+  border-color: #f97316;
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.12);
 }
 
 .disabled-input {
@@ -492,7 +492,7 @@
 }
 
 .modal-submit-btn {
-  background: #ff5722;
+  background: #f97316;
   color: #ffffff;
   border: none;
   border-radius: 12px;
@@ -505,7 +505,7 @@
 }
 
 .modal-submit-btn:hover {
-  background: #e65100;
+  background: #ea580c;
 }
 
 .modal-submit-btn:active {

@@ -64,7 +64,7 @@ const ServicesPage: React.FC<ServicesPageProps> = () => {
           {/* Card 1 */}
           <div className="service-main-card">
             <div className="service-icon-wrapper">
-              <svg viewBox="0 0 24 24" width="28" fill="none" stroke="#ff5722" strokeWidth="2">
+              <svg viewBox="0 0 24 24" width="28" fill="none" stroke="#f97316" strokeWidth="2">
                 <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
               </svg>
             </div>
@@ -80,7 +80,7 @@ const ServicesPage: React.FC<ServicesPageProps> = () => {
           {/* Card 2 */}
           <div className="service-main-card">
             <div className="service-icon-wrapper">
-              <svg viewBox="0 0 24 24" width="28" fill="none" stroke="#ff5722" strokeWidth="2">
+              <svg viewBox="0 0 24 24" width="28" fill="none" stroke="#f97316" strokeWidth="2">
                 <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
               </svg>
             </div>
@@ -96,7 +96,7 @@ const ServicesPage: React.FC<ServicesPageProps> = () => {
           {/* Card 3 */}
           <div className="service-main-card">
             <div className="service-icon-wrapper">
-              <svg viewBox="0 0 24 24" width="28" fill="none" stroke="#ff5722" strokeWidth="2">
+              <svg viewBox="0 0 24 24" width="28" fill="none" stroke="#f97316" strokeWidth="2">
                 <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
               </svg>
             </div>
@@ -122,7 +122,7 @@ const ServicesPage: React.FC<ServicesPageProps> = () => {
             <div className="process-step-card">
               <span className="step-badge">STEP 1</span>
               <div className="process-icon-box">
-                <svg viewBox="0 0 24 24" width="22" fill="none" stroke="#ff5722" strokeWidth="2">
+                <svg viewBox="0 0 24 24" width="22" fill="none" stroke="#f97316" strokeWidth="2">
                   <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
                 </svg>
               </div>
@@ -134,7 +134,7 @@ const ServicesPage: React.FC<ServicesPageProps> = () => {
             <div className="process-step-card">
               <span className="step-badge">STEP 2</span>
               <div className="process-icon-box">
-                <svg viewBox="0 0 24 24" width="22" fill="none" stroke="#ff5722" strokeWidth="2">
+                <svg viewBox="0 0 24 24" width="22" fill="none" stroke="#f97316" strokeWidth="2">
                   <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
                   <circle cx="12" cy="10" r="3"/>
                 </svg>
@@ -147,7 +147,7 @@ const ServicesPage: React.FC<ServicesPageProps> = () => {
             <div className="process-step-card">
               <span className="step-badge">STEP 3</span>
               <div className="process-icon-box">
-                <svg viewBox="0 0 24 24" width="22" fill="none" stroke="#ff5722" strokeWidth="2">
+                <svg viewBox="0 0 24 24" width="22" fill="none" stroke="#f97316" strokeWidth="2">
                   <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
                 </svg>
               </div>
@@ -159,7 +159,7 @@ const ServicesPage: React.FC<ServicesPageProps> = () => {
             <div className="process-step-card">
               <span className="step-badge">STEP 4</span>
               <div className="process-icon-box">
-                <svg viewBox="0 0 24 24" width="22" fill="none" stroke="#ff5722" strokeWidth="2">
+                <svg viewBox="0 0 24 24" width="22" fill="none" stroke="#f97316" strokeWidth="2">
                   <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
                   <line x1="12" y1="18" x2="12" y2="18"/>
                 </svg>

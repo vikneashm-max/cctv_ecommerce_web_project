@@ -111,7 +111,7 @@
 .item-price {
   font-size: 1.125rem;
   font-weight: 700;
-  color: #ff5722;
+  color: #f97316;
 }
 
 .item-controls {
@@ -198,7 +198,7 @@
 
 .checkout-btn {
   width: 100%;
-  background: #ff5722;
+  background: #f97316;
   color: white;
   border: none;
   padding: 1.25rem;
@@ -233,7 +233,7 @@
 }
 
 .active-nav-icon {
-  color: #ff5722 !important;
+  color: #f97316 !important;
 }
 
 @media (max-width: 1024px) {
@@ -401,7 +401,7 @@
 .mobile-nav-list a:hover, 
 .mobile-nav-list a:active,
 .mobile-nav-list a:focus {
-  color: #ff5722 !important;
+  color: #f97316 !important;
   padding-left: 0.5rem !important;
 }
 

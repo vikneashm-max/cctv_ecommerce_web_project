@@ -199,7 +199,7 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
               <ul className="tab-features-list">
                 {product.features.map((feat: string, idx: number) => (
                   <li key={idx}>
-                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#ff5722" strokeWidth="3" style={{marginRight: '12px', flexShrink: '0'}}><polyline points="20 6 9 17 4 12"/></svg>
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#f97316" strokeWidth="3" style={{marginRight: '12px', flexShrink: '0'}}><polyline points="20 6 9 17 4 12"/></svg>
                     <span>{feat}</span>
                   </li>
                 ))}

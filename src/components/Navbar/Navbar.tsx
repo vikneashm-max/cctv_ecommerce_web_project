@@ -42,6 +42,9 @@ const Navbar: React.FC<NavbarProps> = ({
               <img src={logo} alt="Logo" className="nav-logo-img" />
               <span className="nav-brand">TN Automation</span>
             </div>
+          </div>
+
+          <div className="nav-center">
             <div className="nav-links">
               <a onClick={() => onNavigate('home')} className={currentView === 'home' ? 'active' : ''} style={{ cursor: 'pointer' }}>Home</a>
               <a onClick={() => onNavigate('products')} className={currentView === 'products' || currentView === 'product-detail' ? 'active' : ''} style={{ cursor: 'pointer' }}>Products</a>
