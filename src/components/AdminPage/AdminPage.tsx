@@ -52,11 +52,26 @@ interface AdminPageProps {
   onBack: () => void;
 }
 
-type TabType = 'dashboard' | 'products' | 'orders' | 'customers' | 'inventory' | 'analytics' | 'discounts' | 'settings';
+type TabType = 'dashboard' | 'products' | 'orders' | 'customers' | 'inventory' | 'analytics' | 'discounts' | 'settings' | 'profile';
 
 const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, onBack }) => {
   const [activeTab, setActiveTab] = useState<TabType>('customers');
   const [searchQuery, setSearchQuery] = useState('');
+
+  // ------------------ ADMIN PROFILE STATE ------------------
+  const [adminName, setAdminName] = useState('Admin User');
+  const [adminEmail, setAdminEmail] = useState('admin@secureguard.io');
+  const [adminPhone, setAdminPhone] = useState('+1 (555) 012-3456');
+  const [adminBio, setAdminBio] = useState('System administrator for SecureGuard Enterprise networks. Specialist in surveillance hardware integration and cloud infrastructure security.');
+  const [adminLang, setAdminLang] = useState('en-US');
+  const [adminTz, setAdminTz] = useState('pst');
+  const [adminTfa, setAdminTfa] = useState(true);
+  const [adminEmailNotify, setAdminEmailNotify] = useState(true);
+  const [adminSmsNotify, setAdminSmsNotify] = useState(true);
+  const [adminPushNotify, setAdminPushNotify] = useState(false);
+  const [adminCurrentPassword, setAdminCurrentPassword] = useState('admin123');
+  const [adminNewPassword, setAdminNewPassword] = useState('');
+  const [adminConfirmPassword, setAdminConfirmPassword] = useState('');
 
   // ------------------ IMAGE PRESETS REMOVED FOR LOCAL UPLOADS ------------------
 
@@ -401,11 +416,17 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, onBack }) 
 
         {/* Sidebar profile footer */}
         <div className="sg-sidebar-footer">
-          <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100" alt="Admin user thumbnail" />
-          <div className="sg-profile-meta">
-            <h4>Admin User</h4>
-            <span>Security Lead</span>
-          </div>
+          <button 
+            className={`sg-sidebar-profile-item ${activeTab === 'profile' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('profile'); setSearchQuery(''); }}
+            title="Manage admin account details"
+          >
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" className="profile-svg">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
+            <span>Admin Profile</span>
+          </button>
         </div>
       </aside>
 
@@ -439,15 +460,6 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, onBack }) 
                 <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
               </svg>
             </div>
-
-            <div className="sg-header-user">
-              <span>CCTV Secure Admin</span>
-              <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100" alt="Admin profile thumbnail" />
-            </div>
-
-            <button onClick={onBack} className="btn-shop-escape" title="Return to store catalog">
-              Exit Portal
-            </button>
           </div>
         </header>
 
@@ -480,72 +492,7 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, onBack }) 
                 </div>
               </div>
 
-              <div className="sg-dashboard-widgets-grid">
-                
-                {/* Heatmap Widget */}
-                <div className="sg-widget-box heatmap-widget">
-                  <div className="widget-box-header">
-                    <h3>Purchase History Heatmap</h3>
-                    <span>Last 30 Days</span>
-                  </div>
-                  <p className="widget-box-note">Visual mapping of equipment purchase frequencies across corporate deployments.</p>
-                  
-                  <div className="heatmap-grid-layout">
-                    {Array.from({ length: 14 }).map((_, i) => {
-                      const colors = ['#f1f5f9', '#cbd5e1', '#94a3b8', '#0f766e', '#115e59', '#134e4a'];
-                      const randomColorIndex = Math.floor(Math.sin(i * 3.14) * 3 + 3) % colors.length;
-                      return (
-                        <div 
-                          key={i} 
-                          className="heatmap-cell" 
-                          style={{ backgroundColor: colors[randomColorIndex] }}
-                          title={`Day ${i + 1}: ${randomColorIndex * 3} devices cataloged`}
-                        />
-                      );
-                    })}
-                  </div>
-                </div>
 
-                {/* Security Alerts Widget */}
-                <div className="sg-widget-box alerts-widget">
-                  <div className="widget-box-header">
-                    <h3>Security Alerts</h3>
-                    <span className="badge-danger">3 Critical</span>
-                  </div>
-                  <div className="alerts-feed-container">
-                    <div className="alert-feed-item critical">
-                      <div className="alert-icon-box">
-                        <svg viewBox="0 0 24 24" width="16" fill="none" stroke="#dc2626" strokeWidth="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                      </div>
-                      <div className="alert-meta">
-                        <h4>Suspicious login attempt</h4>
-                        <span>Elena Rodriguez - 2m ago</span>
-                      </div>
-                    </div>
-
-                    <div className="alert-feed-item success">
-                      <div className="alert-icon-box">
-                        <svg viewBox="0 0 24 24" width="16" fill="none" stroke="#16a34a" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                      </div>
-                      <div className="alert-meta">
-                        <h4>Firmware update complete</h4>
-                        <span>TechCorp Enterprise - 15m ago</span>
-                      </div>
-                    </div>
-
-                    <div className="alert-feed-item info">
-                      <div className="alert-icon-box">
-                        <svg viewBox="0 0 24 24" width="16" fill="none" stroke="#ea580c" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-                      </div>
-                      <div className="alert-meta">
-                        <h4>New high-value order deployed</h4>
-                        <span>Julian Thorne - 1h ago</span>
-                      </div>
-                    </div>
-                  </div>
-                  <button className="btn-logs-link" onClick={() => setActiveTab('settings')}>View All Logs</button>
-                </div>
-              </div>
             </div>
           )}
 
@@ -905,70 +852,7 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, onBack }) 
 
               </div>
 
-              {/* Bottom widgets replicating reference image */}
-              <div className="sg-dashboard-widgets-grid">
-                
-                {/* Heatmap Widget */}
-                <div className="sg-widget-box heatmap-widget">
-                  <div className="widget-box-header">
-                    <h3>Purchase History Heatmap</h3>
-                    <span>Last 30 Days</span>
-                  </div>
-                  <div className="heatmap-grid-layout">
-                    {Array.from({ length: 14 }).map((_, i) => {
-                      const colors = ['#f1f5f9', '#93c5fd', '#3b82f6', '#0284c7', '#0369a1', '#075985'];
-                      return (
-                        <div 
-                          key={i} 
-                          className="heatmap-cell" 
-                          style={{ backgroundColor: colors[i % colors.length] }}
-                          title={`Security node activation count level ${i}`}
-                        />
-                      );
-                    })}
-                  </div>
-                </div>
 
-                {/* Security Alerts Widget */}
-                <div className="sg-widget-box alerts-widget">
-                  <div className="widget-box-header">
-                    <h3>Security Alerts</h3>
-                    <span>Log Feeds</span>
-                  </div>
-                  <div className="alerts-feed-container">
-                    <div className="alert-feed-item critical">
-                      <div className="alert-icon-box">
-                        <svg viewBox="0 0 24 24" width="16" fill="none" stroke="#e11d48" strokeWidth="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                      </div>
-                      <div className="alert-meta">
-                        <h4>Suspicious login attempt</h4>
-                        <span>Elena Rodriguez - 2m ago</span>
-                      </div>
-                    </div>
-
-                    <div className="alert-feed-item success">
-                      <div className="alert-icon-box">
-                        <svg viewBox="0 0 24 24" width="16" fill="none" stroke="#22c55e" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                      </div>
-                      <div className="alert-meta">
-                        <h4>Firmware update complete</h4>
-                        <span>TechCorp Enterprise - 15m ago</span>
-                      </div>
-                    </div>
-
-                    <div className="alert-feed-item info">
-                      <div className="alert-icon-box">
-                        <svg viewBox="0 0 24 24" width="16" fill="none" stroke="#eab308" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-                      </div>
-                      <div className="alert-meta">
-                        <h4>New high-value order</h4>
-                        <span>Julian Thorne - 1h ago</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-              </div>
 
               {/* Add Customer Modal Drawer */}
               {showAddCustomerModal && (
@@ -1247,6 +1131,196 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, onBack }) 
 
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* ================= TAB 9: ADMIN PROFILE ================= */}
+          {activeTab === 'profile' && (
+            <div className="sg-tab-pane admin-profile-pane">
+              <div className="tab-pane-title">
+                <h1>Admin Profile</h1>
+                <p>Manage your personal information, security settings, and account preferences.</p>
+              </div>
+
+              <div className="admin-profile-grid">
+                
+                {/* LEFT COLUMN */}
+                <div className="profile-left-col">
+                  
+                  {/* Photo Upload Card */}
+                  <div className="profile-card photo-card">
+                    <div className="photo-card-banner"></div>
+                    <div className="photo-card-avatar-wrapper">
+                      <div className="photo-card-avatar">
+                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" alt="Admin Avatar" />
+                        <button className="avatar-edit-btn" title="Edit avatar" onClick={() => alert("Upload dialog unlocked. Click 'Upload New Photo' to upload a local asset.")}>
+                          <svg viewBox="0 0 24 24" width="14" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                        </button>
+                      </div>
+                    </div>
+                    <div className="photo-card-info">
+                      <h2>{adminName}</h2>
+                      <span>SYSTEM LEAD</span>
+                    </div>
+                    <button className="btn-upload-photo" onClick={() => alert("Avatar update system engaged. Select an image from your secure local drive.")}>
+                      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ marginRight: '8px' }}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                      Upload New Photo
+                    </button>
+                  </div>
+
+                  {/* Account Preferences Card */}
+                  <div className="profile-card preferences-card">
+                    <div className="card-header">
+                      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.2" className="header-svg-icon" style={{ marginRight: '8px' }}><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/></svg>
+                      <h3>Account Preferences</h3>
+                    </div>
+                    <div className="card-body">
+                      <div className="form-group">
+                        <label>Language</label>
+                        <div className="select-wrapper">
+                          <select value={adminLang} onChange={(e) => setAdminLang(e.target.value)}>
+                            <option value="en-US">English (United States)</option>
+                            <option value="es-ES">Español (España)</option>
+                            <option value="fr-FR">Français (France)</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div className="form-group">
+                        <label>Timezone</label>
+                        <div className="select-wrapper">
+                          <select value={adminTz} onChange={(e) => setAdminTz(e.target.value)}>
+                            <option value="pst">(GMT-08:00) Pacific Time</option>
+                            <option value="est">(GMT-05:00) Eastern Time</option>
+                            <option value="gmt">(GMT+00:00) Greenwich Mean Time</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div className="form-group checkbox-group-section">
+                        <label>Notification Preferences</label>
+                        <div className="checkbox-stack">
+                          <label className="checkbox-row-label">
+                            <input type="checkbox" checked={adminEmailNotify} onChange={(e) => setAdminEmailNotify(e.target.checked)} />
+                            <span className="checkbox-custom"></span>
+                            <span className="label-text">Email Notifications</span>
+                          </label>
+                          <label className="checkbox-row-label">
+                            <input type="checkbox" checked={adminSmsNotify} onChange={(e) => setAdminSmsNotify(e.target.checked)} />
+                            <span className="checkbox-custom"></span>
+                            <span className="label-text">SMS Alerts</span>
+                          </label>
+                          <label className="checkbox-row-label">
+                            <input type="checkbox" checked={adminPushNotify} onChange={(e) => setAdminPushNotify(e.target.checked)} />
+                            <span className="checkbox-custom"></span>
+                            <span className="label-text">Browser Push</span>
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+
+                {/* RIGHT COLUMN */}
+                <div className="profile-right-col">
+                  
+                  {/* Personal Information Card */}
+                  <div className="profile-card personal-info-card">
+                    <div className="card-header border-bottom">
+                      <div className="header-left">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.2" className="header-svg-icon" style={{ marginRight: '8px' }}><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                        <h3>Personal Information</h3>
+                      </div>
+                      <button className="btn-edit-link" onClick={() => alert("Personal information fields are interactive. Modify any text and press 'Save Changes' to update.")}>Edit</button>
+                    </div>
+                    <div className="card-body">
+                      <div className="form-grid-2">
+                        <div className="form-group">
+                          <label>Full Name</label>
+                          <input type="text" value={adminName} onChange={(e) => setAdminName(e.target.value)} />
+                        </div>
+                        <div className="form-group">
+                          <label>Email Address</label>
+                          <input type="email" value={adminEmail} onChange={(e) => setAdminEmail(e.target.value)} />
+                        </div>
+                      </div>
+                      <div className="form-group">
+                        <label>Phone Number</label>
+                        <input type="text" value={adminPhone} onChange={(e) => setAdminPhone(e.target.value)} />
+                      </div>
+                      <div className="form-group">
+                        <label>Bio</label>
+                        <textarea value={adminBio} onChange={(e) => setAdminBio(e.target.value)} rows={4}></textarea>
+                      </div>
+                    </div>
+                    <div className="card-footer-action">
+                      <button className="btn-save-changes" onClick={() => alert("Profile information successfully updated and synced!")}>Save Changes</button>
+                    </div>
+                  </div>
+
+                  {/* Security Settings Card */}
+                  <div className="profile-card security-card">
+                    <div className="card-header border-bottom">
+                      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.2" className="header-svg-icon" style={{ marginRight: '8px' }}><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                      <h3>Security Settings</h3>
+                    </div>
+                    <div className="card-body">
+                      <div className="form-grid-3">
+                        <div className="form-group">
+                          <label>Current Password</label>
+                          <input type="password" value={adminCurrentPassword} onChange={(e) => setAdminCurrentPassword(e.target.value)} placeholder="••••••••" />
+                        </div>
+                        <div className="form-group">
+                          <label>New Password</label>
+                          <input type="password" value={adminNewPassword} onChange={(e) => setAdminNewPassword(e.target.value)} placeholder="••••••••" />
+                        </div>
+                        <div className="form-group">
+                          <label>Confirm Password</label>
+                          <input type="password" value={adminConfirmPassword} onChange={(e) => setAdminConfirmPassword(e.target.value)} placeholder="••••••••" />
+                        </div>
+                      </div>
+                      
+                      <div className="divider-line"></div>
+
+                      <div className="tfa-row">
+                        <div className="tfa-meta">
+                          <h4>Two-Factor Authentication</h4>
+                          <p>Add an extra layer of security to your account by requiring more than just a password.</p>
+                        </div>
+                        <label className="switch-toggle-label">
+                          <input type="checkbox" checked={adminTfa} onChange={(e) => setAdminTfa(e.target.checked)} />
+                          <span className="switch-slider"></span>
+                        </label>
+                      </div>
+                    </div>
+                    <div className="card-footer-action-split">
+                      <span className="pass-change-note">Last password change: 3 months ago</span>
+                      <button className="btn-update-security" onClick={() => {
+                        if (adminNewPassword && adminNewPassword !== adminConfirmPassword) {
+                          alert("New password mismatch! Confirm password must match new password.");
+                        } else {
+                          alert("Security passcode credentials successfully saved and validated!");
+                          setAdminNewPassword('');
+                          setAdminConfirmPassword('');
+                        }
+                      }}>Update Security</button>
+                    </div>
+                  </div>
+
+                </div>
+
+              </div>
+
+              {/* Viewport page footer */}
+              <footer className="profile-view-footer">
+                <div className="footer-left">
+                  © 2024 TN Automation CCTV Systems. All rights reserved.
+                </div>
+                <div className="footer-right">
+                  <a href="#" onClick={(e) => e.preventDefault()}>Terms of Service</a>
+                  <a href="#" onClick={(e) => e.preventDefault()}>Privacy Policy</a>
+                  <a href="#" onClick={(e) => e.preventDefault()}>Technical Support</a>
+                </div>
+              </footer>
             </div>
           )}
 

@@ -1,0 +1,384 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* Main container matching clean background */
+.admin-login-wrapper {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8fafc; /* Very light gray/blue background */
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  padding: 40px 20px 100px 20px; /* Leave space at bottom for footer */
+  box-sizing: border-box;
+}
+
+/* White card with sharp light shadow */
+.admin-login-card {
+  width: 100%;
+  max-width: 480px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  box-sizing: border-box;
+}
+
+/* Header style and border partition */
+.admin-login-header {
+  padding: 32px 32px 24px 32px;
+  text-align: center;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.admin-logo-container {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+
+.admin-brand-logo {
+  height: 52px;
+  max-width: 200px;
+  object-fit: contain;
+}
+
+.admin-login-header h2 {
+  color: #0f172a; /* Sophisticated dark slate neutral */
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+  letter-spacing: -0.5px;
+}
+
+.admin-login-header .subtitle {
+  color: #475569;
+  font-size: 0.95rem;
+  margin: 0;
+  font-weight: 400;
+}
+
+/* Form block */
+.admin-login-form {
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-sizing: border-box;
+}
+
+/* Error Alert */
+.admin-error-banner {
+  display: flex;
+  align-items: center;
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  color: #991b1b;
+  padding: 12px 16px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+/* Form Input Blocks */
+.admin-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.admin-input-group label {
+  color: #1e293b;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.admin-input-group .label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.admin-input-group .forgot-link {
+  color: #2563eb;
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.admin-input-group .forgot-link:hover {
+  color: #1d4ed8;
+  text-decoration: underline;
+}
+
+.admin-input-group input {
+  width: 100%;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 12px 14px;
+  font-size: 0.95rem;
+  color: #0f172a;
+  outline: none;
+  box-sizing: border-box;
+  transition: all 0.2s;
+}
+
+.admin-input-group input::placeholder {
+  color: #94a3b8;
+}
+
+.admin-input-group input:focus {
+  border-color: #ea580c; /* High-energy Orange Focus */
+  box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.15);
+}
+
+/* Password Input integration */
+.password-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-input-wrapper input {
+  padding-right: 46px; /* Space for eye toggle button */
+}
+
+.admin-password-toggle {
+  position: absolute;
+  right: 14px;
+  background: none;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+.admin-password-toggle:hover {
+  color: #ea580c; /* Hover eyes light up orange */
+}
+
+/* Checkbox Row */
+.remember-me-row {
+  margin-top: 2px;
+}
+
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  position: relative;
+  cursor: pointer;
+  user-select: none;
+  font-size: 0.85rem;
+  color: #475569;
+  font-weight: 400;
+}
+
+.checkbox-container input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.checkbox-checkmark {
+  position: relative;
+  height: 18px;
+  width: 18px;
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  margin-right: 10px;
+  transition: all 0.2s;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.checkbox-container:hover input ~ .checkbox-checkmark {
+  border-color: #ea580c; /* Checked hover Orange */
+}
+
+.checkbox-container input:checked ~ .checkbox-checkmark {
+  background-color: #ea580c; /* Checked solid Orange */
+  border-color: #ea580c;
+}
+
+.checkbox-checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+.checkbox-container input:checked ~ .checkbox-checkmark:after {
+  display: block;
+}
+
+.checkbox-container .checkbox-checkmark:after {
+  left: 5px;
+  top: 2px;
+  width: 5px;
+  height: 9px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.checkbox-label {
+  line-height: 18px;
+}
+
+/* Sign In Button - Vibrant Corporate Orange */
+.admin-submit-btn {
+  background-color: #ea580c; /* Premium vibrant Orange */
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 14px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  width: 100%;
+}
+
+.admin-submit-btn:hover:not(:disabled) {
+  background-color: #c2410c; /* Deeper hover Orange */
+}
+
+.admin-submit-btn:disabled {
+  opacity: 0.75;
+  cursor: not-allowed;
+}
+
+/* Dividers */
+.admin-divider {
+  height: 1px;
+  background-color: #e2e8f0;
+  margin: 10px 0;
+}
+
+/* Bottom Text matching paragraph wrapped to two lines */
+.admin-bottom-text {
+  text-align: center;
+  color: #475569;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  margin-bottom: 10px;
+}
+
+.admin-contact-link {
+  display: block; /* Force wrapped to secondary line */
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 600;
+  margin-top: 4px;
+  transition: color 0.2s;
+}
+
+.admin-contact-link:hover {
+  color: #1d4ed8;
+  text-decoration: underline;
+}
+
+/* Return button */
+.admin-abort-btn {
+  background: transparent;
+  border: 1px solid #cbd5e1;
+  color: #64748b;
+  border-radius: 6px;
+  padding: 10px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.admin-abort-btn:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+  border-color: #94a3b8;
+}
+
+/* Fixed Viewport Footer */
+.admin-viewport-footer {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 60px;
+  background-color: #ffffff;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+  box-sizing: border-box;
+  z-index: 100;
+  font-size: 0.8rem;
+}
+
+.footer-brand {
+  color: #0f172a;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+}
+
+.footer-links {
+  display: flex;
+  gap: 24px;
+}
+
+.footer-links a {
+  color: #475569;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.footer-links a:hover {
+  color: #ea580c; /* Orange interactive text in links hover */
+}
+
+.footer-copyright {
+  color: #2563eb; /* Blue copyright font */
+  font-weight: 500;
+}
+
+/* Mobile Responsiveness for Footer and Card */
+@media (max-width: 768px) {
+  .admin-viewport-footer {
+    position: relative;
+    height: auto;
+    flex-direction: column;
+    gap: 12px;
+    padding: 20px;
+    margin-top: 40px;
+    border-top: 1px solid #e2e8f0;
+    text-align: center;
+  }
+  
+  .footer-links {
+    justify-content: center;
+  }
+  
+  .admin-login-wrapper {
+    padding-bottom: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-login-header,
+  .admin-login-form {
+    padding: 24px;
+  }
+}

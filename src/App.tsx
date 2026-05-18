@@ -11,6 +11,7 @@ import FavoritesPage from './components/FavoritesPage/FavoritesPage';
 import ContactPage from './components/ContactPage/ContactPage';
 import Navbar from './components/Navbar/Navbar';
 import AdminPage from './components/AdminPage/AdminPage';
+import AdminLoginPage from './components/AdminPage/AdminLoginPage';
 import { productsData } from './components/ProductsPage/productsData';
 import './App.css'
 
@@ -44,6 +45,14 @@ function App() {
     const savedProductId = sessionStorage.getItem('selectedProductId');
     return savedProductId ? parseInt(savedProductId, 10) : null;
   });
+
+  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState<boolean>(() => {
+    return sessionStorage.getItem('isAdminLoggedIn') === 'true';
+  });
+
+  useEffect(() => {
+    sessionStorage.setItem('isAdminLoggedIn', String(isAdminLoggedIn));
+  }, [isAdminLoggedIn]);
 
   useEffect(() => {
     if (selectedProductId !== null) {
@@ -256,11 +265,21 @@ function App() {
         )}
 
         {view === 'admin' && (
-          <AdminPage 
-            products={products}
-            setProducts={setProducts}
-            onBack={() => setView('home')}
-          />
+          !isAdminLoggedIn ? (
+            <AdminLoginPage 
+              onLogin={() => setIsAdminLoggedIn(true)} 
+              onCancel={() => setView('home')} 
+            />
+          ) : (
+            <AdminPage 
+              products={products}
+              setProducts={setProducts}
+              onBack={() => {
+                setIsAdminLoggedIn(false);
+                setView('home');
+              }}
+            />
+          )
         )}
 
         {view === 'services' && (
