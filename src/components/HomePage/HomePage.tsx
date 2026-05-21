@@ -1,258 +1,160 @@
 import React from 'react';
 import './HomePage.css';
-import heroDashboard from '../../assets/hero_dashboard.png';
-import cctvCamera from '../../assets/cctv_dome_camera.png';
-import dvrNvr from '../../assets/dvr_nvr_server_rack.png';
-import securityExpert from '../../assets/security_expert_cta.png';
+import cctvHero from '../../assets/cctv_hero.png';
 
 interface HomePageProps {
   onNavigate: (view: 'home' | 'products' | 'about' | 'cart' | 'favorites' | 'contact') => void;
 }
 
 const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
+
+
+
   return (
     <div className="home-container">
 
-      {/* ─── HERO ─── */}
-      <section className="hero-section">
-        <div className="hero-overlay" />
-        <div className="hero-inner">
-          <div className="hero-content">
-            <span className="hero-chip">PROFESSIONAL SECURITY SOLUTIONS</span>
-            <h1 className="hero-title">
-              Advanced CCTV &amp;<br />
-              <span className="hero-title-accent">Surveillance Systems</span>
-            </h1>
-            <p className="hero-description">
-              Professional-grade security hardware and AI-driven monitoring for total peace of mind.
-              Protecting your assets with next-generation automated intelligence.
-            </p>
-            <div className="hero-actions">
-              <button className="btn-primary" onClick={() => onNavigate('products')}>
-                View Our Products
-                <svg viewBox="0 0 24 24" width="16" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-              </button>
-              <button className="btn-secondary" onClick={() => onNavigate('about')}>
-                About Us
-              </button>
-            </div>
-          </div>
-          <div className="hero-visual">
-            <div className="hero-img-frame">
-              <img src={heroDashboard} alt="CCTV Surveillance Dashboard" className="hero-img" />
-              <div className="hero-img-overlay" />
-            </div>
-          </div>
-        </div>
-      </section>
 
-      {/* ─── STATS BAR ─── */}
-      <section className="stats-bar">
-        <div className="stats-bar-inner">
-          <div className="stat-item">
-            <div className="stat-icon">
-              <svg viewBox="0 0 24 24" width="22" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-            </div>
-            <div className="stat-text">
-              <strong>99.998%</strong>
-              <span>SYSTEM PERFORMANCE</span>
-            </div>
-          </div>
-          <div className="stat-divider" />
-          <div className="stat-item">
-            <div className="stat-icon">
-              <svg viewBox="0 0 24 24" width="22" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-            </div>
-            <div className="stat-text">
-              <strong>24/7</strong>
-              <span>ACTIVE MONITORING</span>
-            </div>
-          </div>
-          <div className="stat-divider" />
-          <div className="stat-item">
-            <div className="stat-icon">
-              <svg viewBox="0 0 24 24" width="22" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-            </div>
-            <div className="stat-text">
-              <strong>Global</strong>
-              <span>SUPPORT NETWORK</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ─── SHOP BY CATEGORY ─── */}
-      <section className="category-section">
-        <div className="category-inner">
-          <div className="category-header">
-            <div>
-              <h2>Shop by Category</h2>
-              <p>Precision engineered components for every security architecture.</p>
-            </div>
-            <button className="category-link" onClick={() => onNavigate('products')}>
-              See All Categories →
+      {/* Hero Section */}
+      <header className="hero-section">
+        <div className="hero-content">
+          <h1 className="hero-title">Advanced CCTV & Surveillance Systems.</h1>
+          <p className="hero-description">
+            Professional-grade security cameras and recording systems for complete peace of mind.
+            Protect your home and business with our cutting-edge surveillance technology.
+          </p>
+          <div className="hero-btns">
+            <button className="btn-primary" onClick={() => onNavigate('products')}>View Our Products</button>
+            <button className="btn-outline" onClick={() => onNavigate('about')}>
+              About Us
+              <svg viewBox="0 0 24 24" width="16" fill="none" stroke="currentColor" strokeWidth="2" style={{marginLeft: '8px'}}><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
             </button>
           </div>
-
-          {/* Top 2 large cards with images */}
-          <div className="card-grid-top">
-            <div className="category-card card-large" onClick={() => onNavigate('products')}>
-              <img src={cctvCamera} alt="Professional Cameras" className="card-bg-img" />
-              <div className="card-content-overlay">
-                <div className="card-icon-row">
-                  <svg viewBox="0 0 24 24" width="20" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="7" width="15" height="10" rx="2"/><path d="M17 9l5-2v10l-5-2V9z"/></svg>
-                </div>
-                <div className="card-bottom">
-                  <h3 className="card-title">Professional Cameras</h3>
-                  <p className="card-desc">4K resolution, night vision, and thermal sensing capabilities for high-security environments.</p>
-                  <span className="card-cta">
-                    Explore
-                    <svg viewBox="0 0 24 24" width="14" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-                  </span>
-                </div>
-              </div>
-            </div>
-            <div className="category-card card-large" onClick={() => onNavigate('products')}>
-              <img src={dvrNvr} alt="DVR & NVR Units" className="card-bg-img" />
-              <div className="card-content-overlay">
-                <div className="card-icon-row">
-                  <svg viewBox="0 0 24 24" width="20" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-                </div>
-                <div className="card-bottom">
-                  <h3 className="card-title">DVR &amp; NVR Units</h3>
-                  <p className="card-desc">Edge-recording solutions with massive storage capacity and cloud sync.</p>
-                  <span className="card-cta">
-                    Explore
-                    <svg viewBox="0 0 24 24" width="14" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Bottom 3 small cards */}
-          <div className="card-grid-bottom">
-            <div className="category-card card-small" onClick={() => onNavigate('products')}>
-              <div className="small-card-icon">
-                <svg viewBox="0 0 24 24" width="22" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
-              </div>
-              <h3 className="small-card-title">Networking Hardware</h3>
-              <p className="small-card-desc">High-speed switches and PoE injectors for stable transmission.</p>
-              <span className="small-card-cta">EXPLORE</span>
-            </div>
-            <div className="category-card card-small" onClick={() => onNavigate('products')}>
-              <div className="small-card-icon">
-                <svg viewBox="0 0 24 24" width="22" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-              </div>
-              <h3 className="small-card-title">Power Supply</h3>
-              <p className="small-card-desc">Uninterrupted power backup and distribution units for uptime.</p>
-              <span className="small-card-cta">EXPLORE</span>
-            </div>
-            <div className="category-card card-small" onClick={() => onNavigate('products')}>
-              <div className="small-card-icon">
-                <svg viewBox="0 0 24 24" width="22" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M5.34 18.66l-1.41 1.41M20 12h-2M6 12H4M19.07 19.07l-1.41-1.41M5.34 5.34L3.93 3.93"/><path d="M12 2v2M12 20v2"/></svg>
-              </div>
-              <h3 className="small-card-title">Accessories</h3>
-              <p className="small-card-desc">Mounts, cables, connectors, and specialized installation tools.</p>
-              <span className="small-card-cta">EXPLORE</span>
-            </div>
+        </div>
+        <div className="hero-image-container">
+          <img src={cctvHero} alt="CCTV Monitoring" className="hero-main-img" />
+          <div className="performance-card">
+            <div className="perf-dot"></div>
+            <span className="perf-label">SYSTEM PERFORMANCE</span>
+            <div className="perf-value">99.998%</div>
+            <p className="perf-subtext">Uptime across 12,000+ nodes globally.</p>
           </div>
         </div>
-      </section>
+      </header>
 
-      {/* ─── CTA SECTION ─── */}
+      {/* Category Section */}
+      <section className="category-section" id="products">
+        <div className="category-header">
+          <div className="category-header-text">
+            <h2 className="section-title">Shop by Category</h2>
+            <p className="section-subtitle">Choose the right surveillance setup for your space</p>
+          </div>
+          <a onClick={() => onNavigate('products')} className="browse-all" style={{cursor: 'pointer'}}>Browse All →</a>
+        </div>
+        
+        <div className="category-grid">
+          {[
+            { 
+              title: 'Accessories', 
+              desc: 'Essential mounts, cables, and setup components.', 
+              icon: <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 7V4a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v3"/><path d="M7 21h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2Z"/><path d="M12 11v4"/><path d="M10 13h4"/></svg>
+            },
+            { 
+              title: 'Cameras', 
+              desc: 'Reliable coverage for indoor and outdoor surveillance.', 
+              icon: <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
+            },
+            { 
+              title: 'Networking', 
+              desc: 'Stable networking gear for uninterrupted monitoring.', 
+              icon: <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="16" y="16" width="6" height="6" rx="1"/><rect x="2" y="16" width="6" height="6" rx="1"/><rect x="9" y="2" width="6" height="6" rx="1"/><path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3"/><path d="M12 12V8"/></svg>
+            },
+            { 
+              title: 'DVR & NVR', 
+              desc: 'Smart recording solutions for secure video backups.', 
+              icon: <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6" y2="6"/><line x1="6" y1="18" x2="6" y2="18"/></svg>
+            },
+            { 
+              title: 'Power Supply', 
+              desc: 'Browse high-demand products in this category.', 
+              icon: <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7" y2="7"/></svg>
+            },
+            { 
+              title: 'Storage', 
+              desc: 'High-capacity drives for extended footage retention.', 
+              icon: <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+            }
+          ].map((cat, i) => (
+            <div className="category-card" key={i} onClick={() => onNavigate('products')}>
+              <div className="cat-icon-wrapper">
+                {cat.icon}
+              </div>
+              <h3>{cat.title}</h3>
+              <p>{cat.desc}</p>
+              <span className="cat-explore">Explore →</span>
+            </div>
+          ))}
+        </div>
+      </section>
+      {/* CTA Section */}
       <section className="cta-section">
-        <div className="cta-inner">
-          <div className="cta-left">
-            <h2 className="cta-heading">Secure Your Premises Today</h2>
-            <p className="cta-body">
-              Our security engineers provide end-to-end consulting for residential, commercial, 
-              and industrial sites. Get a tailored blueprint that ensures maximum coverage and zero blind spots.
-            </p>
-            <div className="cta-actions-row">
-              <button className="cta-btn" onClick={() => onNavigate('contact')}>
-                Contact Security Experts
-                <svg viewBox="0 0 24 24" width="16" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-              </button>
-              <div className="cta-experts-badge">
-                <div className="expert-avatars">
-                  <div className="expert-dot"></div>
-                  <div className="expert-dot"></div>
-                  <div className="expert-dot"></div>
-                </div>
-                <span>12 Active Experts Online</span>
-              </div>
-            </div>
+        <div className="cta-content">
+          <h2>Secure Your Premises Today</h2>
+          <p>Get expert consultation for your security needs. From residential setups to large-scale industrial surveillance, we provide tailored solutions for maximum protection.</p>
+          <div className="cta-btns">
+            <button className="btn-primary" onClick={() => onNavigate('contact')}>Contact Security Experts</button>
           </div>
-          <div className="cta-right">
-            <img src={securityExpert} alt="Security Expert" className="cta-img" />
+        </div>
+        <div className="cta-stats">
+          <div className="stat-box">
+            <span className="stat-val">24/7</span>
+            <span className="stat-label">ACTIVE MONITORING</span>
+          </div>
+          <div className="stat-box">
+            <span className="stat-val">Global</span>
+            <span className="stat-label">SUPPORT ACCESS</span>
+          </div>
+          <div className="stat-box">
+            <span className="stat-val">AI</span>
+            <span className="stat-label">SMART ANALYTICS</span>
+          </div>
+          <div className="stat-box">
+            <span className="stat-val">Secured</span>
+            <span className="stat-label">ENCRYPTED FEEDS</span>
           </div>
         </div>
       </section>
 
-      {/* ─── FOOTER ─── */}
-      <footer className="footer-section">
-        <div className="footer-inner">
-          <div className="footer-grid">
-            <div className="footer-brand">
-              <div className="footer-logo-row">
-                <div className="footer-logo-icon">
-                  <svg viewBox="0 0 24 24" width="18" fill="none" stroke="white" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                </div>
-                <span className="footer-brand-name">TN Automation</span>
-              </div>
-              <p>Leading provider of automated security solutions and professional surveillance hardware since 2012.</p>
+      {/* Premium Footer */}
+      <footer className="premium-footer">
+        <div className="footer-content">
+          <div className="footer-main">
+            <div className="footer-brand-side">
+              <h3>TN Automation</h3>
+              <p>Professional CCTV and security solutions for businesses and homes</p>
               <div className="footer-socials">
-                <a href="#" aria-label="Website">
-                  <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-                </a>
-                <a href="#" aria-label="Support">
-                  <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                </a>
-                <a href="#" aria-label="Share">
-                  <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-                </a>
+                <a href="#"><svg viewBox="0 0 24 24" width="20" fill="white"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></a>
+                <a href="#"><svg viewBox="0 0 24 24" width="20" fill="white"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 4-8 4z"/></svg></a>
               </div>
             </div>
-
-            <div className="footer-column">
-              <h4>Company</h4>
-              <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('about'); }}>About Us</a>
-              <a href="#">Careers</a>
-              <a href="#">Privacy Policy</a>
-              <a href="#">Terms of Service</a>
-              <a href="#">Support Center</a>
-            </div>
-
-            <div className="footer-column">
-              <h4>Explore</h4>
-              <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('products'); }}>CCTV Cameras</a>
-              <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('products'); }}>Storage Solutions</a>
-              <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('products'); }}>Networking</a>
-              <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('services'); }}>AI Analytics</a>
-              <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('products'); }}>New Arrivals</a>
-            </div>
-
-            <div className="footer-column">
-              <h4>Contact Us</h4>
-              <div className="footer-contact-item">
-                <svg viewBox="0 0 24 24" width="15" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                <span>33F, Sai Complex, Erode - 638003</span>
+            <div className="footer-contact-side">
+              <h4>CONTACT</h4>
+              <div className="contact-item-row">
+                <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                <p>ADDRESS 33F, Sai Complex, Evk Sampath Salai, Moolapatrai Road, Erode - 638003</p>
               </div>
-              <div className="footer-contact-item">
-                <svg viewBox="0 0 24 24" width="15" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-                <span>9876543210</span>
+              <div className="contact-item-row">
+                <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                <p>9876543210</p>
               </div>
-              <div className="footer-contact-item">
-                <svg viewBox="0 0 24 24" width="15" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-                <span>tnautomation@yahoo.com</span>
+              <div className="contact-item-row">
+                <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                <p>tnautomation@yahoo.com</p>
               </div>
             </div>
           </div>
-
-          <div className="footer-bottom">
+          <div className="footer-bottom-bar">
             <p>© 2026 TN Automation. All rights reserved.</p>
-            <div className="footer-links">
+            <div className="footer-legal-links">
               <a href="#">Privacy Policy</a>
               <a href="#">Refund Policy</a>
               <a href="#">Terms</a>

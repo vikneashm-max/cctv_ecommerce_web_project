@@ -2,8 +2,8 @@
 
 /* Navigation Navbar Styles */
 :root {
-  --nav-accent: #1a9e7a;
-  --nav-accent-hover: #158a6a;
+  --nav-accent: #ff5722;
+  --nav-accent-hover: #e64a19;
   --dark-blue: #0f172a;
   --text-main: #1e293b;
   --text-muted: #64748b;
@@ -87,6 +87,22 @@
   border-radius: 6px;
 }
 
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: 0;
+  left: 50%;
+  background-color: var(--nav-accent);
+  transition: width 0.3s ease, left 0.3s ease;
+}
+
+.nav-links a:hover::after {
+  width: 60%;
+  left: 20%;
+}
+
 .nav-links a.active {
   color: var(--nav-accent);
   font-weight: 600;
@@ -94,7 +110,6 @@
 
 .nav-links a:hover {
   color: var(--nav-accent);
-  background: rgba(26, 158, 122, 0.06);
 }
 
 .nav-right {
@@ -371,7 +386,7 @@
 .mobile-nav-list a:hover, 
 .mobile-nav-list a.active {
   color: var(--nav-accent) !important;
-  background: rgba(26, 158, 122, 0.08) !important;
+  background: rgba(255, 87, 34, 0.08) !important;
 }
 
 .mobile-nav-list a:hover svg, 
