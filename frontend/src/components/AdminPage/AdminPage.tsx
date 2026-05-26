@@ -187,6 +187,12 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, onBack }) 
     setOrders(prev => prev.map(o => o.id === id ? { ...o, status: nextStatus } : o));
   };
 
+  const handleDeleteOrder = (id: string) => {
+    if (window.confirm('Are you sure you want to delete this order?')) {
+      setOrders(prev => prev.filter(o => o.id !== id));
+    }
+  };
+
   // ------------------ DYNAMIC STATE FOR COUPONS ------------------
   const [coupons, setCoupons] = useState<Coupon[]>(() => {
     const saved = localStorage.getItem('sgCoupons');
@@ -217,6 +223,7 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, onBack }) 
 
   // ------------------ PRODUCTS FORM WORKSPACE STATE ------------------
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [productToDelete, setProductToDelete] = useState<number | null>(null);
   const [prodName, setProdName] = useState('');
   const [prodPrice, setProdPrice] = useState('');
   const [prodSub, setProdSub] = useState('');
@@ -392,11 +399,16 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, onBack }) 
     );
   };
 
-  const handleDeleteProduct = (id: number) => {
-    if (window.confirm('Delete surveillance gear from catalog?')) {
-      setProducts(prev => prev.filter(p => p.id !== id));
-      if (editingId === id) resetProductForm();
+  const confirmDeleteProduct = () => {
+    if (productToDelete !== null) {
+      setProducts(prev => prev.filter(p => p.id !== productToDelete));
+      if (editingId === productToDelete) resetProductForm();
+      setProductToDelete(null);
     }
+  };
+
+  const cancelDeleteProduct = () => {
+    setProductToDelete(null);
   };
 
   // ------------------ SECURITY SETTINGS STATE ------------------
@@ -788,7 +800,7 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, onBack }) 
                           </div>
                           <div className="listing-actions">
                             <button className="btn-listing-action edit" onClick={() => handleEditProduct(p)}>Edit</button>
-                            <button className="btn-listing-action delete" onClick={() => handleDeleteProduct(p.id)}>Delete</button>
+                            <button className="btn-listing-action delete" onClick={() => setProductToDelete(p.id)}>Delete</button>
                           </div>
                         </div>
                       ))}
@@ -835,16 +847,24 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, onBack }) 
                           </span>
                         </td>
                         <td>
-                          <select 
-                            className="order-status-selector"
-                            value={o.status}
-                            onChange={(e) => handleUpdateOrderStatus(o.id, e.target.value as any)}
-                          >
-                            <option value="Pending">Pending</option>
-                            <option value="Processing">Processing</option>
-                            <option value="Delivered">Delivered</option>
-                            <option value="Cancelled">Cancelled</option>
-                          </select>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <select 
+                              className="order-status-selector"
+                              value={o.status}
+                              onChange={(e) => handleUpdateOrderStatus(o.id, e.target.value as any)}
+                            >
+                              <option value="Pending">Pending</option>
+                              <option value="Processing">Processing</option>
+                              <option value="Delivered">Delivered</option>
+                              <option value="Cancelled">Cancelled</option>
+                            </select>
+                            <button 
+                              onClick={() => handleDeleteOrder(o.id)}
+                              style={{ padding: '0.25rem 0.5rem', background: '#ef4444', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                            >
+                              Delete
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -1492,6 +1512,18 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, onBack }) 
 
         </main>
       </div>
+      {productToDelete !== null && (
+        <div className="admin-modal-overlay">
+          <div className="admin-modal-card">
+            <h3>Delete Product?</h3>
+            <p>Are you sure you want to delete this surveillance gear from the catalog? This action cannot be undone.</p>
+            <div className="admin-modal-actions">
+              <button className="btn-modal-cancel" onClick={cancelDeleteProduct}>Cancel</button>
+              <button className="btn-modal-confirm" onClick={confirmDeleteProduct}>Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

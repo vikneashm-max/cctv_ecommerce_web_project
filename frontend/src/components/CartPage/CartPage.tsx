@@ -13,9 +13,10 @@ interface Product {
 interface CartPageProps {
   cartItems: Product[];
   removeFromCart: (id: number) => void;
+  onCheckout: () => void;
 }
 
-const CartPage: React.FC<CartPageProps> = ({ cartItems, removeFromCart }) => {
+const CartPage: React.FC<CartPageProps> = ({ cartItems, removeFromCart, onCheckout }) => {
 
 
   return (
@@ -75,7 +76,7 @@ const CartPage: React.FC<CartPageProps> = ({ cartItems, removeFromCart }) => {
                 <span>{cartItems.length > 0 ? 'Total calculated at checkout' : '₹0'}</span>
               </div>
 
-              <button className="checkout-btn">PROCEED TO CHECKOUT</button>
+              <button className="checkout-btn" onClick={onCheckout} disabled={cartItems.length === 0}>PROCEED TO CHECKOUT</button>
             </div>
           </aside>
         </div>

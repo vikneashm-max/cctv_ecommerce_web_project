@@ -1,44 +1,52 @@
 package com.backend.cctvecommerce.controller;
 
 import com.backend.cctvecommerce.entity.User;
-import com.backend.cctvecommerce.repository.UserRepository;
+import com.backend.cctvecommerce.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+
 @RequestMapping("/api/users")
+
 @CrossOrigin(origins = "http://localhost:5173")
+
 public class UserController {
 
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
 
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getUserProfile(@PathVariable @org.springframework.lang.NonNull Long id) {
-        User user = userRepository.findById(id).orElse(null);
-        if (user != null) {
-            return ResponseEntity.ok(user);
-        }
-        return ResponseEntity.notFound().build();
+    // UPDATE PERSONAL INFO
+    @PutMapping("/{id}/personal")
+    public User updatePersonal(
+            @PathVariable @NonNull Long id,
+            @RequestBody User user
+    ) {
+        return userService.updatePersonalInfo(id, user);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<?> updateUserProfile(@PathVariable @org.springframework.lang.NonNull Long id, @RequestBody User updatedUser) {
-        User user = userRepository.findById(id).orElse(null);
-        if (user != null) {
-            user.setFullName(updatedUser.getFullName());
-            user.setPhone(updatedUser.getPhone());
-            user.setAddress(updatedUser.getAddress());
-            
-            // Only update password if provided
-            if (updatedUser.getPassword() != null && !updatedUser.getPassword().isEmpty()) {
-                user.setPassword(updatedUser.getPassword());
-            }
+    // UPDATE ADDRESS
+    @PutMapping("/{id}/address")
+    public User updateAddress(
+            @PathVariable @NonNull Long id,
+            @RequestBody User user
+    ) {
+        return userService.updateAddress(id, user);
+    }
 
-            userRepository.save(user);
-            return ResponseEntity.ok(user);
-        }
-        return ResponseEntity.notFound().build();
+    // UPDATE PASSWORD
+    @PutMapping("/{id}/password")
+
+    public User updatePassword(
+            @PathVariable @NonNull Long id,
+
+            @RequestBody User user
+    ) {
+
+        return userService.updatePassword(
+                id,
+                user.getPassword()
+        );
     }
 }

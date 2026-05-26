@@ -439,7 +439,7 @@
 .profile-avatar {
   width: 32px;
   height: 32px;
-  background-color: #3b82f6;
+  background-color: var(--nav-accent);
   color: white;
   border-radius: 50%;
   display: flex;

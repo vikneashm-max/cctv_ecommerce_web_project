@@ -9,32 +9,81 @@ interface ProfilePageProps {
 
 const ProfilePage: React.FC<ProfilePageProps> = ({ currentUser, setCurrentUser }) => {
   const [fullName, setFullName] = useState(currentUser?.fullName || '');
-  const [phone, setPhone] = useState(currentUser?.phone || '');
+  const [phoneNumber, setPhoneNumber] = useState(currentUser?.phoneNumber || '');
+  
   const [address, setAddress] = useState(currentUser?.address || '');
+  const [city, setCity] = useState(currentUser?.city || '');
+  const [state, setState] = useState(currentUser?.state || '');
+  const [postalCode, setPostalCode] = useState(currentUser?.postalCode || '');
+  const [country, setCountry] = useState(currentUser?.country || '');
+  
   const [password, setPassword] = useState('');
   
-  const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState<{ text: string, type: 'success' | 'error' } | null>(null);
+  const [isLoading, setIsLoading] = useState<{ personal: boolean, address: boolean, security: boolean }>({
+    personal: false,
+    address: false,
+    security: false
+  });
+  
+  const [messages, setMessages] = useState<{ personal: any, address: any, security: any }>({
+    personal: null,
+    address: null,
+    security: null
+  });
 
-  const handleUpdate = async (e: React.FormEvent) => {
+  const updateMessage = (section: 'personal' | 'address' | 'security', msg: { text: string, type: 'success' | 'error' } | null) => {
+    setMessages(prev => ({ ...prev, [section]: msg }));
+    if (msg) setTimeout(() => setMessages(prev => ({ ...prev, [section]: null })), 4000);
+  };
+
+  const handleUpdatePersonal = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-    setMessage(null);
-    
+    setIsLoading(prev => ({ ...prev, personal: true }));
     try {
-      const response = await axios.put(`http://localhost:8080/api/users/${currentUser.id}`, {
+      const response = await axios.put(`http://localhost:8080/api/users/${currentUser.id}/personal`, {
         fullName,
-        phone,
-        address,
+        phoneNumber
+      });
+      setCurrentUser(response.data);
+      updateMessage('personal', { text: 'Personal info updated!', type: 'success' });
+    } catch (error) {
+      updateMessage('personal', { text: 'Failed to update personal info.', type: 'error' });
+    } finally {
+      setIsLoading(prev => ({ ...prev, personal: false }));
+    }
+  };
+
+  const handleUpdateAddress = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(prev => ({ ...prev, address: true }));
+    try {
+      const response = await axios.put(`http://localhost:8080/api/users/${currentUser.id}/address`, {
+        address, city, state, postalCode, country
+      });
+      setCurrentUser(response.data);
+      updateMessage('address', { text: 'Address updated!', type: 'success' });
+    } catch (error) {
+      updateMessage('address', { text: 'Failed to update address.', type: 'error' });
+    } finally {
+      setIsLoading(prev => ({ ...prev, address: false }));
+    }
+  };
+
+  const handleUpdatePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!password) return;
+    setIsLoading(prev => ({ ...prev, security: true }));
+    try {
+      const response = await axios.put(`http://localhost:8080/api/users/${currentUser.id}/password`, {
         password
       });
       setCurrentUser(response.data);
-      setMessage({ text: 'Profile updated successfully!', type: 'success' });
+      updateMessage('security', { text: 'Password updated!', type: 'success' });
       setPassword('');
     } catch (error) {
-      setMessage({ text: 'Failed to update profile.', type: 'error' });
+      updateMessage('security', { text: 'Failed to update password.', type: 'error' });
     } finally {
-      setIsLoading(false);
+      setIsLoading(prev => ({ ...prev, security: false }));
     }
   };
 
@@ -43,67 +92,82 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ currentUser, setCurrentUser }
   }
 
   return (
-    <div className="profile-page-container">
-      <div className="profile-card">
-        <h2>My Profile</h2>
-        <p className="profile-subtitle">Update your personal information and address.</p>
-        
-        {message && (
-          <div className={`profile-message ${message.type}`}>
-            {message.text}
-          </div>
-        )}
+    <div className="profile-page-container split-layout">
+      <h2 className="profile-page-title">My Account</h2>
+      
+      <div className="profile-sections">
+        {/* Personal Info Section */}
+        <div className="profile-card">
+          <h3>Personal Information</h3>
+          {messages.personal && <div className={`profile-message ${messages.personal.type}`}>{messages.personal.text}</div>}
+          <form className="profile-form" onSubmit={handleUpdatePersonal}>
+            <div className="form-group">
+              <label>Email Address</label>
+              <input type="email" value={currentUser.email} disabled className="disabled-input" />
+            </div>
+            <div className="form-group">
+              <label>Full Name</label>
+              <input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
+            </div>
+            <div className="form-group">
+              <label>Phone Number</label>
+              <input type="tel" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} placeholder="+91 9xxx" />
+            </div>
+            <button type="submit" className="save-btn" disabled={isLoading.personal}>
+              {isLoading.personal ? 'Saving...' : 'Save Personal Info'}
+            </button>
+          </form>
+        </div>
 
-        <form className="profile-form" onSubmit={handleUpdate}>
-          <div className="form-group">
-            <label>Email Address (Cannot be changed)</label>
-            <input type="email" value={currentUser.email} disabled className="disabled-input" />
-          </div>
-          
-          <div className="form-group">
-            <label>Full Name</label>
-            <input 
-              type="text" 
-              value={fullName} 
-              onChange={(e) => setFullName(e.target.value)} 
-              required 
-            />
-          </div>
+        {/* Address Section */}
+        <div className="profile-card">
+          <h3>Address Book</h3>
+          {messages.address && <div className={`profile-message ${messages.address.type}`}>{messages.address.text}</div>}
+          <form className="profile-form" onSubmit={handleUpdateAddress}>
+            <div className="form-group">
+              <label>Street Address</label>
+              <textarea value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Enter street address" rows={2} />
+            </div>
+            <div className="form-row">
+              <div className="form-group">
+                <label>City</label>
+                <input type="text" value={city} onChange={(e) => setCity(e.target.value)} />
+              </div>
+              <div className="form-group">
+                <label>State</label>
+                <input type="text" value={state} onChange={(e) => setState(e.target.value)} />
+              </div>
+            </div>
+            <div className="form-row">
+              <div className="form-group">
+                <label>Postal Code</label>
+                <input type="text" value={postalCode} onChange={(e) => setPostalCode(e.target.value)} />
+              </div>
+              <div className="form-group">
+                <label>Country</label>
+                <input type="text" value={country} onChange={(e) => setCountry(e.target.value)} />
+              </div>
+            </div>
+            <button type="submit" className="save-btn" disabled={isLoading.address}>
+              {isLoading.address ? 'Saving...' : 'Save Address'}
+            </button>
+          </form>
+        </div>
 
-          <div className="form-group">
-            <label>Phone Number</label>
-            <input 
-              type="tel" 
-              value={phone} 
-              onChange={(e) => setPhone(e.target.value)} 
-              placeholder="+91 9xxx"
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Shipping Address</label>
-            <textarea 
-              value={address} 
-              onChange={(e) => setAddress(e.target.value)} 
-              placeholder="Enter your full shipping address"
-              rows={3}
-            />
-          </div>
-
-          <div className="form-group">
-            <label>New Password (Leave blank to keep current)</label>
-            <input 
-              type="password" 
-              value={password} 
-              onChange={(e) => setPassword(e.target.value)} 
-              placeholder="••••••••"
-            />
-          </div>
-
-          <button type="submit" className="save-btn" disabled={isLoading}>
-            {isLoading ? 'Saving...' : 'Save Changes'}
-          </button>
-        </form>
+        {/* Security Section */}
+        <div className="profile-card">
+          <h3>Security</h3>
+          {messages.security && <div className={`profile-message ${messages.security.type}`}>{messages.security.text}</div>}
+          <form className="profile-form" onSubmit={handleUpdatePassword}>
+            <div className="form-group">
+              <label>New Password</label>
+              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required />
+            </div>
+            <button type="submit" className="save-btn security-btn" disabled={isLoading.security || !password}>
+              {isLoading.security ? 'Saving...' : 'Update Password'}
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   );

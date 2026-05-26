@@ -13,7 +13,7 @@ import Navbar from './components/Navbar/Navbar';
 import AdminPage from './components/AdminPage/AdminPage';
 import AdminLoginPage from './components/AdminPage/AdminLoginPage';
 import ProfilePage from './components/ProfilePage/ProfilePage';
-import { productsData } from './components/ProductsPage/productsData';
+import MyOrdersPage, { type Order } from './components/MyOrdersPage/MyOrdersPage';
 import './App.css'
 
 interface WarrantyInfo {
@@ -34,12 +34,12 @@ interface Product {
   inStock?: boolean;
 }
 
-type View = 'login' | 'signup' | 'home' | 'products' | 'services' | 'about' | 'cart' | 'favorites' | 'contact' | 'product-detail' | 'admin' | 'profile';
+type View = 'login' | 'signup' | 'home' | 'products' | 'services' | 'about' | 'cart' | 'favorites' | 'contact' | 'product-detail' | 'admin' | 'profile' | 'orders';
 
 function App() {
   const [products, setProducts] = useState<any[]>(() => {
     const savedProducts = localStorage.getItem('appProducts');
-    return savedProducts ? JSON.parse(savedProducts) : productsData;
+    return savedProducts ? JSON.parse(savedProducts) : [];
   });
 
   useEffect(() => {
@@ -93,6 +93,11 @@ function App() {
   const [favorites, setFavorites] = useState<Product[]>(() => {
     const savedFavorites = localStorage.getItem('appFavorites');
     return savedFavorites ? JSON.parse(savedFavorites) : [];
+  });
+
+  const [orders, setOrders] = useState<Order[]>(() => {
+    const savedOrders = localStorage.getItem('appOrders');
+    return savedOrders ? JSON.parse(savedOrders) : [];
   });
 
   useEffect(() => {
@@ -171,6 +176,10 @@ function App() {
     localStorage.setItem('appFavorites', JSON.stringify(favorites));
   }, [favorites]);
 
+  useEffect(() => {
+    localStorage.setItem('appOrders', JSON.stringify(orders));
+  }, [orders]);
+
   const toggleToSignup = () => setView('signup')
   const toggleToLogin = () => setView('login')
   const handleLoginSuccess = (user: any = null) => {
@@ -225,6 +234,29 @@ function App() {
   const buyNow = (product: Product) => {
     addToCart(product);
     setView('cart');
+  };
+
+  const handleCheckout = () => {
+    if (cart.length === 0) return;
+    
+    // Calculate total
+    const total = cart.reduce((sum, item) => {
+      // Remove currency symbol and commas, then parse
+      const priceVal = parseFloat(item.price.replace(/[^\d.]/g, ''));
+      return sum + (isNaN(priceVal) ? 0 : priceVal);
+    }, 0);
+
+    const newOrder: Order = {
+      id: Math.random().toString(36).substring(2, 9).toUpperCase(),
+      date: new Date().toISOString(),
+      items: [...cart],
+      total: total
+    };
+
+    setOrders(prev => [newOrder, ...prev]);
+    setCart([]);
+    showNotification('Order placed successfully!');
+    setView('orders');
   };
 
   return (
@@ -324,6 +356,7 @@ function App() {
           <CartPage 
             cartItems={cart} 
             removeFromCart={removeFromCart} 
+            onCheckout={handleCheckout}
           />
         )}
         {view === 'favorites' && (
@@ -335,6 +368,9 @@ function App() {
         )}
         {view === 'contact' && (
           <ContactPage />
+        )}
+        {view === 'orders' && (
+          <MyOrdersPage orders={orders} />
         )}
       </main>
     </div>

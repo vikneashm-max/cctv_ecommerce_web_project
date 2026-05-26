@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import './AdminLoginPage.css';
 import logo from '../../assets/logo.png';
 
@@ -8,25 +9,38 @@ interface AdminLoginPageProps {
 }
 
 const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onLogin, onCancel }) => {
-  const [email, setEmail] = useState('admin@secureguard.io');
-  const [password, setPassword] = useState('admin');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
 
-    setTimeout(() => {
-      if (email === 'admin@secureguard.io' && password === 'admin') {
+    try {
+      const response = await axios.post('http://localhost:8080/api/auth/login', {
+        email,
+        password
+      });
+      
+      const user = response.data;
+      if (user.role === 'ADMIN') {
         onLogin();
       } else {
-        setError('Invalid credentials. Please verify your system administrator privileges.');
-        setIsLoading(false);
+        setError('Access Denied: You do not have administrator privileges.');
       }
-    }, 600);
+    } catch (err: any) {
+      if (err.response && err.response.data && typeof err.response.data === 'string') {
+        setError(err.response.data);
+      } else {
+        setError('Invalid credentials. Please verify your system administrator privileges.');
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -104,13 +118,6 @@ const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onLogin, onCancel }) =>
             </div>
           </div>
 
-          <div className="remember-me-row">
-            <label className="checkbox-container">
-              <input type="checkbox" defaultChecked />
-              <span className="checkbox-checkmark"></span>
-              <span className="checkbox-label">Remember me for 30 days</span>
-            </label>
-          </div>
 
           <button type="submit" className="admin-submit-btn" disabled={isLoading}>
             {isLoading ? (
