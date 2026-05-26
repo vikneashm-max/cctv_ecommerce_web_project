@@ -14,6 +14,7 @@ import AdminPage from './components/AdminPage/AdminPage';
 import AdminLoginPage from './components/AdminPage/AdminLoginPage';
 import ProfilePage from './components/ProfilePage/ProfilePage';
 import MyOrdersPage, { type Order } from './components/MyOrdersPage/MyOrdersPage';
+import { useModal } from './context/ModalContext';
 import './App.css'
 
 interface WarrantyInfo {
@@ -32,11 +33,18 @@ interface Product {
   sub: string;
   category: string;
   inStock?: boolean;
+  shippingTax?: number;
+  gst?: number;
+}
+
+interface CartItem extends Product {
+  quantity: number;
 }
 
 type View = 'login' | 'signup' | 'home' | 'products' | 'services' | 'about' | 'cart' | 'favorites' | 'contact' | 'product-detail' | 'admin' | 'profile' | 'orders';
 
 function App() {
+  const { showConfirm } = useModal();
   const [products, setProducts] = useState<any[]>(() => {
     const savedProducts = localStorage.getItem('appProducts');
     return savedProducts ? JSON.parse(savedProducts) : [];
@@ -85,9 +93,16 @@ function App() {
     }
   }, [selectedProductId]);
 
-  const [cart, setCart] = useState<Product[]>(() => {
+  const [cart, setCart] = useState<CartItem[]>(() => {
     const savedCart = localStorage.getItem('appCart');
-    return savedCart ? JSON.parse(savedCart) : [];
+    if (savedCart) {
+      const parsed = JSON.parse(savedCart);
+      return parsed.map((item: any) => ({
+        ...item,
+        quantity: item.quantity || 1
+      }));
+    }
+    return [];
   });
 
   const [favorites, setFavorites] = useState<Product[]>(() => {
@@ -203,20 +218,29 @@ function App() {
     setTimeout(() => setNotification(null), 3000);
   };
 
-  const addToCart = (product: Product) => {
+  const addToCart = (product: Product, quantityToAdd: number = 1) => {
     setCart(prev => {
       const exists = prev.find(item => item.id === product.id);
       if (exists) {
-        showNotification(`${product.name} is already in cart`, 'info');
-        return prev;
+        showNotification(`Updated ${product.name} quantity in cart`, 'success');
+        return prev.map(item => item.id === product.id ? { ...item, quantity: item.quantity + quantityToAdd } : item);
       }
       showNotification(`Added ${product.name} to cart`);
-      return [...prev, product];
+      return [...prev, { ...product, quantity: quantityToAdd }];
     });
   };
 
   const removeFromCart = (productId: number) => {
     setCart(prev => prev.filter(item => item.id !== productId));
+  };
+
+  const updateCartQuantity = (productId: number, delta: number) => {
+    setCart(prev => prev.map(item => {
+      if (item.id === productId) {
+        return { ...item, quantity: Math.max(1, item.quantity + delta) };
+      }
+      return item;
+    }));
   };
 
   const toggleFavorite = (product: Product) => {
@@ -231,32 +255,43 @@ function App() {
     });
   };
 
-  const buyNow = (product: Product) => {
-    addToCart(product);
+  const buyNow = (product: Product, quantity: number = 1) => {
+    addToCart(product, quantity);
     setView('cart');
   };
 
-  const handleCheckout = () => {
+  const handleCheckout = (paymentMethod: string = 'Cash on Delivery') => {
     if (cart.length === 0) return;
     
     // Calculate total
     const total = cart.reduce((sum, item) => {
       // Remove currency symbol and commas, then parse
       const priceVal = parseFloat(item.price.replace(/[^\d.]/g, ''));
-      return sum + (isNaN(priceVal) ? 0 : priceVal);
+      return sum + (isNaN(priceVal) ? 0 : (priceVal * item.quantity));
     }, 0);
 
     const newOrder: Order = {
       id: Math.random().toString(36).substring(2, 9).toUpperCase(),
       date: new Date().toISOString(),
       items: [...cart],
-      total: total
+      total: total,
+      status: 'Pending',
+      paymentMethod: paymentMethod,
+      customerName: currentUser?.fullName || 'Guest'
     };
 
     setOrders(prev => [newOrder, ...prev]);
     setCart([]);
-    showNotification('Order placed successfully!');
     setView('orders');
+    showNotification('Order placed successfully!', 'success');
+  };
+
+  const handleCancelOrder = async (orderId: string) => {
+    const confirmed = await showConfirm('Are you sure you want to cancel this order?');
+    if (confirmed) {
+      setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: 'Cancelled' } : o));
+      showNotification('Order cancelled successfully.');
+    }
   };
 
   return (
@@ -325,6 +360,7 @@ function App() {
               setSelectedProductId(id);
             }}
             products={products}
+            currentUser={currentUser}
           />
         )}
 
@@ -356,7 +392,9 @@ function App() {
           <CartPage 
             cartItems={cart} 
             removeFromCart={removeFromCart} 
-            onCheckout={handleCheckout}
+            updateCartQuantity={updateCartQuantity}
+            onCheckout={handleCheckout} 
+            onBack={() => setView('home')}
           />
         )}
         {view === 'favorites' && (
@@ -370,7 +408,7 @@ function App() {
           <ContactPage />
         )}
         {view === 'orders' && (
-          <MyOrdersPage orders={orders} />
+          <MyOrdersPage orders={orders} onCancelOrder={handleCancelOrder} />
         )}
       </main>
     </div>

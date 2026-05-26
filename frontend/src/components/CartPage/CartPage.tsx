@@ -10,14 +10,25 @@ interface Product {
   category: string;
 }
 
-interface CartPageProps {
-  cartItems: Product[];
-  removeFromCart: (id: number) => void;
-  onCheckout: () => void;
+interface CartItem extends Product {
+  quantity: number;
 }
 
-const CartPage: React.FC<CartPageProps> = ({ cartItems, removeFromCart, onCheckout }) => {
+interface CartPageProps {
+  cartItems: CartItem[];
+  removeFromCart: (id: number) => void;
+  updateCartQuantity: (id: number, delta: number) => void;
+  onCheckout: (paymentMethod: string) => void;
+  onBack?: () => void;
+}
 
+const CartPage: React.FC<CartPageProps> = ({ cartItems, removeFromCart, updateCartQuantity, onCheckout }) => {
+  const [paymentMethod] = React.useState('Cash on Delivery');
+
+  const total = cartItems.reduce((sum, item) => {
+    const priceVal = parseFloat(item.price.replace(/[^\d.]/g, ''));
+    return sum + (isNaN(priceVal) ? 0 : (priceVal * item.quantity));
+  }, 0);
 
   return (
     <div className="cart-container">
@@ -43,9 +54,9 @@ const CartPage: React.FC<CartPageProps> = ({ cartItems, removeFromCart, onChecko
                     <p className="item-price">{item.price}</p>
                     <div className="item-controls">
                       <div className="qty-selector">
-                        <button>-</button>
-                        <span>1</span>
-                        <button>+</button>
+                        <button onClick={() => updateCartQuantity(item.id, -1)} disabled={item.quantity <= 1}>-</button>
+                        <span style={{ color: '#0f172a', fontWeight: 600 }}>{item.quantity}</span>
+                        <button onClick={() => updateCartQuantity(item.id, 1)}>+</button>
                       </div>
                       <button className="remove-item" onClick={() => removeFromCart(item.id)}>Remove</button>
                     </div>
@@ -62,21 +73,38 @@ const CartPage: React.FC<CartPageProps> = ({ cartItems, removeFromCart, onChecko
 
           <aside className="cart-summary">
             <div className="summary-card">
-              <h3>Order Summary</h3>
+              <h3 style={{ color: '#0f172a' }}>Order Summary</h3>
               <div className="summary-row">
                 <span>Subtotal</span>
-                <span>{cartItems.length > 0 ? 'See above' : '₹0'}</span>
+                <span>{cartItems.length > 0 ? `₹${total.toLocaleString('en-IN')}` : '₹0'}</span>
               </div>
               <div className="summary-row">
                 <span>Shipping</span>
                 <span className="free-shipping">FREE</span>
               </div>
-              <div className="summary-total">
-                <span>Total</span>
-                <span>{cartItems.length > 0 ? 'Total calculated at checkout' : '₹0'}</span>
+
+              <div className="payment-method-section" style={{ margin: '1.5rem 0', padding: '1rem', background: '#f8fafc', borderRadius: '8px' }}>
+                <h4 style={{ margin: '0 0 1rem 0', fontSize: '0.9rem', color: '#1e293b' }}>Payment Method</h4>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem', color: '#1e293b' }}>
+                    <input 
+                      type="radio" 
+                      name="paymentMethod" 
+                      value="Cash on Delivery" 
+                      checked={true}
+                      readOnly
+                    />
+                    Cash on Delivery (COD)
+                  </label>
+                </div>
               </div>
 
-              <button className="checkout-btn" onClick={onCheckout} disabled={cartItems.length === 0}>PROCEED TO CHECKOUT</button>
+              <div className="summary-total">
+                <span>Total</span>
+                <span>{cartItems.length > 0 ? `₹${total.toLocaleString('en-IN')}` : '₹0'}</span>
+              </div>
+
+              <button className="checkout-btn" onClick={() => onCheckout(paymentMethod)} disabled={cartItems.length === 0}>PROCEED TO CHECKOUT</button>
             </div>
           </aside>
         </div>

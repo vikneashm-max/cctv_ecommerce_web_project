@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import './ServicesPage.css';
+import { useModal } from '../../context/ModalContext';
 
 interface ServicesPageProps {
   // Navigation prop removed since modal popup is used
 }
 
 const ServicesPage: React.FC<ServicesPageProps> = () => {
+  const { showAlert } = useModal();
   const [selectedService, setSelectedService] = useState<string | null>(null);
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
@@ -24,10 +26,10 @@ const ServicesPage: React.FC<ServicesPageProps> = () => {
     setSelectedService(null);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !phone) {
-      alert('Please fill in your Name and Phone Number.');
+      await showAlert('Please fill in your Name and Phone Number.');
       return;
     }
     // Simulate API call success

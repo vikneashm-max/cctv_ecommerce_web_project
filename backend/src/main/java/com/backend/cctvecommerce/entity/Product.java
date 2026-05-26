@@ -23,6 +23,10 @@ public class Product {
 
     private String category;
 
+    private Double shippingTax;
+
+    private Double gst;
+
     // Getters and Setters
 
     public Long getId() { return id; }
@@ -45,4 +49,10 @@ public class Product {
 
     public String getCategory() { return category; }
     public void setCategory(String category) { this.category = category; }
+
+    public Double getShippingTax() { return shippingTax; }
+    public void setShippingTax(Double shippingTax) { this.shippingTax = shippingTax; }
+
+    public Double getGst() { return gst; }
+    public void setGst(Double gst) { this.gst = gst; }
 }

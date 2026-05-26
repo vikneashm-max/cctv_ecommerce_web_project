@@ -29,12 +29,13 @@ interface ProductDetailPageProps {
   productId: number;
   onBack: () => void;
   onNavigate: (view: any) => void;
-  addToCart: (product: any) => void;
+  addToCart: (product: any, quantity?: number) => void;
   toggleFavorite: (product: any) => void;
-  buyNow: (product: any) => void;
+  buyNow: (product: any, quantity?: number) => void;
   favorites: any[];
   onSelectProduct: (id: number) => void;
   products: any[];
+  currentUser?: any;
 }
 
 const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
@@ -46,7 +47,8 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
   buyNow,
   favorites,
   onSelectProduct,
-  products
+  products,
+  currentUser
 }) => {
   const product = products.find(p => p.id === productId);
   const [quantity, setQuantity] = useState<number>(1);
@@ -67,18 +69,13 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
   const isFavorited = favorites.some(f => f.id === product.id);
 
   const handleAddToCart = () => {
-    for (let i = 0; i < quantity; i++) {
-      addToCart(product);
-    }
+    addToCart(product, quantity);
     setAddedMessage(true);
     setTimeout(() => setAddedMessage(false), 3000);
   };
 
   const handleBuyNow = () => {
-    for (let i = 0; i < quantity - 1; i++) {
-      addToCart(product);
-    }
-    buyNow(product);
+    buyNow(product, quantity);
   };
 
   // Find related products in same category
@@ -160,10 +157,39 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
               <span className="reviews-count">({product.reviews} verified reviews)</span>
             </div>
             
-            <div className="price-tag-big">{product.price}</div>
+            <div className="price-tag-big" style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', marginBottom: '1rem' }}>
+              <div>{product.price}</div>
+              {(product.shippingTax || product.gst) && (
+                <div style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 400, marginTop: '4px' }}>
+                  {product.shippingTax ? `+ ₹${product.shippingTax} Shipping` : ''} 
+                  {product.shippingTax && product.gst ? ' | ' : ''} 
+                  {product.gst ? `+ ${product.gst}% GST` : ''}
+                </div>
+              )}
+            </div>
           </header>
 
           <p className="prod-intro-sub">{product.sub}</p>
+
+          <div className="delivery-info-section" style={{ margin: '1rem 0', padding: '1rem', background: '#f0fdf4', borderRadius: '8px', border: '1px solid #bbf7d0' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#16a34a" strokeWidth="2" style={{ marginTop: '0.1rem' }}>
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+              </svg>
+              <div>
+                <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#16a34a', display: 'block', marginBottom: '0.25rem' }}>Deliver to</span>
+                {currentUser ? (
+                  <span style={{ fontSize: '0.9rem', color: '#1e293b' }}>
+                    <strong>{currentUser.fullName}</strong> - {currentUser.address || 'Update your address in profile'}
+                  </span>
+                ) : (
+                  <span style={{ fontSize: '0.9rem', color: '#64748b' }}>
+                    Please login to see delivery options and saved addresses.
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
 
           <div className="installation-promo-box">
             <div className="promo-icon">

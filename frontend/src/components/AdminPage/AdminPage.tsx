@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './AdminPage.css';
+import { useModal } from '../../context/ModalContext';
 import domeCam from '../../assets/dome_camera.png';
 import logo from '../../assets/logo.png';
 
@@ -25,6 +26,8 @@ interface Product {
   specs: Record<string, string>;
   features: string[];
   inStock?: boolean;
+  shippingTax?: number;
+  gst?: number;
 }
 
 interface Customer {
@@ -38,13 +41,21 @@ interface Customer {
   status: 'Active' | 'Blocked';
 }
 
+interface OrderItem {
+  id: number;
+  name: string;
+  price: string;
+  img: string;
+}
+
 interface Order {
   id: string;
-  customerName: string;
-  productName: string;
-  amount: string;
+  customerName?: string;
   date: string;
-  status: 'Pending' | 'Processing' | 'Delivered' | 'Cancelled';
+  items: OrderItem[];
+  total: number;
+  status: string;
+  paymentMethod?: string;
 }
 
 interface Coupon {
@@ -64,6 +75,7 @@ interface AdminPageProps {
 type TabType = 'dashboard' | 'products' | 'orders' | 'customers' | 'inventory' | 'analytics' | 'discounts' | 'settings' | 'profile';
 
 const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, onBack }) => {
+  const { showAlert, showConfirm } = useModal();
   const [activeTab, setActiveTab] = useState<TabType>('customers');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -109,10 +121,10 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, onBack }) 
   const [newCustPhone, setNewCustPhone] = useState('');
   const [newCustType, setNewCustType] = useState<'Residential' | 'Enterprise'>('Residential');
 
-  const handleAddCustomer = (e: React.FormEvent) => {
+  const handleAddCustomer = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newCustName || !newCustEmail || !newCustPhone) {
-      alert('Please fill out all fields');
+      await showAlert('Please fill out all fields');
       return;
     }
     const newId = customers.length > 0 ? Math.max(...customers.map(c => c.id)) + 1 : 1;
@@ -132,7 +144,7 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, onBack }) 
     setNewCustPhone('');
     setNewCustType('Residential');
     setShowAddCustomerModal(false);
-    alert('Customer account deployed successfully!');
+    await showAlert('Customer account deployed successfully!');
   };
 
   const toggleCustomerStatus = (id: number) => {
@@ -144,8 +156,9 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, onBack }) 
     }));
   };
 
-  const handleDeleteCustomer = (id: number) => {
-    if (window.confirm('Purge this customer security account?')) {
+  const handleDeleteCustomer = async (id: number) => {
+    const confirmed = await showConfirm('Purge this customer security account?');
+    if (confirmed) {
       setCustomers(prev => prev.filter(c => c.id !== id));
     }
   };
@@ -174,21 +187,22 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, onBack }) 
 
   // ------------------ DYNAMIC STATE FOR ORDERS ------------------
   const [orders, setOrders] = useState<Order[]>(() => {
-    const saved = localStorage.getItem('sgOrders');
+    const saved = localStorage.getItem('appOrders');
     if (saved) return JSON.parse(saved);
     return [];
   });
 
   useEffect(() => {
-    localStorage.setItem('sgOrders', JSON.stringify(orders));
+    localStorage.setItem('appOrders', JSON.stringify(orders));
   }, [orders]);
 
   const handleUpdateOrderStatus = (id: string, nextStatus: any) => {
     setOrders(prev => prev.map(o => o.id === id ? { ...o, status: nextStatus } : o));
   };
 
-  const handleDeleteOrder = (id: string) => {
-    if (window.confirm('Are you sure you want to delete this order?')) {
+  const handleDeleteOrder = async (id: string) => {
+    const confirmed = await showConfirm('Are you sure you want to delete this order?');
+    if (confirmed) {
       setOrders(prev => prev.filter(o => o.id !== id));
     }
   };
@@ -204,7 +218,7 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, onBack }) 
   const [newDiscount, setNewDiscount] = useState('');
   const [newExpiry, setNewExpiry] = useState('');
 
-  const handleAddCoupon = (e: React.FormEvent) => {
+  const handleAddCoupon = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newCode || !newDiscount || !newExpiry) return;
     const newC: Coupon = {
@@ -218,7 +232,7 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, onBack }) 
     setNewCode('');
     setNewDiscount('');
     setNewExpiry('');
-    alert('Coupon code registered!');
+    await showAlert('Coupon code registered!');
   };
 
   // ------------------ PRODUCTS FORM WORKSPACE STATE ------------------
@@ -226,6 +240,8 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, onBack }) 
   const [productToDelete, setProductToDelete] = useState<number | null>(null);
   const [prodName, setProdName] = useState('');
   const [prodPrice, setProdPrice] = useState('');
+  const [prodShippingTax, setProdShippingTax] = useState('');
+  const [prodGst, setProdGst] = useState('');
   const [prodSub, setProdSub] = useState('');
   const [prodCategory, setProdCategory] = useState('Cameras');
   const [prodDescription, setProdDescription] = useState('');
@@ -257,9 +273,9 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, onBack }) 
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onloadend = () => {
+      reader.onloadend = async () => {
         setAdminAvatar(reader.result as string);
-        alert('Admin profile photo updated successfully!');
+        await showAlert('Admin profile photo updated successfully!');
       };
       reader.readAsDataURL(file);
     }
@@ -276,14 +292,14 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, onBack }) 
     setProdImages(prev => prev.filter((_, i) => i !== index));
   };
 
-  const handleProductSubmit = (e: React.FormEvent) => {
+  const handleProductSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!prodName || !prodPrice || !prodSub || !prodDescription) {
-      alert('Please fill out basic fields');
+      await showAlert('Please fill out basic fields');
       return;
     }
     if (prodImages.length === 0) {
-      alert('Please add at least one product image');
+      await showAlert('Please add at least one product image');
       return;
     }
     const cleanFeatures = prodFeatures.filter(f => f.trim() !== '');
@@ -314,6 +330,8 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, onBack }) 
         ...p,
         name: prodName,
         price: prodPrice.startsWith('₹') ? prodPrice : `₹${prodPrice}`,
+        shippingTax: parseFloat(prodShippingTax) || 0,
+        gst: parseFloat(prodGst) || 0,
         sub: prodSub,
         category: prodCategory,
         description: prodDescription,
@@ -324,13 +342,15 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, onBack }) 
         features: cleanFeatures.length > 0 ? cleanFeatures : ['Premium component'],
         specs: Object.keys(cleanSpecs).length > 0 ? cleanSpecs : { Type: 'Hardware' }
       } : p));
-      alert('Surveillance gear updated!');
+      await showAlert('Surveillance gear updated!');
     } else {
       const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
       setProducts([...products, {
         id: newId,
         name: prodName,
         price: prodPrice.startsWith('₹') ? prodPrice : `₹${prodPrice}`,
+        shippingTax: parseFloat(prodShippingTax) || 0,
+        gst: parseFloat(prodGst) || 0,
         sub: prodSub,
         category: prodCategory,
         description: prodDescription,
@@ -343,7 +363,7 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, onBack }) 
         features: cleanFeatures.length > 0 ? cleanFeatures : ['Premium component'],
         specs: Object.keys(cleanSpecs).length > 0 ? cleanSpecs : { Type: 'Hardware' }
       }]);
-      alert('Surveillance gear cataloged!');
+      await showAlert('Surveillance gear cataloged!');
     }
     resetProductForm();
   };
@@ -352,6 +372,8 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, onBack }) 
     setEditingId(null);
     setProdName('');
     setProdPrice('');
+    setProdShippingTax('');
+    setProdGst('');
     setProdSub('');
     setProdCategory('Cameras');
     setProdDescription('');
@@ -372,6 +394,8 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, onBack }) 
     setEditingId(p.id);
     setProdName(p.name);
     setProdPrice(p.price.replace('₹', ''));
+    setProdShippingTax(p.shippingTax?.toString() || '');
+    setProdGst(p.gst?.toString() || '');
     setProdSub(p.sub);
     setProdCategory(p.category);
     setProdDescription(p.description);
@@ -587,6 +611,17 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, onBack }) 
                         <div className="form-input-box">
                           <label>Unit Price (₹) *</label>
                           <input type="text" placeholder="e.g. 12499" value={prodPrice} onChange={(e) => setProdPrice(e.target.value)} required />
+                        </div>
+                      </div>
+
+                      <div className="form-group-row">
+                        <div className="form-input-box">
+                          <label>Shipping Tax (₹)</label>
+                          <input type="number" placeholder="e.g. 500" value={prodShippingTax} onChange={(e) => setProdShippingTax(e.target.value)} />
+                        </div>
+                        <div className="form-input-box">
+                          <label>GST (%)</label>
+                          <input type="number" placeholder="e.g. 18" value={prodGst} onChange={(e) => setProdGst(e.target.value)} />
                         </div>
                       </div>
 
@@ -829,21 +864,23 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, onBack }) 
                       <th>SURVEILLANCE UNIT</th>
                       <th>TOTAL PRICE</th>
                       <th>DATE</th>
+                      <th>PAYMENT</th>
                       <th>STATUS</th>
                       <th>ACTIONS</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {orders.filter(o => o.customerName.toLowerCase().includes(searchQuery.toLowerCase()) || o.productName.toLowerCase().includes(searchQuery.toLowerCase())).map((o) => (
+                    {orders.filter(o => (o.customerName || 'Guest').toLowerCase().includes(searchQuery.toLowerCase()) || o.items?.some(i => i.name.toLowerCase().includes(searchQuery.toLowerCase()))).map((o) => (
                       <tr key={o.id}>
                         <td><strong>{o.id}</strong></td>
-                        <td>{o.customerName}</td>
-                        <td>{o.productName}</td>
-                        <td>{o.amount}</td>
-                        <td>{o.date}</td>
+                        <td>{o.customerName || 'Guest'}</td>
+                        <td>{o.items?.map(i => i.name).join(', ') || 'Unknown'}</td>
+                        <td>₹{o.total?.toLocaleString('en-IN') || '0'}</td>
+                        <td>{new Date(o.date).toLocaleDateString()}</td>
+                        <td>{o.paymentMethod || 'N/A'}</td>
                         <td>
-                          <span className={`order-status-badge ${o.status.toLowerCase()}`}>
-                            {o.status}
+                          <span className={`order-status-badge ${(o.status || 'Pending').toLowerCase()}`}>
+                            {o.status || 'Pending'}
                           </span>
                         </td>
                         <td>
@@ -956,7 +993,7 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, onBack }) 
                             </div>
                           </td>
                           <td>
-                            <span className="table-orders-count">{cust.ordersCount}</span>
+                            <span className="table-orders-count">{orders.filter(o => (o.customerName || 'Guest') === cust.name).length}</span>
                           </td>
                           <td>
                             <div className="status-toggle-wrapper">
@@ -978,7 +1015,7 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, onBack }) 
                               <button 
                                 className="btn-table-action-icon view" 
                                 title="Inspect security setup log"
-                                onClick={() => alert(`Accessing SecureGuard account logs for ${cust.name}`)}
+                                onClick={async () => await showAlert(`Accessing SecureGuard account logs for ${cust.name}`)}
                               >
                                 <svg viewBox="0 0 24 24" width="16" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                               </button>
@@ -1304,7 +1341,7 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, onBack }) 
                     </select>
                   </div>
 
-                  <button className="btn-submit-form" onClick={() => alert('SecureGuard configurations synced with central node!')}>
+                  <button className="btn-submit-form" onClick={async () => await showAlert('SecureGuard configurations synced with central node!')}>
                     Sync Configuration Settings
                   </button>
 
@@ -1416,7 +1453,7 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, onBack }) 
                         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.2" className="header-svg-icon" style={{ marginRight: '8px' }}><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
                         <h3>Personal Information</h3>
                       </div>
-                      <button className="btn-edit-link" onClick={() => alert("Personal information fields are interactive. Modify any text and press 'Save Changes' to update.")}>Edit</button>
+                      <button className="btn-edit-link" onClick={async () => await showAlert("Personal information fields are interactive. Modify any text and press 'Save Changes' to update.")}>Edit</button>
                     </div>
                     <div className="card-body">
                       <div className="form-grid-2">
@@ -1439,7 +1476,7 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, onBack }) 
                       </div>
                     </div>
                     <div className="card-footer-action">
-                      <button className="btn-save-changes" onClick={() => alert("Profile information successfully updated and synced!")}>Save Changes</button>
+                      <button className="btn-save-changes" onClick={async () => await showAlert("Profile information successfully updated and synced!")}>Save Changes</button>
                     </div>
                   </div>
 
@@ -1480,11 +1517,11 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, onBack }) 
                     </div>
                     <div className="card-footer-action-split">
                       <span className="pass-change-note">Last password change: 3 months ago</span>
-                      <button className="btn-update-security" onClick={() => {
+                      <button className="btn-update-security" onClick={async () => {
                         if (adminNewPassword && adminNewPassword !== adminConfirmPassword) {
-                          alert("New password mismatch! Confirm password must match new password.");
+                          await showAlert("New password mismatch! Confirm password must match new password.");
                         } else {
-                          alert("Security passcode credentials successfully saved and validated!");
+                          await showAlert("Security passcode credentials successfully saved and validated!");
                           setAdminNewPassword('');
                           setAdminConfirmPassword('');
                         }

@@ -13,13 +13,17 @@ export interface Order {
   date: string;
   items: OrderItem[];
   total: number;
+  status?: string;
+  paymentMethod?: string;
+  customerName?: string;
 }
 
 interface MyOrdersPageProps {
   orders: Order[];
+  onCancelOrder?: (id: string) => void;
 }
 
-const MyOrdersPage: React.FC<MyOrdersPageProps> = ({ orders }) => {
+const MyOrdersPage: React.FC<MyOrdersPageProps> = ({ orders, onCancelOrder }) => {
   return (
     <div className="orders-page-container">
       <div className="orders-content">
@@ -51,6 +55,48 @@ const MyOrdersPage: React.FC<MyOrdersPageProps> = ({ orders }) => {
                     Total: <span>₹{order.total.toLocaleString('en-IN')}</span>
                   </div>
                 </div>
+                
+                <div className="order-tracking-timeline" style={{ padding: '1.5rem', background: '#f8fafc', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'relative' }}>
+                  <div style={{ position: 'absolute', top: '50%', left: '15%', right: '15%', height: '4px', background: '#cbd5e1', zIndex: 0, transform: 'translateY(-50%)' }}>
+                    <div style={{ 
+                      height: '100%', 
+                      background: order.status === 'Cancelled' ? '#ef4444' : '#3b82f6', 
+                      width: order.status === 'Cancelled' ? '100%' : order.status === 'Pending' ? '0%' : order.status === 'Processing' ? '50%' : order.status === 'Delivered' ? '100%' : '0%',
+                      transition: 'width 0.5s ease'
+                    }}></div>
+                  </div>
+                  
+                  {(order.status === 'Cancelled' ? ['Cancelled'] : ['Pending', 'Processing', 'Delivered']).map((step, idx, arr) => {
+                    const isActive = order.status === 'Cancelled' || 
+                      (order.status === 'Delivered') || 
+                      (order.status === 'Processing' && idx <= 1) || 
+                      (order.status === 'Pending' && idx === 0);
+                      
+                    return (
+                      <div key={step} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 1, gap: '0.5rem', width: arr.length === 1 ? '100%' : 'auto' }}>
+                        <div style={{ 
+                          width: '24px', height: '24px', borderRadius: '50%', 
+                          background: isActive ? (step === 'Cancelled' ? '#ef4444' : '#3b82f6') : '#cbd5e1',
+                          color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          fontWeight: 'bold', fontSize: '12px', border: '4px solid #f8fafc'
+                        }}>✓</div>
+                        <span style={{ fontSize: '0.85rem', fontWeight: isActive ? 600 : 400, color: isActive ? '#1e293b' : '#64748b' }}>{step}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+                
+                {order.status !== 'Cancelled' && order.status !== 'Delivered' && (
+                  <div style={{ padding: '0.5rem 1.5rem', display: 'flex', justifyContent: 'flex-end', background: '#fff' }}>
+                    <button 
+                      onClick={() => onCancelOrder && onCancelOrder(order.id)}
+                      style={{ padding: '0.5rem 1rem', background: 'transparent', border: '1px solid #ef4444', color: '#ef4444', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem' }}
+                    >
+                      Cancel Order
+                    </button>
+                  </div>
+                )}
+
                 <div className="order-items">
                   {order.items.map((item, index) => (
                     <div key={`${order.id}-${item.id}-${index}`} className="order-item">

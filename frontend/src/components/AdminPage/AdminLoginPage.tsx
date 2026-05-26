@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import './AdminLoginPage.css';
 import logo from '../../assets/logo.png';
+import { useModal } from '../../context/ModalContext';
 
 interface AdminLoginPageProps {
   onLogin: () => void;
@@ -9,6 +10,7 @@ interface AdminLoginPageProps {
 }
 
 const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onLogin, onCancel }) => {
+  const { showAlert } = useModal();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -83,7 +85,7 @@ const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onLogin, onCancel }) =>
           <div className="admin-input-group">
             <div className="label-row">
               <label htmlFor="admin-password">Password</label>
-              <a href="#" className="forgot-link" onClick={(e) => { e.preventDefault(); alert("Access recovery: please contact your network security team."); }}>Forgot Password?</a>
+              <a href="#" className="forgot-link" onClick={async (e) => { e.preventDefault(); await showAlert("Access recovery: please contact your network security team."); }}>Forgot Password?</a>
             </div>
             <div className="password-input-wrapper">
               <input 
