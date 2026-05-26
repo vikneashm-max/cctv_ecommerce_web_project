@@ -4,9 +4,10 @@ import cctvHero from '../../assets/cctv_hero.png';
 
 interface HomePageProps {
   onNavigate: (view: 'home' | 'products' | 'about' | 'cart' | 'favorites' | 'contact') => void;
+  onNavigateToCategory: (category: string) => void;
 }
 
-const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
+const HomePage: React.FC<HomePageProps> = ({ onNavigate, onNavigateToCategory }) => {
 
 
 
@@ -84,7 +85,7 @@ const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
               icon: <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
             }
           ].map((cat, i) => (
-            <div className="category-card" key={i} onClick={() => onNavigate('products')}>
+            <div className="category-card" key={i} onClick={() => onNavigateToCategory(cat.title)}>
               <div className="cat-icon-wrapper">
                 {cat.icon}
               </div>

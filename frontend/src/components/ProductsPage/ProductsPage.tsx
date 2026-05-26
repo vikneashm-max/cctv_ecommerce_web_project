@@ -18,13 +18,24 @@ interface ProductsPageProps {
   favorites: Product[];
   onSelectProduct: (id: number) => void;
   products: Product[];
+  initialCategory?: string;
+  onCategoryChange?: (category: string) => void;
 }
 
 const ProductsPage: React.FC<ProductsPageProps> = (props) => {
-  const { toggleFavorite, favorites, onSelectProduct, products } = props;
+  const { toggleFavorite, favorites, onSelectProduct, products, initialCategory, onCategoryChange } = props;
 
+  const [selectedCategory, setSelectedCategory] = React.useState(initialCategory || 'All Categories');
 
-  const [selectedCategory, setSelectedCategory] = React.useState('All Categories');
+  // Sync when initialCategory changes (e.g. navigating from homepage)
+  React.useEffect(() => {
+    if (initialCategory) setSelectedCategory(initialCategory);
+  }, [initialCategory]);
+
+  const handleCategorySelect = (name: string) => {
+    setSelectedCategory(name);
+    onCategoryChange?.(name);
+  };
 
   const isFavorited = (id: number) => favorites.some(f => f.id === id);
 
@@ -64,7 +75,7 @@ const ProductsPage: React.FC<ProductsPageProps> = (props) => {
                   <div 
                     key={i} 
                     className={`category-item ${selectedCategory === cat.name ? 'active' : ''}`}
-                    onClick={() => setSelectedCategory(cat.name)}
+                  onClick={() => handleCategorySelect(cat.name)}
                   >
                     <div className="cat-item-left">
                       {cat.icon}

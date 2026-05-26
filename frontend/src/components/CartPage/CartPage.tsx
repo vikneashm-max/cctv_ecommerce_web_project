@@ -25,10 +25,24 @@ interface CartPageProps {
 const CartPage: React.FC<CartPageProps> = ({ cartItems, removeFromCart, updateCartQuantity, onCheckout }) => {
   const [paymentMethod] = React.useState('Cash on Delivery');
 
-  const total = cartItems.reduce((sum, item) => {
+  const subtotal = cartItems.reduce((sum, item) => {
     const priceVal = parseFloat(item.price.replace(/[^\d.]/g, ''));
     return sum + (isNaN(priceVal) ? 0 : (priceVal * item.quantity));
   }, 0);
+
+  // Use per-product GST % and shipping tax set by admin
+  const gst = cartItems.reduce((sum, item) => {
+    const priceVal = parseFloat(item.price.replace(/[^\d.]/g, ''));
+    const itemPrice = isNaN(priceVal) ? 0 : priceVal * item.quantity;
+    const gstRate = (item.gst ?? 0) / 100;
+    return sum + itemPrice * gstRate;
+  }, 0);
+
+  const shippingTax = cartItems.reduce((sum, item) => {
+    return sum + ((item.shippingTax ?? 0) * item.quantity);
+  }, 0);
+
+  const total = subtotal + gst + shippingTax;
 
   return (
     <div className="cart-container">
@@ -76,11 +90,17 @@ const CartPage: React.FC<CartPageProps> = ({ cartItems, removeFromCart, updateCa
               <h3 style={{ color: '#0f172a' }}>Order Summary</h3>
               <div className="summary-row">
                 <span>Subtotal</span>
-                <span>{cartItems.length > 0 ? `₹${total.toLocaleString('en-IN')}` : '₹0'}</span>
+                <span>{cartItems.length > 0 ? `₹${subtotal.toLocaleString('en-IN')}` : '₹0'}</span>
               </div>
               <div className="summary-row">
-                <span>Shipping</span>
-                <span className="free-shipping">FREE</span>
+                <span>GST</span>
+                <span>{cartItems.length > 0 ? `₹${gst.toLocaleString('en-IN', { maximumFractionDigits: 2 })}` : '₹0'}</span>
+              </div>
+              <div className="summary-row">
+                <span>Shipping Tax</span>
+                {shippingTax === 0
+                  ? <span className="free-shipping">FREE</span>
+                  : <span>₹{shippingTax.toLocaleString('en-IN')}</span>}
               </div>
 
               <div className="payment-method-section" style={{ margin: '1.5rem 0', padding: '1rem', background: '#f8fafc', borderRadius: '8px' }}>

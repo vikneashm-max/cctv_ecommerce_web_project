@@ -212,6 +212,12 @@ function App() {
   };
 
   const [notification, setNotification] = useState<{message: string, type: 'success' | 'info'} | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>('All Categories');
+
+  const navigateToCategory = (category: string) => {
+    setSelectedCategory(category);
+    setView('products');
+  };
 
   const showNotification = (message: string, type: 'success' | 'info' = 'success') => {
     setNotification({ message, type });
@@ -263,12 +269,24 @@ function App() {
   const handleCheckout = (paymentMethod: string = 'Cash on Delivery') => {
     if (cart.length === 0) return;
     
-    // Calculate total
-    const total = cart.reduce((sum, item) => {
-      // Remove currency symbol and commas, then parse
+    // Calculate subtotal
+    const subtotal = cart.reduce((sum, item) => {
       const priceVal = parseFloat(item.price.replace(/[^\d.]/g, ''));
       return sum + (isNaN(priceVal) ? 0 : (priceVal * item.quantity));
     }, 0);
+
+    // Use per-product GST % and shippingTax set by admin
+    const gst = cart.reduce((sum, item) => {
+      const priceVal = parseFloat(item.price.replace(/[^\d.]/g, ''));
+      const itemPrice = isNaN(priceVal) ? 0 : priceVal * item.quantity;
+      return sum + itemPrice * ((item.gst ?? 0) / 100);
+    }, 0);
+
+    const shippingTax = cart.reduce((sum, item) => {
+      return sum + ((item.shippingTax ?? 0) * item.quantity);
+    }, 0);
+
+    const total = subtotal + gst + shippingTax;
 
     const newOrder: Order = {
       id: Math.random().toString(36).substring(2, 9).toUpperCase(),
@@ -329,6 +347,7 @@ function App() {
         {view === 'home' && (
           <HomePage 
             onNavigate={navigateTo}
+            onNavigateToCategory={navigateToCategory}
           />
         )}
         {view === 'profile' && (
@@ -345,6 +364,8 @@ function App() {
               setView('product-detail');
             }}
             products={products}
+            initialCategory={selectedCategory}
+            onCategoryChange={setSelectedCategory}
           />
         )}
         {view === 'product-detail' && selectedProductId !== null && (
