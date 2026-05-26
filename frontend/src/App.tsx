@@ -12,6 +12,7 @@ import ContactPage from './components/ContactPage/ContactPage';
 import Navbar from './components/Navbar/Navbar';
 import AdminPage from './components/AdminPage/AdminPage';
 import AdminLoginPage from './components/AdminPage/AdminLoginPage';
+import ProfilePage from './components/ProfilePage/ProfilePage';
 import { productsData } from './components/ProductsPage/productsData';
 import './App.css'
 
@@ -33,7 +34,7 @@ interface Product {
   inStock?: boolean;
 }
 
-type View = 'login' | 'signup' | 'home' | 'products' | 'services' | 'about' | 'cart' | 'favorites' | 'contact' | 'product-detail' | 'admin';
+type View = 'login' | 'signup' | 'home' | 'products' | 'services' | 'about' | 'cart' | 'favorites' | 'contact' | 'product-detail' | 'admin' | 'profile';
 
 function App() {
   const [products, setProducts] = useState<any[]>(() => {
@@ -54,6 +55,19 @@ function App() {
     const savedProductId = sessionStorage.getItem('selectedProductId');
     return savedProductId ? parseInt(savedProductId, 10) : null;
   });
+
+  const [currentUser, setCurrentUser] = useState<any>(() => {
+    const savedUser = sessionStorage.getItem('currentUser');
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
+
+  useEffect(() => {
+    if (currentUser) {
+      sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+    } else {
+      sessionStorage.removeItem('currentUser');
+    }
+  }, [currentUser]);
 
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState<boolean>(() => {
     return sessionStorage.getItem('isAdminLoggedIn') === 'true';
@@ -159,9 +173,14 @@ function App() {
 
   const toggleToSignup = () => setView('signup')
   const toggleToLogin = () => setView('login')
-  const handleLoginSuccess = () => setView('home')
+  const handleLoginSuccess = (user: any = null) => {
+    if (user) setCurrentUser(user);
+    setView('home');
+  };
   const handleLogout = () => {
     sessionStorage.removeItem('currentView');
+    sessionStorage.removeItem('currentUser');
+    setCurrentUser(null);
     setView('login');
   };
   const navigateTo = (newView: View) => {
@@ -230,6 +249,7 @@ function App() {
           isLoggedIn={view !== 'login' && view !== 'signup'}
           cartCount={cart.length}
           favoritesCount={favorites.length}
+          currentUser={currentUser}
         />
       )}
       <main className="main-content">
@@ -243,6 +263,9 @@ function App() {
           <HomePage 
             onNavigate={navigateTo}
           />
+        )}
+        {view === 'profile' && (
+          <ProfilePage currentUser={currentUser} setCurrentUser={setCurrentUser} />
         )}
         {view === 'products' && (
           <ProductsPage 

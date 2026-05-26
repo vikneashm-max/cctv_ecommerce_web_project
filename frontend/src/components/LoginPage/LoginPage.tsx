@@ -1,14 +1,43 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import './LoginPage.css';
 import logo from '../../assets/logo.png';
 
 interface LoginPageProps {
   onToggle: () => void;
-  onLogin: () => void;
+  onLogin: (user: any) => void;
 }
 
 const LoginPage: React.FC<LoginPageProps> = ({ onToggle, onLogin }) => {
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setIsLoading(true);
+
+    try {
+      const response = await axios.post('http://localhost:8080/api/auth/login', {
+        email,
+        password
+      });
+      // response.data will contain the User object
+      onLogin(response.data);
+    } catch (err: any) {
+      if (err.response && err.response.data && typeof err.response.data === 'string') {
+        setError(err.response.data);
+      } else {
+        setError("Network error or invalid credentials.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="auth-wrapper">
       <div className="auth-side-brand">
@@ -42,12 +71,21 @@ const LoginPage: React.FC<LoginPageProps> = ({ onToggle, onLogin }) => {
             <p>Enter your credentials to access your account</p>
           </header>
 
-          <form className="auth-form" onSubmit={(e) => { e.preventDefault(); onLogin(); }}>
+          <form className="auth-form" onSubmit={handleLogin}>
+            {error && <div className="error-message" style={{ color: 'red', marginBottom: '1rem', padding: '0.5rem', backgroundColor: '#fee' }}>{error}</div>}
+            
             <div className="input-group">
               <label htmlFor="email">Email Address</label>
               <div className="input-with-icon">
                 <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-                <input type="email" id="email" placeholder="name@company.com" required />
+                <input 
+                  type="email" 
+                  id="email" 
+                  placeholder="name@company.com" 
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required 
+                />
               </div>
             </div>
 
@@ -62,6 +100,8 @@ const LoginPage: React.FC<LoginPageProps> = ({ onToggle, onLogin }) => {
                   type={showPassword ? 'text' : 'password'} 
                   id="password" 
                   placeholder="••••••••" 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   required 
                 />
                 <button 
@@ -85,9 +125,9 @@ const LoginPage: React.FC<LoginPageProps> = ({ onToggle, onLogin }) => {
               </div>
             </div>
 
-            <button type="submit" className="auth-submit-btn">
-              Sign In
-              <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            <button type="submit" className="auth-submit-btn" disabled={isLoading}>
+              {isLoading ? 'Signing In...' : 'Sign In'}
+              {!isLoading && <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>}
             </button>
 
             <div className="social-auth">
@@ -99,7 +139,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onToggle, onLogin }) => {
           </form>
 
           <footer className="auth-footer">
-            <p>Don't have an account? <a onClick={onToggle}>Create one for free</a></p>
+            <p>Don't have an account? <a onClick={onToggle} style={{ cursor: 'pointer' }}>Create one for free</a></p>
           </footer>
         </div>
       </div>

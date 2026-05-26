@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import './Navbar.css';
 import logo from '../../assets/logo.png';
 
@@ -9,6 +9,7 @@ interface NavbarProps {
   isLoggedIn: boolean;
   cartCount: number;
   favoritesCount: number;
+  currentUser?: any;
 }
 
 const Navbar: React.FC<NavbarProps> = ({ 
@@ -17,13 +18,16 @@ const Navbar: React.FC<NavbarProps> = ({
   onLogout, 
   isLoggedIn,
   cartCount,
-  favoritesCount
+  favoritesCount,
+  currentUser
 }) => {
 
-  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
-  const [isSearchOpen, setIsSearchOpen] = React.useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (isMenuOpen) {
       document.body.style.overflow = 'hidden';
     } else {
@@ -32,6 +36,24 @@ const Navbar: React.FC<NavbarProps> = ({
     }
     return () => { document.body.style.overflow = 'unset'; };
   }, [isMenuOpen]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsProfileDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const getInitial = (name: string) => {
+    return name ? name.charAt(0).toUpperCase() : 'U';
+  };
+
+  const getFirstName = (name: string) => {
+    return name ? name.split(' ')[0] : 'User';
+  };
 
   return (
     <>
@@ -63,9 +85,38 @@ const Navbar: React.FC<NavbarProps> = ({
               <svg viewBox="0 0 24 24" width="20" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
               {cartCount > 0 && <span className="icon-badge">{cartCount}</span>}
             </button>
-            <button className="nav-icon-btn" onClick={isLoggedIn ? onLogout : () => onNavigate('login')} title={isLoggedIn ? 'Logout' : 'Login'}>
-              <svg viewBox="0 0 24 24" width="20" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            </button>
+            
+            {isLoggedIn && currentUser ? (
+              <div className="profile-dropdown-container" ref={dropdownRef}>
+                <div 
+                  className="profile-trigger" 
+                  onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+                >
+                  <div className="profile-avatar">{getInitial(currentUser.fullName)}</div>
+                  <span className="profile-name">{getFirstName(currentUser.fullName)}</span>
+                </div>
+                
+                {isProfileDropdownOpen && (
+                  <div className="profile-dropdown-menu">
+                    <div className="dropdown-header">
+                      <div className="dropdown-name">{currentUser.fullName}</div>
+                      <div className="dropdown-email">{currentUser.email}</div>
+                    </div>
+                    <div className="dropdown-divider"></div>
+                    <a onClick={() => { onNavigate('profile'); setIsProfileDropdownOpen(false); }}>My Profile</a>
+                    <a onClick={() => { setIsProfileDropdownOpen(false); }}>My Orders</a>
+                    <a onClick={() => { setIsProfileDropdownOpen(false); }}>Saved Addresses</a>
+                    <div className="dropdown-divider"></div>
+                    <a onClick={() => { onLogout(); setIsProfileDropdownOpen(false); }} className="logout-text">Logout</a>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <button className="nav-icon-btn" onClick={isLoggedIn ? onLogout : () => onNavigate('login')} title={isLoggedIn ? 'Logout' : 'Login'}>
+                <svg viewBox="0 0 24 24" width="20" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </button>
+            )}
+
             <button className="hamburger-btn" onClick={() => setIsMenuOpen(!isMenuOpen)}>
               <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
             </button>
@@ -122,6 +173,20 @@ const Navbar: React.FC<NavbarProps> = ({
                 <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
                 Contact
               </a>
+              
+              {isLoggedIn && currentUser && (
+                <>
+                  <div className="mobile-divider"></div>
+                  <a onClick={() => { onNavigate('profile'); setIsMenuOpen(false); }}>
+                    <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    My Profile
+                  </a>
+                  <a onClick={() => { onLogout(); setIsMenuOpen(false); }} style={{ color: '#ef4444' }}>
+                    <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    Logout
+                  </a>
+                </>
+              )}
             </div>
           </div>
         </div>
