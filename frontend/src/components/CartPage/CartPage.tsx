@@ -8,6 +8,8 @@ interface Product {
   price: string;
   sub: string;
   category: string;
+  shippingTax?: number;
+  gst?: number;
 }
 
 interface CartItem extends Product {
