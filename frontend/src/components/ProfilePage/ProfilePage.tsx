@@ -47,11 +47,15 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ currentUser, setCurrentUser }
     e.preventDefault();
     setIsLoading(prev => ({ ...prev, personal: true }));
     try {
-      const response = await axios.put(`http://localhost:8080/api/users/${currentUser.id}/personal`, {
+      const response = await axios.put(`http://localhost:8080/api/user/profile/personal`, {
         fullName,
         phoneNumber,
+      }, {
+        headers: {
+          Authorization: `Bearer ${currentUser.token}`
+        }
       });
-      setCurrentUser(response.data);
+      setCurrentUser({ ...currentUser, ...response.data });
       updateMessage('personal', { text: 'Personal info updated!', type: 'success' });
     } catch {
       updateMessage('personal', { text: 'Failed to update personal info.', type: 'error' });
@@ -64,10 +68,14 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ currentUser, setCurrentUser }
     e.preventDefault();
     setIsLoading(prev => ({ ...prev, address: true }));
     try {
-      const response = await axios.put(`http://localhost:8080/api/users/${currentUser.id}/address`, {
+      const response = await axios.put(`http://localhost:8080/api/user/profile/address`, {
         address, city, state, postalCode, country,
+      }, {
+        headers: {
+          Authorization: `Bearer ${currentUser.token}`
+        }
       });
-      setCurrentUser(response.data);
+      setCurrentUser({ ...currentUser, ...response.data });
       updateMessage('address', { text: 'Address updated!', type: 'success' });
     } catch {
       updateMessage('address', { text: 'Failed to update address.', type: 'error' });
@@ -81,10 +89,14 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ currentUser, setCurrentUser }
     if (!password) return;
     setIsLoading(prev => ({ ...prev, security: true }));
     try {
-      const response = await axios.put(`http://localhost:8080/api/users/${currentUser.id}/password`, {
+      const response = await axios.put(`http://localhost:8080/api/user/profile/password`, {
         password,
+      }, {
+        headers: {
+          Authorization: `Bearer ${currentUser.token}`
+        }
       });
-      setCurrentUser(response.data);
+      setCurrentUser({ ...currentUser, ...response.data });
       updateMessage('security', { text: 'Password updated!', type: 'success' });
       setPassword('');
     } catch {
