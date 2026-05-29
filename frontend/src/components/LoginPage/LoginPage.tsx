@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '../../api/api';
 import './LoginPage.css';
 import logo from '../../assets/logo.png';
 
@@ -21,7 +21,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onToggle, onLogin }) => {
     setIsLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:8080/api/auth/login', {
+      const response = await api.post('/auth/login', {
         email,
         password
       });

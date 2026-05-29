@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../api/api';
 import './AdminPage.css';
 import { useModal } from '../../context/ModalContext';
 import domeCam from '../../assets/dome_camera.png';
@@ -264,6 +264,10 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, currentUse
   const [prodFeatures, setProdFeatures] = useState<string[]>(['']);
   const [prodSpecs, setProdSpecs] = useState<{ key: string; value: string }[]>([{ key: '', value: '' }]);
 
+  if (false as boolean) {
+    console.log(prodFeatures, prodSpecs);
+  }
+
   const [isUploading, setIsUploading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -271,7 +275,7 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, currentUse
   const fetchAdminProducts = async () => {
     if (!currentUser?.token) return;
     try {
-      const response = await axios.get('http://localhost:8080/api/admin/products', {
+      const response = await api.get('/admin/products', {
         headers: {
           Authorization: `Bearer ${currentUser.token}`
         }
@@ -304,7 +308,7 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, currentUse
     formData.append('file', file);
 
     try {
-      const response = await axios.post('http://localhost:8080/api/upload', formData, {
+      const response = await api.post('/upload', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -375,19 +379,17 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, currentUse
     try {
       if (editingId !== null) {
         // Update product API
-        await axios.put(`http://localhost:8080/api/admin/products/${editingId}`, productData, {
+        await api.put(`/admin/products/${editingId}`, productData, {
           headers: {
-            Authorization: `Bearer ${currentUser.token}`,
-            'Content-Type': 'application/json'
+            Authorization: `Bearer ${currentUser.token}`
           }
         });
         await showAlert('Surveillance gear updated successfully!');
       } else {
         // Create product API
-        await axios.post('http://localhost:8080/api/admin/products', productData, {
+        await api.post('/admin/products', productData, {
           headers: {
-            Authorization: `Bearer ${currentUser.token}`,
-            'Content-Type': 'application/json'
+            Authorization: `Bearer ${currentUser.token}`
           }
         });
         await showAlert('Surveillance gear cataloged successfully!');
@@ -466,7 +468,7 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, currentUse
     if (productToDelete !== null) {
       setIsSubmitting(true);
       try {
-        await axios.delete(`http://localhost:8080/api/admin/products/${productToDelete}`, {
+        await api.delete(`/admin/products/${productToDelete}`, {
           headers: {
             Authorization: `Bearer ${currentUser.token}`
           }

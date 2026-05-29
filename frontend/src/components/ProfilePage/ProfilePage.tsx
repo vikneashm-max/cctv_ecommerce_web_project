@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '../../api/api';
 import './ProfilePage.css';
 
 interface ProfilePageProps {
@@ -47,7 +47,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ currentUser, setCurrentUser }
     e.preventDefault();
     setIsLoading(prev => ({ ...prev, personal: true }));
     try {
-      const response = await axios.put(`http://localhost:8080/api/user/profile/personal`, {
+      const response = await api.put(`/user/profile/personal`, {
         fullName,
         phoneNumber,
       }, {
@@ -68,7 +68,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ currentUser, setCurrentUser }
     e.preventDefault();
     setIsLoading(prev => ({ ...prev, address: true }));
     try {
-      const response = await axios.put(`http://localhost:8080/api/user/profile/address`, {
+      const response = await api.put(`/user/profile/address`, {
         address, city, state, postalCode, country,
       }, {
         headers: {
@@ -89,7 +89,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ currentUser, setCurrentUser }
     if (!password) return;
     setIsLoading(prev => ({ ...prev, security: true }));
     try {
-      const response = await axios.put(`http://localhost:8080/api/user/profile/password`, {
+      const response = await api.put(`/user/profile/password`, {
         password,
       }, {
         headers: {

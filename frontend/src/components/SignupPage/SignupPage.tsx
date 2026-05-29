@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '../../api/api';
 import '../LoginPage/LoginPage.css';
 import logo from '../../assets/logo.png';
 
@@ -26,7 +26,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onToggle, onLogin }) => {
       const payload = { fullName, email, password, role: "USER" };
       console.log("Payload:", payload);
 
-      const response = await axios.post('http://localhost:8080/api/auth/register', payload);
+      const response = await api.post('/auth/register', payload);
       console.log("Signup successful, response:", response.data);
       
       // Navigate to home page and set user on success

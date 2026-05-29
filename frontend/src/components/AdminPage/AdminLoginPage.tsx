@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '../../api/api';
 import './AdminLoginPage.css';
 import logo from '../../assets/logo.png';
 import { useModal } from '../../context/ModalContext';
@@ -23,7 +23,7 @@ const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onLogin, onCancel }) =>
     setIsLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:8080/api/auth/login', {
+      const response = await api.post('/auth/login', {
         email,
         password
       });

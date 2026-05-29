@@ -15,7 +15,7 @@ import AdminLoginPage from './components/AdminPage/AdminLoginPage';
 import ProfilePage from './components/ProfilePage/ProfilePage';
 import MyOrdersPage, { type Order } from './components/MyOrdersPage/MyOrdersPage';
 import { useModal } from './context/ModalContext';
-import axios from 'axios';
+import api from './api/api';
 import './App.css'
 
 interface WarrantyInfo {
@@ -52,7 +52,7 @@ function App() {
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/api/user/products');
+      const response = await api.get('/user/products');
       const mapped = response.data.map((p: any) => ({
         ...p,
         img: p.imageUrl || '',
