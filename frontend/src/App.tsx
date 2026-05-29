@@ -55,6 +55,15 @@ function App() {
   }, [products]);
 
   const [view, setView] = useState<View>(() => {
+    const path = window.location.pathname.replace(/^\//, '');
+    const validViews: View[] = [
+      'login', 'signup', 'home', 'products', 'services', 'about', 
+      'cart', 'favorites', 'contact', 'product-detail', 'admin', 
+      'profile', 'orders'
+    ];
+    if (validViews.includes(path as View)) {
+      return path as View;
+    }
     const savedView = sessionStorage.getItem('currentView');
     return (savedView as View) || 'login';
   });
@@ -119,9 +128,10 @@ function App() {
     sessionStorage.setItem('currentView', view);
     window.scrollTo({ top: 0, behavior: 'smooth' });
     
-    // Sync URL hash with view for browser history support
-    if (window.location.hash.slice(1) !== view) {
-      window.history.pushState({ view }, '', `#${view}`);
+    // Sync URL pathname with view for browser history support
+    const targetPath = `/${view}`;
+    if (window.location.pathname !== targetPath) {
+      window.history.pushState({ view }, '', targetPath);
     }
   }, [view]);
 
@@ -132,16 +142,24 @@ function App() {
       
       if (view === 'product-detail') {
         setView('products');
-        window.history.pushState({ view: 'products' }, '', '#products');
+        window.history.pushState({ view: 'products' }, '', '/products');
       } else if (mainSubPages.includes(view)) {
         // If we were on a main sub-page, always go back to home
         setView('home');
-        window.history.pushState({ view: 'home' }, '', '#home');
+        window.history.pushState({ view: 'home' }, '', '/home');
       } else if (event.state && event.state.view) {
         // Otherwise (like for Cart/Favorites), respect the history
         setView(event.state.view);
-      } else if (window.location.hash) {
-        setView(window.location.hash.slice(1) as View);
+      } else {
+        const path = window.location.pathname.replace(/^\//, '');
+        const validViews: View[] = [
+          'login', 'signup', 'home', 'products', 'services', 'about', 
+          'cart', 'favorites', 'contact', 'product-detail', 'admin', 
+          'profile', 'orders'
+        ];
+        if (validViews.includes(path as View)) {
+          setView(path as View);
+        }
       }
     };
 
