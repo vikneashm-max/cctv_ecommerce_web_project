@@ -7,5 +7,3 @@ backend/target
 .idea
 
 .DS_Store
-
-backend/src/main/resources/application.properties
