@@ -15,6 +15,7 @@ import AdminLoginPage from './components/AdminPage/AdminLoginPage';
 import ProfilePage from './components/ProfilePage/ProfilePage';
 import MyOrdersPage, { type Order } from './components/MyOrdersPage/MyOrdersPage';
 import { useModal } from './context/ModalContext';
+import axios from 'axios';
 import './App.css'
 
 interface WarrantyInfo {
@@ -26,6 +27,8 @@ interface WarrantyInfo {
 interface Product {
   id: number;
   img: string;
+  imageUrl: string;
+  brand?: string;
   images?: string[];
   warranty?: WarrantyInfo[];
   name: string;
@@ -45,10 +48,27 @@ type View = 'login' | 'signup' | 'home' | 'products' | 'services' | 'about' | 'c
 
 function App() {
   const { showConfirm } = useModal();
-  const [products, setProducts] = useState<any[]>(() => {
-    const savedProducts = localStorage.getItem('appProducts');
-    return savedProducts ? JSON.parse(savedProducts) : [];
-  });
+  const [products, setProducts] = useState<any[]>([]);
+
+  const fetchProducts = async () => {
+    try {
+      const response = await axios.get('http://localhost:8080/api/user/products');
+      const mapped = response.data.map((p: any) => ({
+        ...p,
+        img: p.imageUrl || '',
+        price: typeof p.price === 'number' ? `₹${p.price}` : (p.price?.startsWith('₹') ? p.price : `₹${p.price || 0}`),
+        sub: p.description ? (p.description.length > 50 ? p.description.substring(0, 50) + '...' : p.description) : '',
+        inStock: p.stock > 0
+      }));
+      setProducts(mapped);
+    } catch (err) {
+      console.error("Failed to fetch products:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
 
   useEffect(() => {
     localStorage.setItem('appProducts', JSON.stringify(products));
@@ -406,16 +426,21 @@ function App() {
         {view === 'admin' && (
           !isAdminLoggedIn ? (
             <AdminLoginPage 
-              onLogin={() => setIsAdminLoggedIn(true)} 
+              onLogin={(user) => {
+                setCurrentUser(user);
+                setIsAdminLoggedIn(true);
+              }} 
               onCancel={() => setView('home')} 
             />
           ) : (
             <AdminPage 
               products={products}
               setProducts={setProducts}
+              currentUser={currentUser}
               onBack={() => {
                 setIsAdminLoggedIn(false);
                 setView('home');
+                fetchProducts();
               }}
             />
           )

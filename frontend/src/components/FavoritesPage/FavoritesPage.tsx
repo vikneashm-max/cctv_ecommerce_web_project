@@ -4,6 +4,8 @@ import './FavoritesPage.css';
 interface Product {
   id: number;
   img: string;
+  imageUrl: string;
+  brand?: string;
   name: string;
   price: string;
   sub: string;

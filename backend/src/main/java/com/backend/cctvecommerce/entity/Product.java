@@ -21,6 +21,8 @@ public class Product {
 
     private String imageUrl;
 
+    private String brand;
+
     private String category;
 
     private Double shippingTax;
@@ -46,6 +48,9 @@ public class Product {
 
     public String getImageUrl() { return imageUrl; }
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+
+    public String getBrand() { return brand; }
+    public void setBrand(String brand) { this.brand = brand; }
 
     public String getCategory() { return category; }
     public void setCategory(String category) { this.category = category; }

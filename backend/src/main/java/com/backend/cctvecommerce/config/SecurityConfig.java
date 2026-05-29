@@ -59,13 +59,15 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(AbstractHttpConfigurer::disable)
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                .requestMatchers("/api/user/**").hasRole("USER")
-                .anyRequest().authenticated()
-            );
+           .authorizeHttpRequests(auth -> auth
+               .requestMatchers("/api/auth/**").permitAll()
+               .requestMatchers("/api/upload/**").permitAll()
+               .requestMatchers("/api/admin/**").hasRole("ADMIN")
+               .requestMatchers("/api/user/**").hasRole("USER")
+               .anyRequest().authenticated()
+             );
 
+             
         http.authenticationProvider(authenticationProvider());
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 

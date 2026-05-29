@@ -5,7 +5,7 @@ import logo from '../../assets/logo.png';
 import { useModal } from '../../context/ModalContext';
 
 interface AdminLoginPageProps {
-  onLogin: () => void;
+  onLogin: (user: any) => void;
   onCancel: () => void;
 }
 
@@ -29,8 +29,8 @@ const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onLogin, onCancel }) =>
       });
       
       const user = response.data;
-      if (user.role === 'ADMIN') {
-        onLogin();
+      if (user.role === 'ROLE_ADMIN') {
+        onLogin(user);
       } else {
         setError('Access Denied: You do not have administrator privileges.');
       }

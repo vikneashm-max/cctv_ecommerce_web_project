@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import './AdminPage.css';
 import { useModal } from '../../context/ModalContext';
 import domeCam from '../../assets/dome_camera.png';
@@ -14,6 +15,9 @@ interface WarrantyInfo {
 interface Product {
   id: number;
   img: string;
+  imageUrl: string;
+  brand?: string;
+  stock?: number;
   images?: string[];
   warranty?: WarrantyInfo[];
   name: string;
@@ -69,12 +73,13 @@ interface Coupon {
 interface AdminPageProps {
   products: Product[];
   setProducts: React.Dispatch<React.SetStateAction<Product[]>>;
+  currentUser: any;
   onBack: () => void;
 }
 
 type TabType = 'dashboard' | 'products' | 'orders' | 'customers' | 'inventory' | 'analytics' | 'discounts' | 'settings' | 'profile';
 
-const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, onBack }) => {
+const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, currentUser, onBack }) => {
   const { showAlert, showConfirm } = useModal();
   const [activeTab, setActiveTab] = useState<TabType>('customers');
   const [searchQuery, setSearchQuery] = useState('');
@@ -243,6 +248,8 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, onBack }) 
   const [prodShippingTax, setProdShippingTax] = useState('');
   const [prodGst, setProdGst] = useState('');
   const [prodSub, setProdSub] = useState('');
+  const [prodBrand, setProdBrand] = useState('');
+  const [prodStock, setProdStock] = useState<string | number>('10');
   const [prodCategory, setProdCategory] = useState('Cameras');
   const [prodDescription, setProdDescription] = useState('');
   const [prodImages, setProdImages] = useState<string[]>([]);
@@ -257,16 +264,64 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, onBack }) 
   const [prodFeatures, setProdFeatures] = useState<string[]>(['']);
   const [prodSpecs, setProdSpecs] = useState<{ key: string; value: string }[]>([{ key: '', value: '' }]);
 
-  const handleAddNewImageFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setProdImages(prev => [...prev, reader.result as string].slice(0, 5));
-      };
-      reader.readAsDataURL(file);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const fetchAdminProducts = async () => {
+    if (!currentUser?.token) return;
+    try {
+      const response = await axios.get('http://localhost:8080/api/admin/products', {
+        headers: {
+          Authorization: `Bearer ${currentUser.token}`
+        }
+      });
+      const mapped = response.data.map((p: any) => ({
+        ...p,
+        img: p.imageUrl || '',
+        price: typeof p.price === 'number' ? `₹${p.price}` : (p.price?.startsWith('₹') ? p.price : `₹${p.price || 0}`),
+        sub: p.description ? (p.description.length > 50 ? p.description.substring(0, 50) + '...' : p.description) : '',
+        inStock: p.stock > 0
+      }));
+      setProducts(mapped);
+    } catch (err) {
+      console.error("Failed to load admin products", err);
     }
-    e.target.value = '';
+  };
+
+  useEffect(() => {
+    fetchAdminProducts();
+  }, [currentUser]);
+
+  const handleAddNewImageFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    setUploadStatus('Uploading image...');
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await axios.post('http://localhost:8080/api/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      const url = response.data; // plain text secure_url from Cloudinary
+      setProdImages(prev => [...prev, url].slice(0, 5));
+      setUploadStatus('Upload successful');
+      setTimeout(() => setUploadStatus(null), 3000);
+    } catch (err) {
+      console.error("Cloudinary upload failed", err);
+      setUploadStatus('Upload failed');
+      setTimeout(() => setUploadStatus(null), 3000);
+      await showAlert('Image upload failed. Please try again.');
+    } finally {
+      setIsUploading(false);
+      e.target.value = '';
+    }
   };
 
   const handleAdminAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -294,78 +349,58 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, onBack }) 
 
   const handleProductSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!prodName || !prodPrice || !prodSub || !prodDescription) {
-      await showAlert('Please fill out basic fields');
+    if (!prodName || !prodPrice || !prodDescription || !prodCategory || !prodBrand || prodStock === '') {
+      await showAlert('Please fill out all required fields');
       return;
     }
     if (prodImages.length === 0) {
       await showAlert('Please add at least one product image');
       return;
     }
-    const cleanFeatures = prodFeatures.filter(f => f.trim() !== '');
-    const cleanSpecs: Record<string, string> = {};
-    prodSpecs.forEach(s => {
-      if (s.key.trim() !== '' && s.value.trim() !== '') cleanSpecs[s.key] = s.value;
-    });
-    const finalImg = prodImages[0] || domeCam;
-    const finalImages = prodImages.length > 0 ? prodImages : [finalImg];
 
-    const finalWarranty = prodWarranty.map((w, index) => {
-      const defaultIcon = index === 0 ? '🛡️' : index === 1 ? '⚡' : '📞';
-      const defaultTitle = index === 0 ? '3-Year Dynamic Warranty' : index === 1 ? 'Professional Setup' : '24/7 Helpline Access';
-      const defaultDesc = index === 0 
-        ? 'All hardware items are backed by a replacement warranty. In case of failure, we exchange the unit within 48 hours.'
-        : index === 1
-        ? 'Certified engineers from TN Automation deploy, lay fiber cables, and configure feeds on your phone and monitors.'
-        : 'Continuous helpline support for remote camera health checks, storage settings, and recording query adjustments.';
-      return {
-        icon: w.icon.trim() || defaultIcon,
-        title: w.title.trim() || defaultTitle,
-        desc: w.desc.trim() || defaultDesc
-      };
-    });
+    setIsSubmitting(true);
 
-    if (editingId !== null) {
-      setProducts(prev => prev.map(p => p.id === editingId ? {
-        ...p,
-        name: prodName,
-        price: prodPrice.startsWith('₹') ? prodPrice : `₹${prodPrice}`,
-        shippingTax: parseFloat(prodShippingTax) || 0,
-        gst: parseFloat(prodGst) || 0,
-        sub: prodSub,
-        category: prodCategory,
-        description: prodDescription,
-        img: finalImg,
-        images: finalImages,
-        inStock: prodInStock,
-        warranty: finalWarranty,
-        features: cleanFeatures.length > 0 ? cleanFeatures : ['Premium component'],
-        specs: Object.keys(cleanSpecs).length > 0 ? cleanSpecs : { Type: 'Hardware' }
-      } : p));
-      await showAlert('Surveillance gear updated!');
-    } else {
-      const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
-      setProducts([...products, {
-        id: newId,
-        name: prodName,
-        price: prodPrice.startsWith('₹') ? prodPrice : `₹${prodPrice}`,
-        shippingTax: parseFloat(prodShippingTax) || 0,
-        gst: parseFloat(prodGst) || 0,
-        sub: prodSub,
-        category: prodCategory,
-        description: prodDescription,
-        img: finalImg,
-        images: finalImages,
-        inStock: prodInStock,
-        warranty: finalWarranty,
-        rating: 5.0,
-        reviews: 1,
-        features: cleanFeatures.length > 0 ? cleanFeatures : ['Premium component'],
-        specs: Object.keys(cleanSpecs).length > 0 ? cleanSpecs : { Type: 'Hardware' }
-      }]);
-      await showAlert('Surveillance gear cataloged!');
+    const productData = {
+      name: prodName,
+      description: prodDescription,
+      price: parseFloat(prodPrice.replace(/[^\d.]/g, '')),
+      stock: parseInt(prodStock.toString(), 10),
+      imageUrl: prodImages[0], // Main cover image
+      brand: prodBrand,
+      category: prodCategory,
+      shippingTax: parseFloat(prodShippingTax) || 0.0,
+      gst: parseFloat(prodGst) || 0.0
+    };
+
+    try {
+      if (editingId !== null) {
+        // Update product API
+        await axios.put(`http://localhost:8080/api/admin/products/${editingId}`, productData, {
+          headers: {
+            Authorization: `Bearer ${currentUser.token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        await showAlert('Surveillance gear updated successfully!');
+      } else {
+        // Create product API
+        await axios.post('http://localhost:8080/api/admin/products', productData, {
+          headers: {
+            Authorization: `Bearer ${currentUser.token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        await showAlert('Surveillance gear cataloged successfully!');
+      }
+      resetProductForm();
+      await fetchAdminProducts();
+    } catch (err: any) {
+      console.error("Failed to save product", err);
+      const errMsg = err.response?.data?.message || err.response?.data || "An error occurred while saving the product.";
+      await showAlert(`Product save failed: ${errMsg}`);
+    } finally {
+      setIsSubmitting(false);
     }
-    resetProductForm();
   };
 
   const resetProductForm = () => {
@@ -375,6 +410,8 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, onBack }) 
     setProdShippingTax('');
     setProdGst('');
     setProdSub('');
+    setProdBrand('');
+    setProdStock('10');
     setProdCategory('Cameras');
     setProdDescription('');
     setProdImages([]);
@@ -396,11 +433,13 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, onBack }) 
     setProdPrice(p.price.replace('₹', ''));
     setProdShippingTax(p.shippingTax?.toString() || '');
     setProdGst(p.gst?.toString() || '');
-    setProdSub(p.sub);
+    setProdSub(p.sub || '');
+    setProdBrand(p.brand || '');
+    setProdStock(p.stock !== undefined ? p.stock : '10');
     setProdCategory(p.category);
-    setProdDescription(p.description);
-    if (p.images && p.images.length > 0) {
-      setProdImages(p.images);
+    setProdDescription(p.description || '');
+    if (p.imageUrl) {
+      setProdImages([p.imageUrl]);
     } else if (p.img) {
       setProdImages([p.img]);
     } else {
@@ -416,18 +455,32 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, onBack }) 
         { icon: '📞', title: '', desc: '' }
       ]);
     }
-    setProdFeatures(p.features.length > 0 ? p.features : ['']);
-    setProdSpecs(Object.entries(p.specs).map(([key, value]) => ({ key, value })).length > 0 
+    setProdFeatures(p.features && p.features.length > 0 ? p.features : ['']);
+    setProdSpecs(p.specs && Object.entries(p.specs).map(([key, value]) => ({ key, value })).length > 0 
       ? Object.entries(p.specs).map(([key, value]) => ({ key, value })) 
       : [{ key: '', value: '' }]
     );
   };
 
-  const confirmDeleteProduct = () => {
+  const confirmDeleteProduct = async () => {
     if (productToDelete !== null) {
-      setProducts(prev => prev.filter(p => p.id !== productToDelete));
-      if (editingId === productToDelete) resetProductForm();
-      setProductToDelete(null);
+      setIsSubmitting(true);
+      try {
+        await axios.delete(`http://localhost:8080/api/admin/products/${productToDelete}`, {
+          headers: {
+            Authorization: `Bearer ${currentUser.token}`
+          }
+        });
+        await showAlert('Product successfully deleted.');
+        await fetchAdminProducts();
+        if (editingId === productToDelete) resetProductForm();
+      } catch (err: any) {
+        console.error("Failed to delete product", err);
+        await showAlert('Failed to delete product. Only admins are authorized.');
+      } finally {
+        setIsSubmitting(false);
+        setProductToDelete(null);
+      }
     }
   };
 
@@ -609,8 +662,41 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, onBack }) 
                           <input type="text" placeholder="e.g. Pro Dome Camera 5MP" value={prodName} onChange={(e) => setProdName(e.target.value)} required />
                         </div>
                         <div className="form-input-box">
+                          <label>Brand *</label>
+                          <input type="text" placeholder="e.g. Hikvision" value={prodBrand} onChange={(e) => setProdBrand(e.target.value)} required />
+                        </div>
+                      </div>
+
+                      <div className="form-group-row">
+                        <div className="form-input-box">
+                          <label>Equipment Class (Category) *</label>
+                          <select value={prodCategory} onChange={(e) => setProdCategory(e.target.value)}>
+                            <option value="Cameras">Cameras</option>
+                            <option value="DVR & NVR">DVR & NVR</option>
+                            <option value="Accessories">Accessories</option>
+                            <option value="Networking">Networking</option>
+                            <option value="Power Supply">Power Supply</option>
+                            <option value="Storage">Storage</option>
+                            <option value="Uncategorized">Uncategorized</option>
+                          </select>
+                        </div>
+                        <div className="form-input-box">
                           <label>Unit Price (₹) *</label>
                           <input type="text" placeholder="e.g. 12499" value={prodPrice} onChange={(e) => setProdPrice(e.target.value)} required />
+                        </div>
+                      </div>
+
+                      <div className="form-group-row">
+                        <div className="form-input-box">
+                          <label>Stock Quantity *</label>
+                          <input type="number" min="0" placeholder="e.g. 10" value={prodStock} onChange={(e) => setProdStock(e.target.value)} required />
+                        </div>
+                        <div className="form-input-box">
+                          <label>Inventory Stock Status *</label>
+                          <select value={prodInStock ? 'Available' : 'Out of Stock'} onChange={(e) => setProdInStock(e.target.value === 'Available')}>
+                            <option value="Available">🟢 In Stock / Available</option>
+                            <option value="Out of Stock">🔴 Out of Stock</option>
+                          </select>
                         </div>
                       </div>
 
@@ -627,33 +713,31 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, onBack }) 
 
                       <div className="form-input-box">
                         <label>Short Subtitle Summary *</label>
-                        <input type="text" placeholder="e.g. Weatherproof camera with 30m infrared range." value={prodSub} onChange={(e) => setProdSub(e.target.value)} required />
-                      </div>
-
-                      <div className="form-group-row">
-                        <div className="form-input-box">
-                          <label>Equipment Class *</label>
-                          <select value={prodCategory} onChange={(e) => setProdCategory(e.target.value)}>
-                            <option value="Cameras">Cameras</option>
-                            <option value="DVR & NVR">DVR & NVR</option>
-                            <option value="Accessories">Accessories</option>
-                            <option value="Networking">Networking</option>
-                            <option value="Power Supply">Power Supply</option>
-                            <option value="Storage">Storage</option>
-                            <option value="Uncategorized">Uncategorized</option>
-                          </select>
-                        </div>
-                        <div className="form-input-box">
-                          <label>Inventory Stock Status *</label>
-                          <select value={prodInStock ? 'Available' : 'Out of Stock'} onChange={(e) => setProdInStock(e.target.value === 'Available')}>
-                            <option value="Available">🟢 In Stock / Available</option>
-                            <option value="Out of Stock">🔴 Out of Stock</option>
-                          </select>
-                        </div>
+                        <input type="text" placeholder="e.g. Weatherproof camera with 30m range." value={prodSub} onChange={(e) => setProdSub(e.target.value)} required />
                       </div>
 
                       <div className="form-input-box">
-                          <label>Product Images (Up to 5) *</label>
+                          <label style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span>Product Images (Up to 5) *</span>
+                            {uploadStatus && (
+                              <span className="upload-status" style={{ fontSize: '0.85rem', fontWeight: 600, color: uploadStatus.includes('success') ? '#16a34a' : uploadStatus.includes('failed') ? '#ef4444' : '#3b82f6' }}>
+                                {isUploading && (
+                                  <span className="spinner-inline" style={{
+                                    display: 'inline-block',
+                                    width: '12px',
+                                    height: '12px',
+                                    border: '2px solid rgba(59, 130, 246, 0.2)',
+                                    borderTopColor: '#3b82f6',
+                                    borderRadius: '50%',
+                                    animation: 'spin-mini 0.8s linear infinite',
+                                    marginRight: '6px',
+                                    verticalAlign: 'middle'
+                                  }}></span>
+                                )}
+                                {uploadStatus}
+                              </span>
+                            )}
+                          </label>
                           <span className="form-input-subtext" style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.5rem', display: 'block' }}>
                             The first image is the main catalog cover image. You can upload or link up to 5 images.
                           </span>
@@ -805,8 +889,31 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, onBack }) 
                       </div>
 
                       <div className="form-action-row">
-                        <button type="submit" className="btn-submit-form">{editingId !== null ? 'Update Gear' : 'Add Product'}</button>
-                        {editingId !== null && <button type="button" className="btn-cancel-form" onClick={resetProductForm}>Cancel</button>}
+                        <button type="submit" className="btn-submit-form" disabled={isSubmitting || isUploading}>
+                          {isSubmitting ? (
+                            <>
+                              <span className="spinner-inline" style={{
+                                display: 'inline-block',
+                                width: '14px',
+                                height: '14px',
+                                border: '2px solid rgba(255, 255, 255, 0.2)',
+                                borderTopColor: '#ffffff',
+                                borderRadius: '50%',
+                                animation: 'spin-mini 0.8s linear infinite',
+                                marginRight: '8px',
+                                verticalAlign: 'middle'
+                              }}></span>
+                              <span>Saving...</span>
+                            </>
+                          ) : (
+                            editingId !== null ? 'Update Gear' : 'Add Product'
+                          )}
+                        </button>
+                        {editingId !== null && (
+                          <button type="button" className="btn-cancel-form" onClick={resetProductForm} disabled={isSubmitting}>
+                            Cancel
+                          </button>
+                        )}
                       </div>
                     </form>
                   </div>
@@ -828,14 +935,17 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, onBack }) 
                           <div className="listing-details">
                             <span className="listing-cat">{p.category}</span>
                             <h4>{p.name}</h4>
-                            <div className="listing-meta">
+                            <div className="listing-meta" style={{ display: 'flex', alignItems: 'center', width: '100%', gap: '8px' }}>
                               <span className="listing-price">{p.price}</span>
-                              <span className="listing-id">ID: #{p.id}</span>
+                              <span className="listing-stock" style={{ padding: '2px 8px', background: p.stock && p.stock > 0 ? '#dcfce7' : '#fee2e2', color: p.stock && p.stock > 0 ? '#15803d' : '#991b1b', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 600 }}>
+                                Stock: {p.stock !== undefined ? p.stock : 0}
+                              </span>
+                              <span className="listing-id" style={{ marginLeft: 'auto' }}>ID: #{p.id}</span>
                             </div>
                           </div>
                           <div className="listing-actions">
-                            <button className="btn-listing-action edit" onClick={() => handleEditProduct(p)}>Edit</button>
-                            <button className="btn-listing-action delete" onClick={() => setProductToDelete(p.id)}>Delete</button>
+                            <button className="btn-listing-action edit" onClick={() => handleEditProduct(p)} disabled={isSubmitting}>Edit</button>
+                            <button className="btn-listing-action delete" onClick={() => setProductToDelete(p.id)} disabled={isSubmitting}>Delete</button>
                           </div>
                         </div>
                       ))}
@@ -843,6 +953,11 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, onBack }) 
                   </div>
                 </div>
 
+                <style>{`
+                  @keyframes spin-mini {
+                    to { transform: rotate(360deg); }
+                  }
+                `}</style>
               </div>
             </div>
           )}

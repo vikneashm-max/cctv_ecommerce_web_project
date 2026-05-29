@@ -22,6 +22,8 @@ public class AdminProductRequest {
 
     private String imageUrl;
 
+    private String brand;
+
     @NotBlank(message = "Category is required")
     private String category;
 
@@ -43,6 +45,9 @@ public class AdminProductRequest {
 
     public String getImageUrl() { return imageUrl; }
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+
+    public String getBrand() { return brand; }
+    public void setBrand(String brand) { this.brand = brand; }
 
     public String getCategory() { return category; }
     public void setCategory(String category) { this.category = category; }

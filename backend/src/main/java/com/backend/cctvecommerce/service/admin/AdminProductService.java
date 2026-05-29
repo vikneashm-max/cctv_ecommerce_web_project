@@ -42,12 +42,23 @@ public class AdminProductService {
         productRepository.delete(product);
     }
 
+    private void validateImageUrl(String imageUrl) {
+        if (imageUrl == null || imageUrl.trim().isEmpty()) {
+            throw new IllegalArgumentException("Product image URL is required");
+        }
+        if (!imageUrl.startsWith("http://") && !imageUrl.startsWith("https://")) {
+            throw new IllegalArgumentException("Product image URL must start with http:// or https://");
+        }
+    }
+
     private void updateProductFields(Product product, AdminProductRequest request) {
+        validateImageUrl(request.getImageUrl());
         product.setName(request.getName());
         product.setDescription(request.getDescription());
         product.setPrice(request.getPrice());
         product.setStock(request.getStock());
         product.setImageUrl(request.getImageUrl());
+        product.setBrand(request.getBrand());
         product.setCategory(request.getCategory());
         product.setShippingTax(request.getShippingTax() != null ? request.getShippingTax() : 0.0);
         product.setGst(request.getGst() != null ? request.getGst() : 0.0);
