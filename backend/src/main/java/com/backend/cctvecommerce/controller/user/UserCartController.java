@@ -11,7 +11,6 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/user/cart")
 @CrossOrigin(origins = "http://localhost:5173")
-@SuppressWarnings("null")
 public class UserCartController {
 
     @Autowired

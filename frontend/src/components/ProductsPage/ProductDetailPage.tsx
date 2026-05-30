@@ -81,8 +81,29 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
   // Find related products in same category
   const relatedProducts = products.filter(p => p.category === product.category && p.id !== product.id);
 
+  // Safe fallback properties for newly created products without features, specs, rating, reviews, or images
+  const rating = product.rating !== undefined && product.rating !== null ? product.rating : 5;
+  const reviews = product.reviews !== undefined && product.reviews !== null ? product.reviews : 0;
+  
+  const features = product.features && Array.isArray(product.features) ? product.features : [
+    'Professional grade surveillance components',
+    'Certified hardware installation support',
+    'Weatherproof durability for year-round security',
+    'Seamless connection with monitoring devices'
+  ];
+  
+  const specs = product.specs && typeof product.specs === 'object' ? product.specs : {
+    'Brand': product.brand || 'TN Automation',
+    'Category': product.category || 'Surveillance',
+    'Warranty': '3 Years Replacement',
+    'Installation': 'Free On-Site Installation (Erode district)'
+  };
+  
+  const images = product.images && Array.isArray(product.images) ? product.images : [product.imageUrl || product.img].filter(Boolean);
+  const warranty = product.warranty && Array.isArray(product.warranty) ? product.warranty : defaultWarranty;
+
   const currentProductImg = product ? product.img : '';
-  const displayImg = activeImg && (product?.images?.includes(activeImg) || activeImg === product?.img) ? activeImg : currentProductImg;
+  const displayImg = activeImg && (images.includes(activeImg) || activeImg === product?.img) ? activeImg : currentProductImg;
 
   return (
     <div className="product-detail-container">
@@ -110,9 +131,9 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
           </div>
 
           {/* Thumbnails Gallery */}
-          {product.images && product.images.length > 1 && (
+          {images && images.length > 1 && (
             <div className="prod-thumbnails-gallery">
-              {product.images.map((thumbUrl: string, idx: number) => (
+              {images.map((thumbUrl: string, idx: number) => (
                 <div 
                   key={idx} 
                   className={`prod-thumbnail-item ${displayImg === thumbUrl ? 'active' : ''}`}
@@ -145,7 +166,7 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                     viewBox="0 0 24 24" 
                     width="18" 
                     height="18" 
-                    fill={i < Math.floor(product.rating) ? "#fbbf24" : "none"} 
+                    fill={i < Math.floor(rating) ? "#fbbf24" : "none"} 
                     stroke="#fbbf24" 
                     strokeWidth="2"
                   >
@@ -153,8 +174,8 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                   </svg>
                 ))}
               </div>
-              <span className="rating-val">{product.rating}</span>
-              <span className="reviews-count">({product.reviews} verified reviews)</span>
+              <span className="rating-val">{rating}</span>
+              <span className="reviews-count">({reviews} verified reviews)</span>
             </div>
             
             <div className="price-tag-big" style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', marginBottom: '1rem' }}>
@@ -282,7 +303,7 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
               
               <h4 style={{marginTop: '2rem', marginBottom: '1rem'}}>Key High-Premium Features</h4>
               <ul className="tab-features-list">
-                {product.features.map((feat: string, idx: number) => (
+                {features.map((feat: string, idx: number) => (
                   <li key={idx}>
                     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#f97316" strokeWidth="3" style={{marginRight: '12px', flexShrink: '0'}}><polyline points="20 6 9 17 4 12"/></svg>
                     <span>{feat}</span>
@@ -296,7 +317,7 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
             <div className="tab-pane-content">
               <h3>Technical Specifications</h3>
               <div className="specs-table-grid">
-                {Object.entries(product.specs).map(([key, val]) => (
+                {Object.entries(specs).map(([key, val]) => (
                   <div className="specs-table-row" key={key}>
                     <span className="spec-table-key">{key}</span>
                     <span className="spec-table-val">{val as React.ReactNode}</span>
@@ -310,7 +331,7 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
             <div className="tab-pane-content installation-pane">
               <h3>Installation Support & Warranty</h3>
               <div className="shipping-info-grid">
-                {(product.warranty || defaultWarranty).map((w: WarrantyInfo, idx: number) => (
+                {warranty.map((w: WarrantyInfo, idx: number) => (
                   <div className="ship-card" key={idx}>
                     <div className="ship-icon">{w.icon}</div>
                     <h4>{w.title}</h4>

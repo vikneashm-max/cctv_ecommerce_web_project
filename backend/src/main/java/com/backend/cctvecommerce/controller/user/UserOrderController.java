@@ -14,7 +14,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/user/orders")
 @CrossOrigin(origins = "http://localhost:5173")
-@SuppressWarnings("null")
 public class UserOrderController {
 
     @Autowired
