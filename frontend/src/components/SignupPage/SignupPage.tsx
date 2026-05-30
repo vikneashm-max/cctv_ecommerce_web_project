@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { GoogleLogin } from '@react-oauth/google';
+import React, { useState } from 'react';
 import api from '../../api/api';
 import '../LoginPage/LoginPage.css';
 import logo from '../../assets/logo.png';
@@ -17,48 +16,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onToggle, onLogin }) => {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const socialAuthRef = useRef<HTMLDivElement>(null);
-  const [socialWidth, setSocialWidth] = useState(344);
 
-  useEffect(() => {
-    if (!socialAuthRef.current) return;
-
-    const resizeObserver = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        const width = entry.contentRect.width;
-        if (width > 0) {
-          const clamped = Math.max(200, Math.min(400, Math.floor(width)));
-          setSocialWidth(clamped);
-        }
-      }
-    });
-
-    resizeObserver.observe(socialAuthRef.current);
-    return () => resizeObserver.disconnect();
-  }, []);
-
-  const handleGoogleSuccess = async (credentialResponse: any) => {
-    setError(null);
-    setIsLoading(true);
-    try {
-      const response = await api.post('/auth/google', {
-        idToken: credentialResponse.credential
-      });
-      onLogin(response.data);
-    } catch (err: any) {
-      if (err.response && err.response.data && typeof err.response.data === 'string') {
-        setError(err.response.data);
-      } else {
-        setError("Google authentication failed. Please try again.");
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleGoogleError = () => {
-    setError("Google Sign-In failed.");
-  };
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -186,34 +144,10 @@ const SignupPage: React.FC<SignupPageProps> = ({ onToggle, onLogin }) => {
               </div>
             </div>
 
-            <div className="remember-row">
-              <label className="checkbox-container">
-                <input type="checkbox" required />
-                <span className="checkmark"></span>
-                I agree to the <a href="#" style={{ color: 'var(--auth-accent)', fontWeight: '600' }}>Terms & Conditions</a>
-              </label>
-            </div>
-
             <button type="submit" className="auth-submit-btn" disabled={isLoading}>
               {isLoading ? 'Creating Account...' : 'Create Account'}
               {!isLoading && <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>}
             </button>
-
-            <div 
-              ref={socialAuthRef} 
-              className="social-auth" 
-              style={{ display: 'flex', justifyContent: 'center', width: '100%', marginTop: '0.25rem', colorScheme: 'light' }}
-            >
-              <GoogleLogin
-                key={socialWidth}
-                onSuccess={handleGoogleSuccess}
-                onError={handleGoogleError}
-                theme="filled_black"
-                text="continue_with"
-                size="large"
-                width={String(socialWidth)}
-              />
-            </div>
           </form>
 
           <footer className="auth-footer">
