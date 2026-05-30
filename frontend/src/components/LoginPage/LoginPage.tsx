@@ -17,7 +17,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onToggle, onLogin }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const socialAuthRef = useRef<HTMLDivElement>(null);
-  const [socialWidth, setSocialWidth] = useState(344);
+  const [socialWidth, setSocialWidth] = useState(200);
 
   useEffect(() => {
     if (!socialAuthRef.current) return;
@@ -174,8 +174,8 @@ const LoginPage: React.FC<LoginPageProps> = ({ onToggle, onLogin }) => {
               {!isLoading && <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>}
             </button>
 
+            <div ref={socialAuthRef} style={{ width: '100%' }} />
             <div 
-              ref={socialAuthRef} 
               className="social-auth" 
               style={{ display: 'flex', justifyContent: 'center', width: '100%', marginTop: '1.25rem', colorScheme: 'light' }}
             >
