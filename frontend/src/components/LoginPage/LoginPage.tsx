@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { GoogleLogin } from '@react-oauth/google';
 import api from '../../api/api';
 import './LoginPage.css';
@@ -15,6 +15,26 @@ const LoginPage: React.FC<LoginPageProps> = ({ onToggle, onLogin }) => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  const socialAuthRef = useRef<HTMLDivElement>(null);
+  const [socialWidth, setSocialWidth] = useState(344);
+
+  useEffect(() => {
+    if (!socialAuthRef.current) return;
+
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const width = entry.contentRect.width;
+        if (width > 0) {
+          const clamped = Math.max(200, Math.min(400, Math.floor(width)));
+          setSocialWidth(clamped);
+        }
+      }
+    });
+
+    resizeObserver.observe(socialAuthRef.current);
+    return () => resizeObserver.disconnect();
+  }, []);
 
   const handleGoogleSuccess = async (credentialResponse: any) => {
     setError(null);
@@ -154,14 +174,19 @@ const LoginPage: React.FC<LoginPageProps> = ({ onToggle, onLogin }) => {
               {!isLoading && <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>}
             </button>
 
-            <div className="social-auth" style={{ display: 'flex', justifyContent: 'center', width: '100%', marginTop: '1.25rem', colorScheme: 'light' }}>
+            <div 
+              ref={socialAuthRef} 
+              className="social-auth" 
+              style={{ display: 'flex', justifyContent: 'center', width: '100%', marginTop: '1.25rem', colorScheme: 'light' }}
+            >
               <GoogleLogin
+                key={socialWidth}
                 onSuccess={handleGoogleSuccess}
                 onError={handleGoogleError}
                 theme="filled_black"
                 text="continue_with"
                 size="large"
-                width="344"
+                width={String(socialWidth)}
               />
             </div>
           </form>
