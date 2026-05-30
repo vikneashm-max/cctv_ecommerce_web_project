@@ -77,7 +77,7 @@ interface AdminPageProps {
   onBack: () => void;
 }
 
-type TabType = 'dashboard' | 'products' | 'orders' | 'customers' | 'inventory' | 'analytics' | 'discounts' | 'settings' | 'profile';
+type TabType = 'dashboard' | 'products' | 'orders' | 'customers' | 'inventory' | 'analytics' | 'discounts' | 'settings' | 'profile' | 'serviceRequests' | 'contactMessages';
 
 const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, currentUser, onBack }) => {
   const { showAlert, showConfirm } = useModal();
@@ -209,6 +209,133 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, currentUse
     const confirmed = await showConfirm('Are you sure you want to delete this order?');
     if (confirmed) {
       setOrders(prev => prev.filter(o => o.id !== id));
+    }
+  };
+
+  // ------------------ DYNAMIC STATE FOR SERVICE REQUESTS ------------------
+  interface ServiceRequest {
+    id: number;
+    customerName: string;
+    phoneNumber: string;
+    serviceType: string;
+    message?: string;
+    status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+    createdAt: string;
+  }
+
+  const [serviceRequests, setServiceRequests] = useState<ServiceRequest[]>([]);
+  const [statusFilter, setStatusFilter] = useState<string>('ALL');
+  const [selectedRequestDetails, setSelectedRequestDetails] = useState<ServiceRequest | null>(null);
+
+  const fetchServiceRequests = async () => {
+    if (!currentUser?.token) return;
+    try {
+      const response = await api.get('/admin/service-requests', {
+        headers: {
+          Authorization: `Bearer ${currentUser.token}`
+        }
+      });
+      setServiceRequests(response.data);
+    } catch (err) {
+      console.error("Failed to load service requests", err);
+    }
+  };
+
+  useEffect(() => {
+    if (currentUser?.token) {
+      fetchServiceRequests();
+    }
+  }, [currentUser]);
+
+  const handleUpdateServiceRequestStatus = async (id: number, nextStatus: string) => {
+    if (!currentUser?.token) return;
+    try {
+      await api.put(`/admin/service-requests/${id}/status`, { status: nextStatus }, {
+        headers: {
+          Authorization: `Bearer ${currentUser.token}`
+        }
+      });
+      await fetchServiceRequests();
+      await showAlert('Service request status updated successfully!');
+      // Update details modal if it's currently open
+      if (selectedRequestDetails && selectedRequestDetails.id === id) {
+        setSelectedRequestDetails(prev => prev ? { ...prev, status: nextStatus as any } : null);
+      }
+    } catch (err) {
+      console.error("Failed to update status", err);
+      await showAlert('Failed to update service request status.');
+    }
+  };
+
+  const handleDeleteServiceRequest = async (id: number) => {
+    if (!currentUser?.token) return;
+    const confirmed = await showConfirm('Are you sure you want to delete this service request?');
+    if (confirmed) {
+      try {
+        await api.delete(`/admin/service-requests/${id}`, {
+          headers: {
+            Authorization: `Bearer ${currentUser.token}`
+          }
+        });
+        await fetchServiceRequests();
+        await showAlert('Service request successfully deleted.');
+      } catch (err) {
+        console.error("Failed to delete service request", err);
+        await showAlert('Failed to delete service request.');
+      }
+    }
+  };
+
+  // ------------------ DYNAMIC STATE FOR CONTACT MESSAGES ------------------
+  interface ContactMessage {
+    id: number;
+    fullName: string;
+    email: string;
+    phoneNumber: string;
+    subject: string;
+    message: string;
+    createdAt: string;
+  }
+
+  const [contactMessages, setContactMessages] = useState<ContactMessage[]>([]);
+  const [selectedMessageDetails, setSelectedMessageDetails] = useState<ContactMessage | null>(null);
+
+  const fetchContactMessages = async () => {
+    if (!currentUser?.token) return;
+    try {
+      const response = await api.get('/admin/contact-messages', {
+        headers: {
+          Authorization: `Bearer ${currentUser.token}`
+        }
+      });
+      setContactMessages(response.data);
+    } catch (err) {
+      console.error("Failed to load contact messages", err);
+    }
+  };
+
+  useEffect(() => {
+    if (currentUser?.token) {
+      fetchContactMessages();
+    }
+  }, [currentUser]);
+
+  const handleDeleteContactMessage = async (id: number) => {
+    if (!currentUser?.token) return;
+    const confirmed = await showConfirm('Are you sure you want to delete this contact message?');
+    if (confirmed) {
+      try {
+        await api.delete(`/admin/contact-messages/${id}`, {
+          headers: {
+            Authorization: `Bearer ${currentUser.token}`
+          }
+        });
+        await fetchContactMessages();
+        await showAlert('Contact message successfully deleted.');
+      } catch (err) {
+        console.error("Failed to delete contact message", err);
+        await showAlert('Failed to delete contact message.');
+      }
     }
   };
 
@@ -527,6 +654,17 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, currentUse
           <button className={`sg-nav-item ${activeTab === 'customers' ? 'active' : ''}`} onClick={() => { setActiveTab('customers'); setSearchQuery(''); }}>
             <svg className="nav-svg" viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             Customers
+          </button>
+          <button className={`sg-nav-item ${activeTab === 'serviceRequests' ? 'active' : ''}`} onClick={() => { setActiveTab('serviceRequests'); setSearchQuery(''); }}>
+            <svg className="nav-svg" viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            Service Requests
+          </button>
+          <button className={`sg-nav-item ${activeTab === 'contactMessages' ? 'active' : ''}`} onClick={() => { setActiveTab('contactMessages'); setSearchQuery(''); }}>
+            <svg className="nav-svg" viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+              <polyline points="22,6 12,13 2,6"/>
+            </svg>
+            Contact Messages
           </button>
           <button className={`sg-nav-item ${activeTab === 'inventory' ? 'active' : ''}`} onClick={() => { setActiveTab('inventory'); setSearchQuery(''); }}>
             <svg className="nav-svg" viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/></svg>
@@ -1467,6 +1605,257 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, currentUse
             </div>
           )}
 
+          {/* ================= TAB: SERVICE REQUESTS ================= */}
+          {activeTab === 'serviceRequests' && (
+            <div className="sg-tab-pane">
+              <div className="tab-pane-title">
+                <h1>Service Requests Console</h1>
+                <p>Manage customer security consultations, CCTV installation requests, and maintenance schedules.</p>
+              </div>
+
+              {/* Status Filter Header */}
+              <div className="table-filter-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '1rem' }}>
+                <h3>
+                  Active Service Inquiries ({
+                    serviceRequests.filter(req => {
+                      const matchesSearch = 
+                        req.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        req.phoneNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        req.serviceType.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        (req.message && req.message.toLowerCase().includes(searchQuery.toLowerCase()));
+                      const matchesStatus = statusFilter === 'ALL' || req.status === statusFilter;
+                      return matchesSearch && matchesStatus;
+                    }).length
+                  })
+                </h3>
+                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                  <span style={{ fontSize: '0.875rem', fontWeight: 600, color: '#475569' }}>Filter by Status:</span>
+                  <select 
+                    value={statusFilter} 
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    style={{ 
+                      padding: '0.4rem 0.8rem', 
+                      borderRadius: '8px', 
+                      border: '1px solid #cbd5e1', 
+                      outline: 'none', 
+                      background: 'white',
+                      fontSize: '0.85rem',
+                      fontWeight: 500,
+                      color: '#1e293b',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <option value="ALL">All Statuses</option>
+                    <option value="PENDING">PENDING</option>
+                    <option value="IN_PROGRESS">IN_PROGRESS</option>
+                    <option value="COMPLETED">COMPLETED</option>
+                    <option value="CANCELLED">CANCELLED</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Data Table */}
+              <div className="sg-workspace-card">
+                <div className="table-responsive-wrapper">
+                  <table className="sg-data-table">
+                    <thead>
+                      <tr>
+                        <th>REQUEST ID</th>
+                        <th>CUSTOMER NAME</th>
+                        <th>PHONE NUMBER</th>
+                        <th>SERVICE TYPE</th>
+                        <th>MESSAGE PREVIEW</th>
+                        <th>CREATED DATE</th>
+                        <th>STATUS</th>
+                        <th>ACTIONS</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {serviceRequests
+                        .filter(req => {
+                          const matchesSearch = 
+                            req.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                            req.phoneNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                            req.serviceType.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                            (req.message && req.message.toLowerCase().includes(searchQuery.toLowerCase()));
+                          const matchesStatus = statusFilter === 'ALL' || req.status === statusFilter;
+                          return matchesSearch && matchesStatus;
+                        })
+                        .map((req) => (
+                          <tr key={req.id}>
+                            <td><strong>#{req.id}</strong></td>
+                            <td>{req.customerName}</td>
+                            <td>{req.phoneNumber}</td>
+                            <td>
+                              <span className="listing-cat" style={{ display: 'inline-block', padding: '2px 8px', background: '#f1f5f9', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 600, color: '#475569' }}>
+                                {req.serviceType}
+                              </span>
+                            </td>
+                            <td style={{ maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              {req.message || <span style={{ color: '#94a3b8', fontStyle: 'italic' }}>No message</span>}
+                            </td>
+                            <td>{new Date(req.createdAt).toLocaleDateString()}</td>
+                            <td>
+                              <span className={`order-status-badge ${
+                                req.status.toUpperCase() === 'PENDING' ? 'pending' :
+                                req.status.toUpperCase() === 'IN_PROGRESS' ? 'processing' :
+                                req.status.toUpperCase() === 'COMPLETED' ? 'delivered' : 'cancelled'
+                              }`}>
+                                {req.status}
+                              </span>
+                            </td>
+                            <td>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <select 
+                                  className="order-status-selector"
+                                  value={req.status}
+                                  onChange={(e) => handleUpdateServiceRequestStatus(req.id, e.target.value)}
+                                  style={{ fontSize: '0.8rem', padding: '0.2rem' }}
+                                >
+                                  <option value="PENDING">PENDING</option>
+                                  <option value="IN_PROGRESS">IN_PROGRESS</option>
+                                  <option value="COMPLETED">COMPLETED</option>
+                                  <option value="CANCELLED">CANCELLED</option>
+                                </select>
+                                <button 
+                                  className="btn-table-action-icon view"
+                                  title="View details"
+                                  onClick={() => setSelectedRequestDetails(req)}
+                                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px', border: 'none', background: '#f1f5f9', borderRadius: '4px', cursor: 'pointer' }}
+                                >
+                                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#475569" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                </button>
+                                <button 
+                                  className="btn-table-action-icon delete"
+                                  title="Delete request"
+                                  onClick={() => handleDeleteServiceRequest(req.id)}
+                                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px', border: 'none', background: '#fee2e2', borderRadius: '4px', cursor: 'pointer' }}
+                                >
+                                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#ef4444" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      {serviceRequests.filter(req => {
+                        const matchesSearch = 
+                          req.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          req.phoneNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          req.serviceType.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          (req.message && req.message.toLowerCase().includes(searchQuery.toLowerCase()));
+                        const matchesStatus = statusFilter === 'ALL' || req.status === statusFilter;
+                        return matchesSearch && matchesStatus;
+                      }).length === 0 && (
+                        <tr>
+                          <td colSpan={8} style={{ textAlign: 'center', padding: '2rem', color: '#64748b' }}>
+                            No service requests found matching the current filters.
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ================= TAB: CONTACT MESSAGES ================= */}
+          {activeTab === 'contactMessages' && (
+            <div className="sg-tab-pane">
+              <div className="tab-pane-title">
+                <h1>Contact Messages Inbox</h1>
+                <p>Monitor user feedback, product inquiries, and custom site inspection requests.</p>
+              </div>
+
+              {/* Header count */}
+              <div className="table-filter-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+                <h3>
+                  Inbox Messages ({
+                    contactMessages.filter(msg => {
+                      return msg.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        msg.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        msg.phoneNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        msg.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        msg.message.toLowerCase().includes(searchQuery.toLowerCase());
+                    }).length
+                  })
+                </h3>
+              </div>
+
+              {/* Table */}
+              <div className="sg-workspace-card">
+                <div className="table-responsive-wrapper">
+                  <table className="sg-data-table">
+                    <thead>
+                      <tr>
+                        <th>MESSAGE ID</th>
+                        <th>NAME</th>
+                        <th>EMAIL</th>
+                        <th>PHONE NUMBER</th>
+                        <th>SUBJECT</th>
+                        <th>CREATED DATE</th>
+                        <th>ACTIONS</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {contactMessages
+                        .filter(msg => {
+                          return msg.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                            msg.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                            msg.phoneNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                            msg.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                            msg.message.toLowerCase().includes(searchQuery.toLowerCase());
+                        })
+                        .map((msg) => (
+                          <tr key={msg.id}>
+                            <td><strong>#{msg.id}</strong></td>
+                            <td>{msg.fullName}</td>
+                            <td>{msg.email}</td>
+                            <td>{msg.phoneNumber}</td>
+                            <td>{msg.subject}</td>
+                            <td>{new Date(msg.createdAt).toLocaleDateString()}</td>
+                            <td>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <button 
+                                  className="btn-table-action-icon view"
+                                  title="View details"
+                                  onClick={() => setSelectedMessageDetails(msg)}
+                                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px', border: 'none', background: '#f1f5f9', borderRadius: '4px', cursor: 'pointer' }}
+                                >
+                                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#475569" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                </button>
+                                <button 
+                                  className="btn-table-action-icon delete"
+                                  title="Delete message"
+                                  onClick={() => handleDeleteContactMessage(msg.id)}
+                                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px', border: 'none', background: '#fee2e2', borderRadius: '4px', cursor: 'pointer' }}
+                                >
+                                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#ef4444" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      {contactMessages.filter(msg => {
+                        return msg.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          msg.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          msg.phoneNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          msg.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          msg.message.toLowerCase().includes(searchQuery.toLowerCase());
+                      }).length === 0 && (
+                        <tr>
+                          <td colSpan={7} style={{ textAlign: 'center', padding: '2rem', color: '#64748b' }}>
+                            No contact messages found.
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* ================= TAB 9: ADMIN PROFILE ================= */}
           {activeTab === 'profile' && (
             <div className="sg-tab-pane admin-profile-pane">
@@ -1674,6 +2063,103 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, currentUse
             <div className="admin-modal-actions">
               <button className="btn-modal-cancel" onClick={cancelDeleteProduct}>Cancel</button>
               <button className="btn-modal-confirm" onClick={confirmDeleteProduct}>Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {selectedRequestDetails && (
+        <div className="admin-modal-overlay">
+          <div className="admin-modal-card" style={{ maxWidth: '500px', width: '90%' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #cbd5e1', paddingBottom: '0.75rem', marginBottom: '1rem' }}>
+              <h3 style={{ margin: 0, color: '#0f172a' }}>Service Request Details</h3>
+              <button 
+                onClick={() => setSelectedRequestDetails(null)} 
+                style={{ border: 'none', background: 'none', fontSize: '1.25rem', cursor: 'pointer', color: '#64748b' }}
+              >
+                ✕
+              </button>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', textAlign: 'left', color: '#334155', fontSize: '0.9rem' }}>
+              <div><strong>Request ID:</strong> #{selectedRequestDetails.id}</div>
+              <div><strong>Customer Name:</strong> {selectedRequestDetails.customerName}</div>
+              <div><strong>Phone Number:</strong> {selectedRequestDetails.phoneNumber}</div>
+              <div><strong>Service Type:</strong> {selectedRequestDetails.serviceType}</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <strong>Status:</strong> 
+                <span className={`order-status-badge ${
+                  selectedRequestDetails.status.toUpperCase() === 'PENDING' ? 'pending' :
+                  selectedRequestDetails.status.toUpperCase() === 'IN_PROGRESS' ? 'processing' :
+                  selectedRequestDetails.status.toUpperCase() === 'COMPLETED' ? 'delivered' : 'cancelled'
+                }`}>
+                  {selectedRequestDetails.status}
+                </span>
+              </div>
+              <div><strong>Created Date:</strong> {new Date(selectedRequestDetails.createdAt).toLocaleString()}</div>
+              <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '0.75rem', marginTop: '0.25rem' }}>
+                <strong>Message:</strong>
+                <p style={{ 
+                  background: '#f8fafc', 
+                  padding: '0.75rem', 
+                  borderRadius: '8px', 
+                  border: '1px solid #cbd5e1', 
+                  whiteSpace: 'pre-wrap', 
+                  marginTop: '0.5rem', 
+                  maxHeight: '200px', 
+                  overflowY: 'auto',
+                  color: '#334155',
+                  lineHeight: '1.4'
+                }}>
+                  {selectedRequestDetails.message || 'No message provided.'}
+                </p>
+              </div>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1.5rem', borderTop: '1px solid #e2e8f0', paddingTop: '0.75rem' }}>
+              <button className="btn-modal-cancel" onClick={() => setSelectedRequestDetails(null)}>Close</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {selectedMessageDetails && (
+        <div className="admin-modal-overlay">
+          <div className="admin-modal-card" style={{ maxWidth: '500px', width: '90%' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #cbd5e1', paddingBottom: '0.75rem', marginBottom: '1rem' }}>
+              <h3 style={{ margin: 0, color: '#0f172a' }}>Contact Message Details</h3>
+              <button 
+                onClick={() => setSelectedMessageDetails(null)} 
+                style={{ border: 'none', background: 'none', fontSize: '1.25rem', cursor: 'pointer', color: '#64748b' }}
+              >
+                ✕
+              </button>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', textAlign: 'left', color: '#334155', fontSize: '0.9rem' }}>
+              <div><strong>Message ID:</strong> #{selectedMessageDetails.id}</div>
+              <div><strong>Customer Name:</strong> {selectedMessageDetails.fullName}</div>
+              <div><strong>Email:</strong> <a href={`mailto:${selectedMessageDetails.email}`} style={{ color: '#ea580c', textDecoration: 'underline' }}>{selectedMessageDetails.email}</a></div>
+              <div><strong>Phone Number:</strong> {selectedMessageDetails.phoneNumber}</div>
+              <div><strong>Subject:</strong> {selectedMessageDetails.subject}</div>
+              <div><strong>Created Date:</strong> {new Date(selectedMessageDetails.createdAt).toLocaleString()}</div>
+              <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '0.75rem', marginTop: '0.25rem' }}>
+                <strong>Message:</strong>
+                <p style={{ 
+                  background: '#f8fafc', 
+                  padding: '0.75rem', 
+                  borderRadius: '8px', 
+                  border: '1px solid #cbd5e1', 
+                  whiteSpace: 'pre-wrap', 
+                  marginTop: '0.5rem', 
+                  maxHeight: '200px', 
+                  overflowY: 'auto',
+                  color: '#334155',
+                  lineHeight: '1.4'
+                }}>
+                  {selectedMessageDetails.message}
+                </p>
+              </div>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1.5rem', borderTop: '1px solid #e2e8f0', paddingTop: '0.75rem' }}>
+              <button className="btn-modal-cancel" onClick={() => setSelectedMessageDetails(null)}>Close</button>
             </div>
           </div>
         </div>

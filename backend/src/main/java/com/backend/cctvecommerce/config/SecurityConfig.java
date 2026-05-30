@@ -62,6 +62,8 @@ public class SecurityConfig {
            .authorizeHttpRequests(auth -> auth
                .requestMatchers("/api/auth/**").permitAll()
                .requestMatchers("/api/upload/**").permitAll()
+               .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/service-requests").permitAll()
+               .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/contact").permitAll()
                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/user/products", "/api/user/products/**").permitAll()
                .requestMatchers("/api/admin/**").hasRole("ADMIN")
                .requestMatchers("/api/user/**").hasRole("USER")

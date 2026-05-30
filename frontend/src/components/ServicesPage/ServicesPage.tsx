@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './ServicesPage.css';
 import { useModal } from '../../context/ModalContext';
+import api from '../../api/api';
 
 interface ServicesPageProps {
   // Navigation prop removed since modal popup is used
@@ -8,6 +9,7 @@ interface ServicesPageProps {
 
 const ServicesPage: React.FC<ServicesPageProps> = () => {
   const { showAlert } = useModal();
+  const clientPhone = import.meta.env.VITE_CLIENT_PHONE || '+91 80120 00888';
   const [selectedService, setSelectedService] = useState<string | null>(null);
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
@@ -32,12 +34,26 @@ const ServicesPage: React.FC<ServicesPageProps> = () => {
       await showAlert('Please fill in your Name and Phone Number.');
       return;
     }
-    // Simulate API call success
-    setIsSubmitted(true);
-    setTimeout(() => {
-      setSelectedService(null);
-      setIsSubmitted(false);
-    }, 2500);
+    try {
+      await api.post('/service-requests', {
+        customerName: name,
+        phoneNumber: phone,
+        serviceType: selectedService,
+        message: message
+      });
+      setIsSubmitted(true);
+      setTimeout(() => {
+        setSelectedService(null);
+        setIsSubmitted(false);
+        setName('');
+        setPhone('');
+        setMessage('');
+      }, 2500);
+    } catch (err: any) {
+      console.error("Failed to submit service request", err);
+      const errMsg = err.response?.data?.message || err.response?.data || "An error occurred while submitting your request.";
+      await showAlert(`Submission failed: ${errMsg}`);
+    }
   };
 
   const getServiceDescription = (serviceName: string) => {
@@ -49,6 +65,11 @@ const ServicesPage: React.FC<ServicesPageProps> = () => {
     }
     return 'Regular system maintenance, firmware updates, camera repair, and troubleshooting services. Our experts provide complete planning, installation, and reliable after-sales support tailored to your property.';
   };
+
+  const whatsappNumber = clientPhone.replace(/[^\d]/g, '');
+  const whatsappMessage = `New Service Inquiry\n\nName: ${name}\nPhone: ${phone}\nService: ${selectedService}\nMessage: ${message}`;
+  const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`;
+  const dialerUrl = `tel:+${clientPhone.replace(/[^\d+]/g, '').replace(/^\+/, '')}`;
 
   return (
     <div className="services-container">
@@ -242,14 +263,14 @@ const ServicesPage: React.FC<ServicesPageProps> = () => {
                 </button>
 
                 <div className="modal-quick-contact-grid">
-                  <a href="tel:9876543210" className="contact-btn call-btn">
+                  <a href={dialerUrl} className="contact-btn call-btn">
                     <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '4px' }}>
                       <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
                     </svg>
                     Call Now
                   </a>
                   <a 
-                    href={`https://wa.me/919876543210?text=Hi,%20I'm%20interested%20in%20your%20${encodeURIComponent(selectedService)}%20service.`} 
+                    href={whatsappUrl} 
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className="contact-btn whatsapp-btn"
@@ -286,7 +307,7 @@ const ServicesPage: React.FC<ServicesPageProps> = () => {
               </div>
               <div className="contact-item-row">
                 <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-                <p>9876543210</p>
+                <p>{clientPhone}</p>
               </div>
               <div className="contact-item-row">
                 <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>

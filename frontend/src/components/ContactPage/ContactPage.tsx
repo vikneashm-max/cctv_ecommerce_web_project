@@ -1,16 +1,62 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './ContactPage.css';
+import api from '../../api/api';
 
 interface ContactPageProps {
 }
 
 const ContactPage: React.FC<ContactPageProps> = () => {
+  const clientPhone = import.meta.env.VITE_CLIENT_PHONE || '+91 80120 00888';
+  
+  // State variables for form inputs
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [subject, setSubject] = useState('');
+  const [message, setMessage] = useState('');
+  
+  // Feedback states
+  const [isLoading, setIsLoading] = useState(false);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!fullName || !email || !phoneNumber || !subject || !message) {
+      setErrorMsg('Please fill out all required fields.');
+      return;
+    }
+    
+    setIsLoading(true);
+    setSuccessMsg(null);
+    setErrorMsg(null);
 
+    try {
+      await api.post('/contact', {
+        fullName,
+        email,
+        phoneNumber,
+        subject,
+        message
+      });
+      setSuccessMsg('Your message has been sent successfully.');
+      // Clear inputs
+      setFullName('');
+      setEmail('');
+      setPhoneNumber('');
+      setSubject('');
+      setMessage('');
+    } catch (err: any) {
+      console.error("Failed to send contact message", err);
+      const errMsg = err.response?.data?.message || err.response?.data || 'An error occurred while sending your message. Please try again.';
+      setErrorMsg(errMsg);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="contact-page-container">
-
 
       <main className="contact-main">
         <header className="contact-header">
@@ -22,23 +68,58 @@ const ContactPage: React.FC<ContactPageProps> = () => {
           {/* Left Side: Form */}
           <div className="contact-card message-card">
             <h2>Send us a Message</h2>
-            <form className="contact-form" onSubmit={(e) => e.preventDefault()}>
+            <form className="contact-form" onSubmit={handleSubmit}>
+              {successMsg && <div style={{ color: '#16a34a', background: '#dcfce7', padding: '0.75rem', borderRadius: '8px', border: '1px solid #bbf7d0', marginBottom: '1rem', fontSize: '0.9rem', fontWeight: 600 }}>{successMsg}</div>}
+              {errorMsg && <div style={{ color: '#dc2626', background: '#fee2e2', padding: '0.75rem', borderRadius: '8px', border: '1px solid #fecaca', marginBottom: '1rem', fontSize: '0.9rem', fontWeight: 600 }}>{errorMsg}</div>}
+
               <div className="form-group">
-                <input type="text" placeholder="Full Name" required />
+                <input 
+                  type="text" 
+                  placeholder="Full Name" 
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  required 
+                />
               </div>
               <div className="form-group">
-                <input type="email" placeholder="Email Address" required />
+                <input 
+                  type="email" 
+                  placeholder="Email Address" 
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required 
+                />
               </div>
               <div className="form-group">
-                <input type="tel" placeholder="Phone Number" required />
+                <input 
+                  type="tel" 
+                  placeholder="Phone Number" 
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  required 
+                />
               </div>
               <div className="form-group">
-                <input type="text" placeholder="Subject" required />
+                <input 
+                  type="text" 
+                  placeholder="Subject" 
+                  value={subject}
+                  onChange={(e) => setSubject(e.target.value)}
+                  required 
+                />
               </div>
               <div className="form-group">
-                <textarea placeholder="Message" rows={5} required></textarea>
+                <textarea 
+                  placeholder="Message" 
+                  rows={5} 
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  required
+                ></textarea>
               </div>
-              <button type="submit" className="send-btn">Send Message</button>
+              <button type="submit" className="send-btn" disabled={isLoading}>
+                {isLoading ? 'Sending...' : 'Send Message'}
+              </button>
             </form>
           </div>
 
@@ -53,7 +134,7 @@ const ContactPage: React.FC<ContactPageProps> = () => {
                 </div>
                 <div className="detail-info">
                   <span className="detail-label">PHONE</span>
-                  <span className="detail-value">9876543210</span>
+                  <span className="detail-value">{clientPhone}</span>
                 </div>
               </div>
 
@@ -120,7 +201,7 @@ const ContactPage: React.FC<ContactPageProps> = () => {
               </div>
               <div className="contact-item-row">
                 <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-                <p>9876543210</p>
+                <p>{clientPhone}</p>
               </div>
               <div className="contact-item-row">
                 <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
