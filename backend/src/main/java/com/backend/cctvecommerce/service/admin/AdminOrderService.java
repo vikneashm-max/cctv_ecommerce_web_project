@@ -56,6 +56,7 @@ public class AdminOrderService {
                         item.getId(),
                         item.getProduct().getId(),
                         item.getProduct().getName(),
+                        item.getProduct().getImageUrl(),
                         item.getQuantity(),
                         item.getPrice()
                 ))

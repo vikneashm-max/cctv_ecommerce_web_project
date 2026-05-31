@@ -83,6 +83,7 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, currentUse
   const { showAlert, showConfirm } = useModal();
   const [activeTab, setActiveTab] = useState<TabType>('customers');
   const [searchQuery, setSearchQuery] = useState('');
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   // ------------------ ADMIN PROFILE STATE ------------------
   const [adminName, setAdminName] = useState('Admin User');
@@ -98,7 +99,7 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, currentUse
   const [adminCurrentPassword, setAdminCurrentPassword] = useState('admin123');
   const [adminNewPassword, setAdminNewPassword] = useState('');
   const [adminConfirmPassword, setAdminConfirmPassword] = useState('');
-  const [adminAvatar, setAdminAvatar] = useState(() => {
+  const [adminAvatar] = useState(() => {
     return localStorage.getItem('sgAdminAvatar') || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150';
   });
 
@@ -191,25 +192,67 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, currentUse
   const paginatedCustomers = filteredCustomers.slice((custCurrentPage - 1) * ITEMS_PER_PAGE, custCurrentPage * ITEMS_PER_PAGE);
 
   // ------------------ DYNAMIC STATE FOR ORDERS ------------------
-  const [orders, setOrders] = useState<Order[]>(() => {
-    const saved = localStorage.getItem('appOrders');
-    if (saved) return JSON.parse(saved);
-    return [];
-  });
+  const [orders, setOrders] = useState<Order[]>([]);
 
-  useEffect(() => {
-    localStorage.setItem('appOrders', JSON.stringify(orders));
-  }, [orders]);
-
-  const handleUpdateOrderStatus = (id: string, nextStatus: any) => {
-    setOrders(prev => prev.map(o => o.id === id ? { ...o, status: nextStatus } : o));
+  const fetchAdminOrders = async () => {
+    if (!currentUser?.token) return;
+    try {
+      const response = await api.get('/admin/orders', {
+        headers: {
+          Authorization: `Bearer ${currentUser.token}`
+        }
+      });
+      const mapped = response.data.map((o: any) => ({
+        id: o.id.toString(),
+        date: o.orderDate,
+        total: o.totalAmount,
+        status: o.status === 'PENDING' ? 'Pending' : o.status === 'SHIPPED' ? 'Processing' : o.status === 'DELIVERED' ? 'Delivered' : 'Cancelled',
+        paymentMethod: o.paymentMethod || 'Cash on Delivery',
+        customerName: o.userEmail,
+        items: o.items.map((item: any) => ({
+          id: item.productId,
+          name: item.productName,
+          price: `₹${item.price}`,
+          img: item.productImageUrl || 'https://images.unsplash.com/photo-1557862921-37829c790f19?w=150'
+        }))
+      }));
+      setOrders(mapped);
+    } catch (err) {
+      console.error("Failed to load admin orders:", err);
+    }
   };
 
-  const handleDeleteOrder = async (id: string) => {
-    const confirmed = await showConfirm('Are you sure you want to delete this order?');
-    if (confirmed) {
-      setOrders(prev => prev.filter(o => o.id !== id));
+  useEffect(() => {
+    if (currentUser?.token) {
+      fetchAdminOrders();
     }
+  }, [currentUser]);
+
+  const handleUpdateOrderStatus = async (id: string, nextStatus: any) => {
+    if (!currentUser?.token) return;
+    let backendStatus = 'PENDING';
+    if (nextStatus === 'Processing') backendStatus = 'SHIPPED';
+    else if (nextStatus === 'Delivered') backendStatus = 'DELIVERED';
+    else if (nextStatus === 'Cancelled') backendStatus = 'CANCELLED';
+
+    try {
+      await api.put(`/admin/orders/${id}/status`, {
+        status: backendStatus
+      }, {
+        headers: {
+          Authorization: `Bearer ${currentUser.token}`
+        }
+      });
+      await fetchAdminOrders();
+      await showAlert('Order status updated successfully.');
+    } catch (err) {
+      console.error("Failed to update status:", err);
+      await showAlert('Failed to update order status.');
+    }
+  };
+
+  const handleDeleteOrder = async (_id: string) => {
+    await showAlert('Order deletion is not supported on the server. Please change the status to Cancelled instead.');
   };
 
   // ------------------ DYNAMIC STATE FOR SERVICE REQUESTS ------------------
@@ -455,18 +498,7 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, currentUse
     }
   };
 
-  const handleAdminAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = async () => {
-        setAdminAvatar(reader.result as string);
-        await showAlert('Admin profile photo updated successfully!');
-      };
-      reader.readAsDataURL(file);
-    }
-    e.target.value = '';
-  };
+
 
   const handleAddNewImageUrl = () => {
     if (newImageUrl.trim() === '') return;
@@ -627,7 +659,7 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, currentUse
     <div className="sg-admin-portal">
       
       {/* ================= LEFT SIDEBAR ================= */}
-      <aside className="sg-sidebar">
+      <aside className={`sg-sidebar ${isMobileSidebarOpen ? 'open' : ''}`}>
         <div className="sg-logo-area">
           <div className="sg-logo-icon">
             <img src={logo} alt="TN Automation Logo" style={{ width: '24px', height: '24px', objectFit: 'contain' }} />
@@ -639,46 +671,46 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, currentUse
         </div>
 
         <nav className="sg-nav-menu">
-          <button className={`sg-nav-item ${activeTab === 'dashboard' ? 'active' : ''}`} onClick={() => { setActiveTab('dashboard'); setSearchQuery(''); }}>
+          <button className={`sg-nav-item ${activeTab === 'dashboard' ? 'active' : ''}`} onClick={() => { setActiveTab('dashboard'); setSearchQuery(''); setIsMobileSidebarOpen(false); }}>
             <svg className="nav-svg" viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
             Dashboard
           </button>
-          <button className={`sg-nav-item ${activeTab === 'products' ? 'active' : ''}`} onClick={() => { setActiveTab('products'); setSearchQuery(''); }}>
+          <button className={`sg-nav-item ${activeTab === 'products' ? 'active' : ''}`} onClick={() => { setActiveTab('products'); setSearchQuery(''); setIsMobileSidebarOpen(false); }}>
             <svg className="nav-svg" viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
             Products
           </button>
-          <button className={`sg-nav-item ${activeTab === 'orders' ? 'active' : ''}`} onClick={() => { setActiveTab('orders'); setSearchQuery(''); }}>
+          <button className={`sg-nav-item ${activeTab === 'orders' ? 'active' : ''}`} onClick={() => { setActiveTab('orders'); setSearchQuery(''); setIsMobileSidebarOpen(false); }}>
             <svg className="nav-svg" viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
             Orders
           </button>
-          <button className={`sg-nav-item ${activeTab === 'customers' ? 'active' : ''}`} onClick={() => { setActiveTab('customers'); setSearchQuery(''); }}>
+          <button className={`sg-nav-item ${activeTab === 'customers' ? 'active' : ''}`} onClick={() => { setActiveTab('customers'); setSearchQuery(''); setIsMobileSidebarOpen(false); }}>
             <svg className="nav-svg" viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             Customers
           </button>
-          <button className={`sg-nav-item ${activeTab === 'serviceRequests' ? 'active' : ''}`} onClick={() => { setActiveTab('serviceRequests'); setSearchQuery(''); }}>
+          <button className={`sg-nav-item ${activeTab === 'serviceRequests' ? 'active' : ''}`} onClick={() => { setActiveTab('serviceRequests'); setSearchQuery(''); setIsMobileSidebarOpen(false); }}>
             <svg className="nav-svg" viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
             Service Requests
           </button>
-          <button className={`sg-nav-item ${activeTab === 'contactMessages' ? 'active' : ''}`} onClick={() => { setActiveTab('contactMessages'); setSearchQuery(''); }}>
+          <button className={`sg-nav-item ${activeTab === 'contactMessages' ? 'active' : ''}`} onClick={() => { setActiveTab('contactMessages'); setSearchQuery(''); setIsMobileSidebarOpen(false); }}>
             <svg className="nav-svg" viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
               <polyline points="22,6 12,13 2,6"/>
             </svg>
             Contact Messages
           </button>
-          <button className={`sg-nav-item ${activeTab === 'inventory' ? 'active' : ''}`} onClick={() => { setActiveTab('inventory'); setSearchQuery(''); }}>
+          <button className={`sg-nav-item ${activeTab === 'inventory' ? 'active' : ''}`} onClick={() => { setActiveTab('inventory'); setSearchQuery(''); setIsMobileSidebarOpen(false); }}>
             <svg className="nav-svg" viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/></svg>
             Inventory
           </button>
-          <button className={`sg-nav-item ${activeTab === 'analytics' ? 'active' : ''}`} onClick={() => { setActiveTab('analytics'); setSearchQuery(''); }}>
+          <button className={`sg-nav-item ${activeTab === 'analytics' ? 'active' : ''}`} onClick={() => { setActiveTab('analytics'); setSearchQuery(''); setIsMobileSidebarOpen(false); }}>
             <svg className="nav-svg" viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
             Analytics
           </button>
-          <button className={`sg-nav-item ${activeTab === 'discounts' ? 'active' : ''}`} onClick={() => { setActiveTab('discounts'); setSearchQuery(''); }}>
+          <button className={`sg-nav-item ${activeTab === 'discounts' ? 'active' : ''}`} onClick={() => { setActiveTab('discounts'); setSearchQuery(''); setIsMobileSidebarOpen(false); }}>
             <svg className="nav-svg" viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7" y2="7"/></svg>
             Discounts
           </button>
-          <button className={`sg-nav-item ${activeTab === 'settings' ? 'active' : ''}`} onClick={() => { setActiveTab('settings'); setSearchQuery(''); }}>
+          <button className={`sg-nav-item ${activeTab === 'settings' ? 'active' : ''}`} onClick={() => { setActiveTab('settings'); setSearchQuery(''); setIsMobileSidebarOpen(false); }}>
             <svg className="nav-svg" viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
             Settings
           </button>
@@ -688,7 +720,7 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, currentUse
         <div className="sg-sidebar-footer">
           <button 
             className={`sg-sidebar-profile-item ${activeTab === 'profile' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('profile'); setSearchQuery(''); }}
+            onClick={() => { setActiveTab('profile'); setSearchQuery(''); setIsMobileSidebarOpen(false); }}
             title="Manage admin account details"
             style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}
           >
@@ -720,6 +752,10 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, currentUse
         
         {/* ================= TOP HEADER ================= */}
         <header className="sg-top-header">
+          <button className="sg-hamburger-btn" onClick={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}>
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </button>
+
           <div className="sg-search-area">
             <svg viewBox="0 0 24 24" width="18" fill="none" stroke="#64748b" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             <input 
@@ -1869,32 +1905,18 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, currentUse
                 {/* LEFT COLUMN */}
                 <div className="profile-left-col">
                   
-                  {/* Photo Upload Card */}
+                  {/* Photo Display Card */}
                   <div className="profile-card photo-card">
                     <div className="photo-card-banner"></div>
                     <div className="photo-card-avatar-wrapper">
                       <div className="photo-card-avatar" style={{ position: 'relative' }}>
                         <img src={adminAvatar} alt="Admin Avatar" />
-                        <input 
-                          type="file" 
-                          accept="image/*" 
-                          id="admin-avatar-file-input" 
-                          style={{ display: 'none' }} 
-                          onChange={handleAdminAvatarUpload}
-                        />
-                        <label htmlFor="admin-avatar-file-input" className="avatar-edit-btn" title="Edit avatar" style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <svg viewBox="0 0 24 24" width="14" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-                        </label>
                       </div>
                     </div>
                     <div className="photo-card-info">
                       <h2>{adminName}</h2>
                       <span>SYSTEM LEAD</span>
                     </div>
-                    <label htmlFor="admin-avatar-file-input" className="btn-upload-photo" style={{ cursor: 'pointer' }}>
-                      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ marginRight: '8px' }}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                      Upload New Photo
-                    </label>
                   </div>
 
                   {/* Account Preferences Card */}

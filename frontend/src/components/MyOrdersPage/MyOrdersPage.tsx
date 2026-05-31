@@ -21,9 +21,10 @@ export interface Order {
 interface MyOrdersPageProps {
   orders: Order[];
   onCancelOrder?: (id: string) => void;
+  isLoading?: boolean;
 }
 
-const MyOrdersPage: React.FC<MyOrdersPageProps> = ({ orders, onCancelOrder }) => {
+const MyOrdersPage: React.FC<MyOrdersPageProps> = ({ orders, onCancelOrder, isLoading }) => {
   return (
     <div className="orders-page-container">
       <div className="orders-content">
@@ -32,7 +33,11 @@ const MyOrdersPage: React.FC<MyOrdersPageProps> = ({ orders, onCancelOrder }) =>
           <p>Review your past purchases and order history</p>
         </header>
 
-        {orders.length === 0 ? (
+        {isLoading ? (
+          <div className="orders-loading" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '200px', fontSize: '1.25rem', color: '#64748b', fontWeight: 500 }}>
+            Loading...
+          </div>
+        ) : orders.length === 0 ? (
           <div className="empty-orders">
             <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" strokeWidth="1" className="empty-orders-icon">
               <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>

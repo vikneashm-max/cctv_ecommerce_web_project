@@ -405,3 +405,150 @@
   padding-left: 0.5rem !important;
 }
 
+/* Checkout Delivery Address Styles */
+.checkout-address-card {
+  background: white;
+  border-radius: 20px;
+  padding: 2.5rem;
+  border: 1px solid #e2e8f0;
+}
+
+.checkout-address-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.checkout-address-header svg {
+  color: #f97316; /* Orange icon */
+}
+
+.checkout-address-header h2 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+}
+
+.checkout-address-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.checkout-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.checkout-form-group.full-width {
+  width: 100%;
+}
+
+.checkout-form-row {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.checkout-form-row .checkout-form-group {
+  flex: 1;
+}
+
+.checkout-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+.checkout-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.checkout-input-icon {
+  position: absolute;
+  left: 1rem;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+}
+
+.checkout-input {
+  width: 100%;
+  padding: 0.85rem 1rem 0.85rem 2.75rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  color: #1e293b;
+  outline: none;
+  font-family: inherit;
+  transition: all 0.2s;
+  box-sizing: border-box;
+}
+
+.checkout-input:focus {
+  border-color: #f97316;
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
+}
+
+.btn-save-address {
+  background: white;
+  border: 1.5px solid #f97316;
+  color: #f97316;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  width: fit-content;
+  transition: all 0.2s;
+  font-family: inherit;
+  margin-top: 0.5rem;
+}
+
+.btn-save-address:hover {
+  background: rgba(249, 115, 22, 0.08);
+  transform: translateY(-1px);
+}
+
+.checkout-back-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: #64748b;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.2s;
+  background: none;
+  border: none;
+  padding: 0;
+  margin-top: 1rem;
+}
+
+.checkout-back-link:hover {
+  color: #0f172a;
+}
+
+@media (max-width: 640px) {
+  .cart-content {
+    padding: 2rem 1rem;
+  }
+
+  .checkout-address-card {
+    padding: 1.5rem 1.25rem;
+    border-radius: 16px;
+  }
+
+  .checkout-form-row {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+}
+

@@ -22,10 +22,11 @@ interface ProductsPageProps {
   products: Product[];
   initialCategory?: string;
   onCategoryChange?: (category: string) => void;
+  isLoading?: boolean;
 }
 
 const ProductsPage: React.FC<ProductsPageProps> = (props) => {
-  const { toggleFavorite, favorites, onSelectProduct, products, initialCategory, onCategoryChange } = props;
+  const { toggleFavorite, favorites, onSelectProduct, products, initialCategory, onCategoryChange, isLoading } = props;
 
   const [selectedCategory, setSelectedCategory] = React.useState(initialCategory || 'All Categories');
 
@@ -91,7 +92,11 @@ const ProductsPage: React.FC<ProductsPageProps> = (props) => {
           </aside>
 
           <div className="products-grid">
-            {filteredProducts.length > 0 ? (
+            {isLoading ? (
+              <div className="products-loading" style={{ gridColumn: '1 / -1', display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '300px', fontSize: '1.25rem', color: '#64748b', fontWeight: 500 }}>
+                Loading...
+              </div>
+            ) : filteredProducts.length > 0 ? (
               filteredProducts.map((prod, i) => (
                 <div 
                   className="product-card" 

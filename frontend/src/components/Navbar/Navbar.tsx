@@ -92,7 +92,13 @@ const Navbar: React.FC<NavbarProps> = ({
                   className="profile-trigger" 
                   onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
                 >
-                  <div className="profile-avatar">{getInitial(currentUser.fullName)}</div>
+                  <div className="profile-avatar" style={{ overflow: 'hidden' }}>
+                    {currentUser.profilePictureUrl ? (
+                      <img src={currentUser.profilePictureUrl} alt="profile" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
+                    ) : (
+                      getInitial(currentUser.fullName)
+                    )}
+                  </div>
                   <span className="profile-name">{getFirstName(currentUser.fullName)}</span>
                 </div>
                 
@@ -105,7 +111,7 @@ const Navbar: React.FC<NavbarProps> = ({
                     <div className="dropdown-divider"></div>
                     <a onClick={() => { onNavigate('profile'); setIsProfileDropdownOpen(false); }}>My Profile</a>
                     <a onClick={() => { onNavigate('orders'); setIsProfileDropdownOpen(false); }}>My Orders</a>
-                    <a onClick={() => { setIsProfileDropdownOpen(false); }}>Saved Addresses</a>
+                    <a onClick={() => { onNavigate('addresses' as any); setIsProfileDropdownOpen(false); }}>Saved Addresses</a>
                     <div className="dropdown-divider"></div>
                     <a onClick={() => { onLogout(); setIsProfileDropdownOpen(false); }} className="logout-text">Logout</a>
                   </div>
@@ -176,6 +182,19 @@ const Navbar: React.FC<NavbarProps> = ({
               
               {isLoggedIn && currentUser && (
                 <>
+                  <div className="mobile-divider"></div>
+                  <a onClick={() => { onNavigate('profile'); setIsMenuOpen(false); }} className={currentView === 'profile' ? 'active' : ''}>
+                    <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    My Profile
+                  </a>
+                  <a onClick={() => { onNavigate('orders'); setIsMenuOpen(false); }} className={currentView === 'orders' ? 'active' : ''}>
+                    <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="21 8 21 21 3 21 3 8"/><polyline points="10 12 12 14 14 12"/><path d="M21 3H3v5h18V3z"/></svg>
+                    My Orders
+                  </a>
+                  <a onClick={() => { onNavigate('addresses' as any); setIsMenuOpen(false); }} className={currentView === 'addresses' ? 'active' : ''}>
+                    <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    Saved Addresses
+                  </a>
                   <div className="mobile-divider"></div>
                   <a onClick={() => { onLogout(); setIsMenuOpen(false); }} style={{ color: '#ef4444' }}>
                     <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>

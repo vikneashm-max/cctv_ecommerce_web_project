@@ -89,13 +89,7 @@ public class AuthController {
                 )
         );
 
-        return ResponseEntity.ok(new AuthResponse(
-                token,
-                savedUser.getEmail(),
-                savedUser.getRole(),
-                savedUser.getId(),
-                savedUser.getFullName()
-        ));
+        return ResponseEntity.ok(new AuthResponse(token, savedUser));
     }
 
     @PostMapping("/login")
@@ -111,13 +105,7 @@ public class AuthController {
         String jwt = tokenProvider.generateToken(authentication);
 
         User user = userRepository.findByEmail(request.getEmail());
-        return ResponseEntity.ok(new AuthResponse(
-                jwt,
-                user.getEmail(),
-                user.getRole(),
-                user.getId(),
-                user.getFullName()
-        ));
+        return ResponseEntity.ok(new AuthResponse(jwt, user));
     }
 
     @PostMapping("/google")
@@ -167,13 +155,7 @@ public class AuthController {
                     )
             );
 
-            return ResponseEntity.ok(new AuthResponse(
-                    jwtToken,
-                    user.getEmail(),
-                    user.getRole(),
-                    user.getId(),
-                    user.getFullName()
-            ));
+            return ResponseEntity.ok(new AuthResponse(jwtToken, user));
 
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Google token verification failed: " + e.getMessage());

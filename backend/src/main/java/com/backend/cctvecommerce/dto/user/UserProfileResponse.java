@@ -11,11 +11,12 @@ public class UserProfileResponse {
     private String state;
     private String postalCode;
     private String country;
+    private String profilePictureUrl;
 
     public UserProfileResponse() {}
 
     public UserProfileResponse(Long id, String fullName, String email, String role, String phoneNumber, 
-                              String address, String city, String state, String postalCode, String country) {
+                              String address, String city, String state, String postalCode, String country, String profilePictureUrl) {
         this.id = id;
         this.fullName = fullName;
         this.email = email;
@@ -26,6 +27,7 @@ public class UserProfileResponse {
         this.state = state;
         this.postalCode = postalCode;
         this.country = country;
+        this.profilePictureUrl = profilePictureUrl;
     }
 
     public Long getId() { return id; }
@@ -57,4 +59,7 @@ public class UserProfileResponse {
 
     public String getCountry() { return country; }
     public void setCountry(String country) { this.country = country; }
+
+    public String getProfilePictureUrl() { return profilePictureUrl; }
+    public void setProfilePictureUrl(String profilePictureUrl) { this.profilePictureUrl = profilePictureUrl; }
 }

@@ -58,6 +58,13 @@ public class UserProfileService {
         return convertToResponse(savedUser);
     }
 
+    public UserProfileResponse updateAvatar(String avatarUrl) {
+        User user = getCurrentUser();
+        user.setProfilePictureUrl(avatarUrl);
+        User savedUser = userRepository.save(user);
+        return convertToResponse(savedUser);
+    }
+
     private UserProfileResponse convertToResponse(User user) {
         return new UserProfileResponse(
                 user.getId(),
@@ -69,7 +76,8 @@ public class UserProfileService {
                 user.getCity(),
                 user.getState(),
                 user.getPostalCode(),
-                user.getCountry()
+                user.getCountry(),
+                user.getProfilePictureUrl()
         );
     }
 }

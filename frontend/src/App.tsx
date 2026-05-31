@@ -49,8 +49,11 @@ type View = 'login' | 'signup' | 'home' | 'products' | 'services' | 'about' | 'c
 function App() {
   const { showConfirm } = useModal();
   const [products, setProducts] = useState<any[]>([]);
+  const [productsLoading, setProductsLoading] = useState(false);
+  const [ordersLoading, setOrdersLoading] = useState(false);
 
   const fetchProducts = async () => {
+    setProductsLoading(true);
     try {
       const response = await api.get('/user/products');
       const mapped = response.data.map((p: any) => ({
@@ -63,6 +66,8 @@ function App() {
       setProducts(mapped);
     } catch (err) {
       console.error("Failed to fetch products:", err);
+    } finally {
+      setProductsLoading(false);
     }
   };
 
@@ -84,41 +89,41 @@ function App() {
     if (validViews.includes(path as View)) {
       return path as View;
     }
-    const savedView = sessionStorage.getItem('currentView');
-    return (savedView as View) || 'login';
+    const savedView = localStorage.getItem('currentView');
+    return (savedView as View) || 'home';
   });
 
   const [selectedProductId, setSelectedProductId] = useState<number | null>(() => {
-    const savedProductId = sessionStorage.getItem('selectedProductId');
+    const savedProductId = localStorage.getItem('selectedProductId');
     return savedProductId ? parseInt(savedProductId, 10) : null;
   });
 
   const [currentUser, setCurrentUser] = useState<any>(() => {
-    const savedUser = sessionStorage.getItem('currentUser');
+    const savedUser = localStorage.getItem('currentUser');
     return savedUser ? JSON.parse(savedUser) : null;
   });
 
   useEffect(() => {
     if (currentUser) {
-      sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+      localStorage.setItem('currentUser', JSON.stringify(currentUser));
     } else {
-      sessionStorage.removeItem('currentUser');
+      localStorage.removeItem('currentUser');
     }
   }, [currentUser]);
 
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState<boolean>(() => {
-    return sessionStorage.getItem('isAdminLoggedIn') === 'true';
+    return localStorage.getItem('isAdminLoggedIn') === 'true';
   });
 
   useEffect(() => {
-    sessionStorage.setItem('isAdminLoggedIn', String(isAdminLoggedIn));
+    localStorage.setItem('isAdminLoggedIn', String(isAdminLoggedIn));
   }, [isAdminLoggedIn]);
 
   useEffect(() => {
     if (selectedProductId !== null) {
-      sessionStorage.setItem('selectedProductId', selectedProductId.toString());
+      localStorage.setItem('selectedProductId', selectedProductId.toString());
     } else {
-      sessionStorage.removeItem('selectedProductId');
+      localStorage.removeItem('selectedProductId');
     }
   }, [selectedProductId]);
 
@@ -145,7 +150,7 @@ function App() {
   });
 
   useEffect(() => {
-    sessionStorage.setItem('currentView', view);
+    localStorage.setItem('currentView', view);
     window.scrollTo({ top: 0, behavior: 'smooth' });
     
     // Sync URL pathname with view for browser history support
@@ -239,14 +244,35 @@ function App() {
     if (user) setCurrentUser(user);
     setView('home');
   };
+  const [profileActiveSection, setProfileActiveSection] = useState<'dashboard' | 'orders' | 'addresses' | 'wishlist' | 'personal'>('dashboard');
+  const [showCheckoutInitially, setShowCheckoutInitially] = useState(false);
+
   const handleLogout = () => {
-    sessionStorage.removeItem('currentView');
-    sessionStorage.removeItem('currentUser');
+    localStorage.removeItem('currentView');
+    localStorage.removeItem('currentUser');
+    localStorage.removeItem('isAdminLoggedIn');
     setCurrentUser(null);
-    setView('login');
+    setIsAdminLoggedIn(false);
+    setView('home');
   };
+
   const navigateTo = (newView: View) => {
-    setView(newView);
+    setShowCheckoutInitially(false);
+    if (newView === 'orders') {
+      setProfileActiveSection('orders');
+      setView('profile');
+    } else if (newView === 'favorites') {
+      setProfileActiveSection('wishlist');
+      setView('profile');
+    } else if (newView === 'profile') {
+      setProfileActiveSection('dashboard');
+      setView('profile');
+    } else if (newView === 'addresses' as View) {
+      setProfileActiveSection('addresses');
+      setView('profile');
+    } else {
+      setView(newView);
+    }
   };
 
   const [notification, setNotification] = useState<{message: string, type: 'success' | 'info'} | null>(null);
@@ -300,53 +326,108 @@ function App() {
   };
 
   const buyNow = (product: Product, quantity: number = 1) => {
+    if (!currentUser) {
+      showNotification("Please log in to proceed to checkout.", "info");
+      setView('login');
+      return;
+    }
     addToCart(product, quantity);
+    setShowCheckoutInitially(true);
     setView('cart');
   };
 
-  const handleCheckout = (paymentMethod: string = 'Cash on Delivery') => {
-    if (cart.length === 0) return;
+  const fetchUserOrders = async () => {
+    if (!currentUser?.token) return;
+    setOrdersLoading(true);
+    try {
+      const response = await api.get('/user/orders', {
+        headers: { Authorization: `Bearer ${currentUser.token}` }
+      });
+      const mapped = response.data.map((o: any) => ({
+        id: o.id.toString(),
+        date: o.orderDate,
+        total: o.totalAmount,
+        status: o.status === 'PENDING' ? 'Pending' : o.status === 'SHIPPED' ? 'Processing' : o.status === 'DELIVERED' ? 'Delivered' : 'Cancelled',
+        paymentMethod: o.paymentMethod || 'Cash on Delivery',
+        customerName: o.userEmail,
+        items: o.items.map((item: any) => ({
+          id: item.productId,
+          name: item.productName,
+          price: `₹${item.price}`,
+          img: item.productImageUrl || 'https://images.unsplash.com/photo-1557862921-37829c790f19?w=150'
+        }))
+      }));
+      setOrders(mapped);
+    } catch (err) {
+      console.error("Failed to fetch user orders:", err);
+    } finally {
+      setOrdersLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (currentUser?.token && currentUser?.role === 'ROLE_USER') {
+      fetchUserOrders();
+    }
+  }, [currentUser]);
+
+  const handleCheckout = async (shippingDetails: any) => {
+    if (cart.length === 0 || !currentUser?.token) return;
     
-    // Calculate subtotal
-    const subtotal = cart.reduce((sum, item) => {
-      const priceVal = parseFloat(item.price.replace(/[^\d.]/g, ''));
-      return sum + (isNaN(priceVal) ? 0 : (priceVal * item.quantity));
-    }, 0);
+    try {
+      // 1. Sync local cart items to the database cart
+      await api.delete('/user/cart', {
+        headers: { Authorization: `Bearer ${currentUser.token}` }
+      });
+      
+      for (const item of cart) {
+        await api.post('/user/cart', {
+          productId: item.id,
+          quantity: item.quantity
+        }, {
+          headers: { Authorization: `Bearer ${currentUser.token}` }
+        });
+      }
 
-    // Use per-product GST % and shippingTax set by admin
-    const gst = cart.reduce((sum, item) => {
-      const priceVal = parseFloat(item.price.replace(/[^\d.]/g, ''));
-      const itemPrice = isNaN(priceVal) ? 0 : priceVal * item.quantity;
-      return sum + itemPrice * ((item.gst ?? 0) / 100);
-    }, 0);
+      // 2. Place order on the backend
+      await api.post('/user/orders', {
+        shippingAddress: shippingDetails.shippingAddress,
+        city: shippingDetails.city,
+        state: shippingDetails.state,
+        postalCode: shippingDetails.postalCode,
+        country: shippingDetails.country,
+        phoneNumber: shippingDetails.phoneNumber
+      }, {
+        headers: { Authorization: `Bearer ${currentUser.token}` }
+      });
 
-    const shippingTax = cart.reduce((sum, item) => {
-      return sum + ((item.shippingTax ?? 0) * item.quantity);
-    }, 0);
-
-    const total = subtotal + gst + shippingTax;
-
-    const newOrder: Order = {
-      id: Math.random().toString(36).substring(2, 9).toUpperCase(),
-      date: new Date().toISOString(),
-      items: [...cart],
-      total: total,
-      status: 'Pending',
-      paymentMethod: paymentMethod,
-      customerName: currentUser?.fullName || 'Guest'
-    };
-
-    setOrders(prev => [newOrder, ...prev]);
-    setCart([]);
-    setView('orders');
-    showNotification('Order placed successfully!', 'success');
+      // 3. Clear local cart
+      setCart([]);
+      
+      // 4. Fetch the updated order list from the backend
+      await fetchUserOrders();
+      
+      setView('orders');
+      showNotification('Order placed successfully!', 'success');
+    } catch (err) {
+      console.error("Order placement failed", err);
+      showNotification('Failed to place order. Please try again.', 'info');
+    }
   };
 
   const handleCancelOrder = async (orderId: string) => {
     const confirmed = await showConfirm('Are you sure you want to cancel this order?');
-    if (confirmed) {
-      setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: 'Cancelled' } : o));
-      showNotification('Order cancelled successfully.');
+    if (confirmed && currentUser?.token) {
+      try {
+        await api.put(`/user/orders/${orderId}/cancel`, {}, {
+          headers: { Authorization: `Bearer ${currentUser.token}` }
+        });
+        await fetchUserOrders();
+        showNotification('Order cancelled successfully.');
+      } catch (err) {
+        console.error("Failed to cancel order", err);
+        showNotification('Failed to cancel order.');
+      }
     }
   };
 
@@ -389,7 +470,20 @@ function App() {
           />
         )}
         {view === 'profile' && (
-          <ProfilePage currentUser={currentUser} setCurrentUser={setCurrentUser} />
+          <ProfilePage 
+            currentUser={currentUser} 
+            setCurrentUser={setCurrentUser} 
+            orders={orders}
+            onCancelOrder={handleCancelOrder}
+            ordersLoading={ordersLoading}
+            favorites={favorites}
+            toggleFavorite={toggleFavorite}
+            addToCart={addToCart}
+            onLogout={handleLogout}
+            onNavigate={navigateTo}
+            activeSection={profileActiveSection}
+            setActiveSection={setProfileActiveSection}
+          />
         )}
         {view === 'products' && (
           <ProductsPage 
@@ -404,6 +498,7 @@ function App() {
             products={products}
             initialCategory={selectedCategory}
             onCategoryChange={setSelectedCategory}
+            isLoading={productsLoading}
           />
         )}
         {view === 'product-detail' && selectedProductId !== null && (
@@ -459,6 +554,9 @@ function App() {
             updateCartQuantity={updateCartQuantity}
             onCheckout={handleCheckout} 
             onBack={() => setView('home')}
+            currentUser={currentUser}
+            setCurrentUser={setCurrentUser}
+            showCheckoutInitially={showCheckoutInitially}
           />
         )}
         {view === 'favorites' && (
@@ -472,7 +570,7 @@ function App() {
           <ContactPage />
         )}
         {view === 'orders' && (
-          <MyOrdersPage orders={orders} onCancelOrder={handleCancelOrder} />
+          <MyOrdersPage orders={orders} onCancelOrder={handleCancelOrder} isLoading={ordersLoading} />
         )}
       </main>
     </div>

@@ -40,4 +40,13 @@ public class UserProfileController {
         }
         return ResponseEntity.ok(userProfileService.updatePassword(newPassword));
     }
+
+    @PutMapping("/avatar")
+    public ResponseEntity<UserProfileResponse> updateAvatar(@RequestBody Map<String, String> body) {
+        String avatarUrl = body.get("avatarUrl");
+        if (avatarUrl == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.ok(userProfileService.updateAvatar(avatarUrl));
+    }
 }
