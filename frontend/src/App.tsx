@@ -80,10 +80,20 @@ function App() {
   }, [products]);
 
   const [view, setView] = useState<View>(() => {
+    const savedUser = localStorage.getItem('currentUser');
     let path = window.location.pathname.replace(/^\//, '');
     if (path === 'product_detail') {
       path = 'product-detail';
     }
+
+    // Force to login if user is not authenticated (except for signup or admin views)
+    if (!savedUser) {
+      if (path === 'signup' || path === 'admin') {
+        return path as View;
+      }
+      return 'login';
+    }
+
     if (path === '') {
       return 'home';
     }
@@ -275,13 +285,20 @@ function App() {
   const [profileActiveSection, setProfileActiveSection] = useState<'dashboard' | 'orders' | 'addresses' | 'wishlist' | 'personal'>('dashboard');
   const [showCheckoutInitially, setShowCheckoutInitially] = useState(false);
 
+  // Guard view navigation for unauthenticated users
+  useEffect(() => {
+    if (!currentUser && view !== 'login' && view !== 'signup' && view !== 'admin') {
+      setView('login');
+    }
+  }, [currentUser, view]);
+
   const handleLogout = () => {
     localStorage.removeItem('currentView');
     localStorage.removeItem('currentUser');
     localStorage.removeItem('isAdminLoggedIn');
     setCurrentUser(null);
     setIsAdminLoggedIn(false);
-    setView('home');
+    setView('login');
   };
 
   const navigateTo = (newView: View) => {

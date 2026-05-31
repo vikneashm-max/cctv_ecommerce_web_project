@@ -259,16 +259,36 @@
 
 .footer-socials {
   display: flex;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
 .footer-socials a {
-  opacity: 0.8;
-  transition: opacity 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.7);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .footer-socials a:hover {
-  opacity: 1;
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.8);
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.footer-socials svg {
+  transition: transform 0.2s ease;
+}
+
+.footer-socials a:hover svg {
+  transform: scale(1.1);
 }
 
 .footer-contact-side h4 {
