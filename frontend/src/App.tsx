@@ -80,7 +80,13 @@ function App() {
   }, [products]);
 
   const [view, setView] = useState<View>(() => {
-    const path = window.location.pathname.replace(/^\//, '');
+    let path = window.location.pathname.replace(/^\//, '');
+    if (path === 'product_detail') {
+      path = 'product-detail';
+    }
+    if (path === '') {
+      return 'home';
+    }
     const validViews: View[] = [
       'login', 'signup', 'home', 'products', 'services', 'about', 
       'cart', 'favorites', 'contact', 'product-detail', 'admin', 
@@ -195,7 +201,10 @@ function App() {
         // Otherwise (like for Cart/Favorites), respect the history
         setView(event.state.view);
       } else {
-        const path = window.location.pathname.replace(/^\//, '');
+        let path = window.location.pathname.replace(/^\//, '');
+        if (path === 'product_detail') {
+          path = 'product-detail';
+        }
         const validViews: View[] = [
           'login', 'signup', 'home', 'products', 'services', 'about', 
           'cart', 'favorites', 'contact', 'product-detail', 'admin', 
