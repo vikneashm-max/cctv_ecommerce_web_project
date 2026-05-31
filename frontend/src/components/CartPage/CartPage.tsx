@@ -28,6 +28,7 @@ interface CartPageProps {
   currentUser?: any;
   setCurrentUser?: (user: any) => void;
   showCheckoutInitially?: boolean;
+  onBackToCart?: () => void;
 }
 
 const CartPage: React.FC<CartPageProps> = ({ 
@@ -37,11 +38,19 @@ const CartPage: React.FC<CartPageProps> = ({
   onCheckout,
   currentUser,
   setCurrentUser,
-  showCheckoutInitially
+  showCheckoutInitially,
+  onBackToCart
 }) => {
   const [paymentMethod] = useState('Cash on Delivery');
   const [showCheckoutAddress, setShowCheckoutAddress] = useState(showCheckoutInitially || false);
   const [isSavingAddress, setIsSavingAddress] = useState(false);
+
+  const handleBackToCart = () => {
+    setShowCheckoutAddress(false);
+    if (onBackToCart) {
+      onBackToCart();
+    }
+  };
 
   // Address form fields
   const [fullName, setFullName] = useState(currentUser?.fullName || '');
@@ -350,7 +359,7 @@ const CartPage: React.FC<CartPageProps> = ({
 
                 <button 
                   className="checkout-back-link" 
-                  onClick={() => setShowCheckoutAddress(false)}
+                  onClick={handleBackToCart}
                 >
                   <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5">
                     <line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" />

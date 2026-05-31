@@ -139,6 +139,25 @@ function App() {
     return [];
   });
 
+  const [buyNowItem, setBuyNowItem] = useState<CartItem | null>(() => {
+    const saved = localStorage.getItem('appBuyNowItem');
+    return saved ? JSON.parse(saved) : null;
+  });
+
+  useEffect(() => {
+    if (buyNowItem) {
+      localStorage.setItem('appBuyNowItem', JSON.stringify(buyNowItem));
+    } else {
+      localStorage.removeItem('appBuyNowItem');
+    }
+  }, [buyNowItem]);
+
+  useEffect(() => {
+    if (view !== 'cart') {
+      setBuyNowItem(null);
+    }
+  }, [view]);
+
   const [favorites, setFavorites] = useState<Product[]>(() => {
     const savedFavorites = localStorage.getItem('appFavorites');
     return savedFavorites ? JSON.parse(savedFavorites) : [];
@@ -331,7 +350,7 @@ function App() {
       setView('login');
       return;
     }
-    addToCart(product, quantity);
+    setBuyNowItem({ ...product, quantity });
     setShowCheckoutInitially(true);
     setView('cart');
   };
@@ -372,15 +391,16 @@ function App() {
   }, [currentUser]);
 
   const handleCheckout = async (shippingDetails: any) => {
-    if (cart.length === 0 || !currentUser?.token) return;
+    const itemsToOrder = buyNowItem ? [buyNowItem] : cart;
+    if (itemsToOrder.length === 0 || !currentUser?.token) return;
     
     try {
-      // 1. Sync local cart items to the database cart
+      // 1. Sync checkout items to the database cart
       await api.delete('/user/cart', {
         headers: { Authorization: `Bearer ${currentUser.token}` }
       });
       
-      for (const item of cart) {
+      for (const item of itemsToOrder) {
         await api.post('/user/cart', {
           productId: item.id,
           quantity: item.quantity
@@ -401,8 +421,12 @@ function App() {
         headers: { Authorization: `Bearer ${currentUser.token}` }
       });
 
-      // 3. Clear local cart
-      setCart([]);
+      // 3. Clear placed items
+      if (buyNowItem) {
+        setBuyNowItem(null);
+      } else {
+        setCart([]);
+      }
       
       // 4. Fetch the updated order list from the backend
       await fetchUserOrders();
@@ -549,14 +573,15 @@ function App() {
         )}
         {view === 'cart' && (
           <CartPage 
-            cartItems={cart} 
-            removeFromCart={removeFromCart} 
-            updateCartQuantity={updateCartQuantity}
+            cartItems={buyNowItem ? [buyNowItem] : cart} 
+            removeFromCart={buyNowItem ? () => setBuyNowItem(null) : removeFromCart} 
+            updateCartQuantity={buyNowItem ? (_id, delta) => setBuyNowItem(prev => prev ? { ...prev, quantity: Math.max(1, prev.quantity + delta) } : null) : updateCartQuantity}
             onCheckout={handleCheckout} 
             onBack={() => setView('home')}
             currentUser={currentUser}
             setCurrentUser={setCurrentUser}
             showCheckoutInitially={showCheckoutInitially}
+            onBackToCart={() => setBuyNowItem(null)}
           />
         )}
         {view === 'favorites' && (
