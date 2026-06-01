@@ -44,6 +44,22 @@ public class AuthController {
     @Autowired
     private JwtTokenProvider tokenProvider;
 
+    private final NetHttpTransport transport = new NetHttpTransport();
+    private final GsonFactory jsonFactory = new GsonFactory();
+    private GoogleIdTokenVerifier googleVerifier;
+
+    private synchronized GoogleIdTokenVerifier getGoogleVerifier() {
+        if (googleVerifier == null) {
+            if (googleClientId == null || googleClientId.isEmpty()) {
+                throw new IllegalStateException("Google Client ID is not configured on the server.");
+            }
+            googleVerifier = new GoogleIdTokenVerifier.Builder(transport, jsonFactory)
+                    .setAudience(Collections.singletonList(googleClientId))
+                    .build();
+        }
+        return googleVerifier;
+    }
+
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody @Valid UserRegisterRequest request) {
         if (userRepository.findByEmail(request.getEmail()) != null) {
@@ -115,9 +131,12 @@ public class AuthController {
         }
 
         try {
-            GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new GsonFactory())
-                    .setAudience(Collections.singletonList(googleClientId))
-                    .build();
+            GoogleIdTokenVerifier verifier;
+            try {
+                verifier = getGoogleVerifier();
+            } catch (IllegalStateException ise) {
+                return ResponseEntity.internalServerError().body(ise.getMessage());
+            }
 
             GoogleIdToken idToken = verifier.verify(request.getIdToken());
             if (idToken == null) {

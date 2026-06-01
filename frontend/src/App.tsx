@@ -76,11 +76,11 @@ function App() {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem('appProducts', JSON.stringify(products));
+    sessionStorage.setItem('appProducts', JSON.stringify(products));
   }, [products]);
 
   const [view, setView] = useState<View>(() => {
-    const savedUser = localStorage.getItem('currentUser');
+    const savedUser = sessionStorage.getItem('currentUser');
     let path = window.location.pathname.replace(/^\//, '');
     if (path === 'product_detail') {
       path = 'product-detail';
@@ -105,46 +105,46 @@ function App() {
     if (validViews.includes(path as View)) {
       return path as View;
     }
-    const savedView = localStorage.getItem('currentView');
+    const savedView = sessionStorage.getItem('currentView');
     return (savedView as View) || 'home';
   });
 
   const [selectedProductId, setSelectedProductId] = useState<number | null>(() => {
-    const savedProductId = localStorage.getItem('selectedProductId');
+    const savedProductId = sessionStorage.getItem('selectedProductId');
     return savedProductId ? parseInt(savedProductId, 10) : null;
   });
 
   const [currentUser, setCurrentUser] = useState<any>(() => {
-    const savedUser = localStorage.getItem('currentUser');
+    const savedUser = sessionStorage.getItem('currentUser');
     return savedUser ? JSON.parse(savedUser) : null;
   });
 
   useEffect(() => {
     if (currentUser) {
-      localStorage.setItem('currentUser', JSON.stringify(currentUser));
+      sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
     } else {
-      localStorage.removeItem('currentUser');
+      sessionStorage.removeItem('currentUser');
     }
   }, [currentUser]);
 
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState<boolean>(() => {
-    return localStorage.getItem('isAdminLoggedIn') === 'true';
+    return sessionStorage.getItem('isAdminLoggedIn') === 'true';
   });
 
   useEffect(() => {
-    localStorage.setItem('isAdminLoggedIn', String(isAdminLoggedIn));
+    sessionStorage.setItem('isAdminLoggedIn', String(isAdminLoggedIn));
   }, [isAdminLoggedIn]);
 
   useEffect(() => {
     if (selectedProductId !== null) {
-      localStorage.setItem('selectedProductId', selectedProductId.toString());
+      sessionStorage.setItem('selectedProductId', selectedProductId.toString());
     } else {
-      localStorage.removeItem('selectedProductId');
+      sessionStorage.removeItem('selectedProductId');
     }
   }, [selectedProductId]);
 
   const [cart, setCart] = useState<CartItem[]>(() => {
-    const savedCart = localStorage.getItem('appCart');
+    const savedCart = sessionStorage.getItem('appCart');
     if (savedCart) {
       const parsed = JSON.parse(savedCart);
       return parsed.map((item: any) => ({
@@ -156,15 +156,15 @@ function App() {
   });
 
   const [buyNowItem, setBuyNowItem] = useState<CartItem | null>(() => {
-    const saved = localStorage.getItem('appBuyNowItem');
+    const saved = sessionStorage.getItem('appBuyNowItem');
     return saved ? JSON.parse(saved) : null;
   });
 
   useEffect(() => {
     if (buyNowItem) {
-      localStorage.setItem('appBuyNowItem', JSON.stringify(buyNowItem));
+      sessionStorage.setItem('appBuyNowItem', JSON.stringify(buyNowItem));
     } else {
-      localStorage.removeItem('appBuyNowItem');
+      sessionStorage.removeItem('appBuyNowItem');
     }
   }, [buyNowItem]);
 
@@ -175,17 +175,17 @@ function App() {
   }, [view]);
 
   const [favorites, setFavorites] = useState<Product[]>(() => {
-    const savedFavorites = localStorage.getItem('appFavorites');
+    const savedFavorites = sessionStorage.getItem('appFavorites');
     return savedFavorites ? JSON.parse(savedFavorites) : [];
   });
 
   const [orders, setOrders] = useState<Order[]>(() => {
-    const savedOrders = localStorage.getItem('appOrders');
+    const savedOrders = sessionStorage.getItem('appOrders');
     return savedOrders ? JSON.parse(savedOrders) : [];
   });
 
   useEffect(() => {
-    localStorage.setItem('currentView', view);
+    sessionStorage.setItem('currentView', view);
     window.scrollTo({ top: 0, behavior: 'smooth' });
     
     // Sync URL pathname with view for browser history support
@@ -265,15 +265,15 @@ function App() {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem('appCart', JSON.stringify(cart));
+    sessionStorage.setItem('appCart', JSON.stringify(cart));
   }, [cart]);
 
   useEffect(() => {
-    localStorage.setItem('appFavorites', JSON.stringify(favorites));
+    sessionStorage.setItem('appFavorites', JSON.stringify(favorites));
   }, [favorites]);
 
   useEffect(() => {
-    localStorage.setItem('appOrders', JSON.stringify(orders));
+    sessionStorage.setItem('appOrders', JSON.stringify(orders));
   }, [orders]);
 
   const toggleToSignup = () => setView('signup')
@@ -293,9 +293,9 @@ function App() {
   }, [currentUser, view]);
 
   const handleLogout = () => {
-    localStorage.removeItem('currentView');
-    localStorage.removeItem('currentUser');
-    localStorage.removeItem('isAdminLoggedIn');
+    sessionStorage.removeItem('currentView');
+    sessionStorage.removeItem('currentUser');
+    sessionStorage.removeItem('isAdminLoggedIn');
     setCurrentUser(null);
     setIsAdminLoggedIn(false);
     setView('login');

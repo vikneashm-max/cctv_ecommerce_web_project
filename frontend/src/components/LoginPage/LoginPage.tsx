@@ -17,17 +17,21 @@ const LoginPage: React.FC<LoginPageProps> = ({ onToggle, onLogin }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const socialAuthRef = useRef<HTMLDivElement>(null);
-  const [socialWidth, setSocialWidth] = useState(200);
+  const [socialWidth, setSocialWidth] = useState(320);
 
   useEffect(() => {
     if (!socialAuthRef.current) return;
 
+    let lastWidth = 320;
     const resizeObserver = new ResizeObserver((entries) => {
       for (const entry of entries) {
         const width = entry.contentRect.width;
         if (width > 0) {
           const clamped = Math.max(200, Math.min(400, Math.floor(width)));
-          setSocialWidth(clamped);
+          if (Math.abs(clamped - lastWidth) > 20) {
+            lastWidth = clamped;
+            setSocialWidth(clamped);
+          }
         }
       }
     });
