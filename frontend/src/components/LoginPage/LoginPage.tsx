@@ -22,16 +22,15 @@ const LoginPage: React.FC<LoginPageProps> = ({ onToggle, onLogin }) => {
   useEffect(() => {
     if (!socialAuthRef.current) return;
 
-    let lastWidth = 320;
     const resizeObserver = new ResizeObserver((entries) => {
       for (const entry of entries) {
         const width = entry.contentRect.width;
         if (width > 0) {
           const clamped = Math.max(200, Math.min(400, Math.floor(width)));
-          if (Math.abs(clamped - lastWidth) > 20) {
-            lastWidth = clamped;
-            setSocialWidth(clamped);
-          }
+          setSocialWidth(clamped);
+          // Disconnect after first measurement to avoid re-rendering and unmounting
+          // the GoogleLogin button during the authentication process.
+          resizeObserver.disconnect();
         }
       }
     });

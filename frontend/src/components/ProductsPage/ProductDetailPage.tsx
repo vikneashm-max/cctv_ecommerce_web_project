@@ -81,9 +81,7 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
   // Find related products in same category
   const relatedProducts = products.filter(p => p.category === product.category && p.id !== product.id);
 
-  // Safe fallback properties for newly created products without features, specs, rating, reviews, or images
-  const rating = product.rating !== undefined && product.rating !== null ? product.rating : 5;
-  const reviews = product.reviews !== undefined && product.reviews !== null ? product.reviews : 0;
+
   
   const features = product.features && Array.isArray(product.features) ? product.features : [
     'Professional grade surveillance components',
@@ -157,26 +155,7 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
             )}
             <h1>{product.name}</h1>
             
-            {/* Reviews and Ratings */}
-            <div className="rating-row">
-              <div className="star-rating">
-                {[...Array(5)].map((_, i) => (
-                  <svg 
-                    key={i} 
-                    viewBox="0 0 24 24" 
-                    width="18" 
-                    height="18" 
-                    fill={i < Math.floor(rating) ? "#fbbf24" : "none"} 
-                    stroke="#fbbf24" 
-                    strokeWidth="2"
-                  >
-                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                  </svg>
-                ))}
-              </div>
-              <span className="rating-val">{rating}</span>
-              <span className="reviews-count">({reviews} verified reviews)</span>
-            </div>
+
             
             <div className="price-tag-big" style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', marginBottom: '1rem' }}>
               <div>{product.price}</div>
