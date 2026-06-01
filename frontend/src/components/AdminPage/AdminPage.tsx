@@ -120,11 +120,12 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, currentUse
           Authorization: `Bearer ${currentUser.token}`
         }
       });
-      const mapped = response.data.map((u: any) => ({
+      const usersOnly = response.data.filter((u: any) => u.role !== 'ROLE_ADMIN');
+      const mapped = usersOnly.map((u: any) => ({
         id: u.id,
         name: u.fullName || 'No Name',
         avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(u.fullName || 'User')}`,
-        type: u.role === 'ROLE_ADMIN' ? 'Enterprise' : 'Residential',
+        type: 'Residential',
         email: u.email,
         phone: u.phoneNumber || 'Not Specified',
         ordersCount: 0,
@@ -1312,15 +1313,15 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, currentUse
                 <div className="sg-small-stat-card">
                   <span className="card-label">Hardware Sales</span>
                   <div className="card-numeric-line">
-                    <span className="numeric-val">₹85,420</span>
-                    <span className="percent-pill success">+4%</span>
+                    <span className="numeric-val">₹{(dashboardStats?.totalSales ?? 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                    <span className="percent-pill success">Live</span>
                   </div>
                 </div>
                 <div className="sg-small-stat-card">
                   <span className="card-label">Support Tickets</span>
                   <div className="card-numeric-line">
-                    <span className="numeric-val">42</span>
-                    <span className="percent-pill danger">-2</span>
+                    <span className="numeric-val">{serviceRequests.length}</span>
+                    <span className="percent-pill info">{serviceRequests.filter(r => r.status === 'PENDING').length} Pending</span>
                   </div>
                 </div>
               </div>
