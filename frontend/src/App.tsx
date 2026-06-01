@@ -58,10 +58,11 @@ function App() {
       const response = await api.get('/user/products');
       const mapped = response.data.map((p: any) => ({
         ...p,
-        img: p.imageUrl || '',
+        img: p.imageUrl ? p.imageUrl.split(',')[0] : '',
         price: typeof p.price === 'number' ? `₹${p.price}` : (p.price?.startsWith('₹') ? p.price : `₹${p.price || 0}`),
         sub: p.description ? (p.description.length > 50 ? p.description.substring(0, 50) + '...' : p.description) : '',
-        inStock: p.stock > 0
+        inStock: p.stock > 0,
+        images: p.imageUrl ? p.imageUrl.split(',') : []
       }));
       setProducts(mapped);
     } catch (err) {
@@ -399,7 +400,7 @@ function App() {
           id: item.productId,
           name: item.productName,
           price: `₹${item.price}`,
-          img: item.productImageUrl || 'https://images.unsplash.com/photo-1557862921-37829c790f19?w=150'
+          img: item.productImageUrl ? item.productImageUrl.split(',')[0] : 'https://images.unsplash.com/photo-1557862921-37829c790f19?w=150'
         }))
       }));
       setOrders(mapped);

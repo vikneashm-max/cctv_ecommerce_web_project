@@ -260,7 +260,7 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, currentUse
           id: item.productId,
           name: item.productName,
           price: `₹${item.price}`,
-          img: item.productImageUrl || 'https://images.unsplash.com/photo-1557862921-37829c790f19?w=150'
+          img: item.productImageUrl ? item.productImageUrl.split(',')[0] : 'https://images.unsplash.com/photo-1557862921-37829c790f19?w=150'
         }))
       }));
       setOrders(mapped);
@@ -513,10 +513,11 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, currentUse
       });
       const mapped = response.data.map((p: any) => ({
         ...p,
-        img: p.imageUrl || '',
+        img: p.imageUrl ? p.imageUrl.split(',')[0] : '',
         price: typeof p.price === 'number' ? `₹${p.price}` : (p.price?.startsWith('₹') ? p.price : `₹${p.price || 0}`),
         sub: p.description ? (p.description.length > 50 ? p.description.substring(0, 50) + '...' : p.description) : '',
-        inStock: p.stock > 0
+        inStock: p.stock > 0,
+        images: p.imageUrl ? p.imageUrl.split(',') : []
       }));
       setProducts(mapped);
     } catch (err) {
@@ -589,7 +590,7 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, currentUse
       description: prodDescription,
       price: parseFloat(prodPrice.replace(/[^\d.]/g, '')),
       stock: parseInt(prodStock.toString(), 10),
-      imageUrl: prodImages[0], // Main cover image
+      imageUrl: prodImages.join(','),
       brand: prodBrand,
       category: prodCategory,
       shippingTax: parseFloat(prodShippingTax) || 0.0,
@@ -661,7 +662,7 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, currentUse
     setProdCategory(p.category);
     setProdDescription(p.description || '');
     if (p.imageUrl) {
-      setProdImages([p.imageUrl]);
+      setProdImages(p.imageUrl.split(',').filter(Boolean));
     } else if (p.img) {
       setProdImages([p.img]);
     } else {

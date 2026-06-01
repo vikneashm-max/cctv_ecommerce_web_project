@@ -19,6 +19,7 @@ public class Product {
 
     private Integer stock;
 
+    @Column(length = 1000)
     private String imageUrl;
 
     private String brand;

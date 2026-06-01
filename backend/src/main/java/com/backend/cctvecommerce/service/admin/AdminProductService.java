@@ -45,8 +45,15 @@ public class AdminProductService {
         if (imageUrl == null || imageUrl.trim().isEmpty()) {
             throw new IllegalArgumentException("Product image URL is required");
         }
-        if (!imageUrl.startsWith("http://") && !imageUrl.startsWith("https://")) {
-            throw new IllegalArgumentException("Product image URL must start with http:// or https://");
+        String[] urls = imageUrl.split(",");
+        for (String url : urls) {
+            String trimmedUrl = url.trim();
+            if (trimmedUrl.isEmpty()) {
+                throw new IllegalArgumentException("Product image URL cannot be empty");
+            }
+            if (!trimmedUrl.startsWith("http://") && !trimmedUrl.startsWith("https://")) {
+                throw new IllegalArgumentException("Product image URL must start with http:// or https://");
+            }
         }
     }
 
