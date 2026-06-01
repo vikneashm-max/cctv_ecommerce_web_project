@@ -99,26 +99,56 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, currentUse
   const [adminCurrentPassword, setAdminCurrentPassword] = useState('admin123');
   const [adminNewPassword, setAdminNewPassword] = useState('');
   const [adminConfirmPassword, setAdminConfirmPassword] = useState('');
-  const [adminAvatar] = useState(() => {
-    return localStorage.getItem('sgAdminAvatar') || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150';
-  });
 
-  useEffect(() => {
-    localStorage.setItem('sgAdminAvatar', adminAvatar);
-  }, [adminAvatar]);
 
   // ------------------ IMAGE PRESETS REMOVED FOR LOCAL UPLOADS ------------------
 
-  // ------------------ DYNAMIC STATE FOR CUSTOMERS ------------------
-  const [customers, setCustomers] = useState<Customer[]>(() => {
-    const saved = localStorage.getItem('sgCustomers');
-    if (saved) return JSON.parse(saved);
-    return [];
-  });
+  // ------------------ DYNAMIC STATE FOR CUSTOMERS & STATS ------------------
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [dashboardStats, setDashboardStats] = useState<{
+    totalSales: number;
+    totalOrders: number;
+    totalProducts: number;
+    totalUsers: number;
+  } | null>(null);
 
-  useEffect(() => {
-    localStorage.setItem('sgCustomers', JSON.stringify(customers));
-  }, [customers]);
+  const fetchAdminCustomers = async () => {
+    if (!currentUser?.token) return;
+    try {
+      const response = await api.get('/admin/users', {
+        headers: {
+          Authorization: `Bearer ${currentUser.token}`
+        }
+      });
+      const mapped = response.data.map((u: any) => ({
+        id: u.id,
+        name: u.fullName || 'No Name',
+        avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(u.fullName || 'User')}`,
+        type: u.role === 'ROLE_ADMIN' ? 'Enterprise' : 'Residential',
+        email: u.email,
+        phone: u.phoneNumber || 'Not Specified',
+        ordersCount: 0,
+        status: 'Active'
+      }));
+      setCustomers(mapped);
+    } catch (err) {
+      console.error("Failed to load admin users:", err);
+    }
+  };
+
+  const fetchDashboardStats = async () => {
+    if (!currentUser?.token) return;
+    try {
+      const response = await api.get('/admin/dashboard', {
+        headers: {
+          Authorization: `Bearer ${currentUser.token}`
+        }
+      });
+      setDashboardStats(response.data);
+    } catch (err) {
+      console.error("Failed to load admin dashboard stats:", err);
+    }
+  };
 
   // Modal State for adding customer
   const [showAddCustomerModal, setShowAddCustomerModal] = useState(false);
@@ -133,24 +163,27 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, currentUse
       await showAlert('Please fill out all fields');
       return;
     }
-    const newId = customers.length > 0 ? Math.max(...customers.map(c => c.id)) + 1 : 1;
-    const newCust: Customer = {
-      id: newId,
-      name: newCustName,
-      avatar: `https://images.unsplash.com/photo-${1500000000000 + newId * 100000}?w=150`,
-      type: newCustType,
-      email: newCustEmail,
-      phone: newCustPhone,
-      ordersCount: 0,
-      status: 'Active'
-    };
-    setCustomers([...customers, newCust]);
-    setNewCustName('');
-    setNewCustEmail('');
-    setNewCustPhone('');
-    setNewCustType('Residential');
-    setShowAddCustomerModal(false);
-    await showAlert('Customer account deployed successfully!');
+    try {
+      await api.post('/auth/register', {
+        fullName: newCustName,
+        email: newCustEmail,
+        phoneNumber: newCustPhone,
+        password: 'TemporaryPassword123!',
+        role: newCustType === 'Enterprise' ? 'ROLE_ADMIN' : 'ROLE_USER'
+      });
+      await fetchAdminCustomers();
+      await fetchDashboardStats();
+      setNewCustName('');
+      setNewCustEmail('');
+      setNewCustPhone('');
+      setNewCustType('Residential');
+      setShowAddCustomerModal(false);
+      await showAlert('Customer account registered successfully!');
+    } catch (err: any) {
+      console.error("Failed to register customer:", err);
+      const errMsg = err.response?.data?.message || err.response?.data || "An error occurred.";
+      await showAlert(`Failed to register customer: ${errMsg}`);
+    }
   };
 
   const toggleCustomerStatus = (id: number) => {
@@ -164,8 +197,21 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, currentUse
 
   const handleDeleteCustomer = async (id: number) => {
     const confirmed = await showConfirm('Purge this customer security account?');
-    if (confirmed) {
-      setCustomers(prev => prev.filter(c => c.id !== id));
+    if (confirmed && currentUser?.token) {
+      try {
+        await api.delete(`/admin/users/${id}`, {
+          headers: {
+            Authorization: `Bearer ${currentUser.token}`
+          }
+        });
+        await fetchAdminCustomers();
+        await fetchDashboardStats();
+        await showAlert('Customer account deleted successfully.');
+      } catch (err: any) {
+        console.error("Failed to delete customer", err);
+        const errMsg = err.response?.data?.message || err.response?.data || "An error occurred.";
+        await showAlert(`Failed to delete customer: ${errMsg}`);
+      }
     }
   };
 
@@ -225,8 +271,22 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, currentUse
   useEffect(() => {
     if (currentUser?.token) {
       fetchAdminOrders();
+      fetchAdminCustomers();
+      fetchDashboardStats();
     }
   }, [currentUser]);
+
+  useEffect(() => {
+    if (currentUser?.token) {
+      if (activeTab === 'dashboard') {
+        fetchDashboardStats();
+      } else if (activeTab === 'customers') {
+        fetchAdminCustomers();
+      } else if (activeTab === 'orders') {
+        fetchAdminOrders();
+      }
+    }
+  }, [activeTab, currentUser]);
 
   const handleUpdateOrderStatus = async (id: string, nextStatus: any) => {
     if (!currentUser?.token) return;
@@ -724,11 +784,24 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, currentUse
             title="Manage admin account details"
             style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}
           >
-            <img 
-              src={adminAvatar} 
-              alt="Admin Avatar" 
-              style={{ width: '22px', height: '22px', borderRadius: '50%', objectFit: 'cover', border: '1px solid rgba(255,255,255,0.25)' }} 
-            />
+            <div 
+              style={{ 
+                width: '22px', 
+                height: '22px', 
+                borderRadius: '50%', 
+                backgroundColor: '#ea580c', 
+                color: '#ffffff', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                fontWeight: 'bold', 
+                fontSize: '0.75rem',
+                border: '1px solid rgba(255,255,255,0.25)',
+                flexShrink: 0
+              }}
+            >
+              {(currentUser?.fullName || adminName).charAt(0).toUpperCase()}
+            </div>
             <span>Admin Profile</span>
           </button>
 
@@ -795,21 +868,26 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, currentUse
                 <p>Welcome to the SecureGuard Central Operational Console. System nodes are currently operating in high-reliability states.</p>
               </div>
 
-              <div className="sg-stats-cards-row">
+              <div className="sg-stats-cards-row" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
                 <div className="sg-small-stat-card">
-                  <span className="card-label">SYSTEM UPTIME</span>
-                  <h3>99.98%</h3>
-                  <span className="stat-pill success">Operational</span>
+                  <span className="card-label">TOTAL SALES</span>
+                  <h3>₹{(dashboardStats?.totalSales ?? 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
+                  <span className="stat-pill success">Live Database</span>
                 </div>
                 <div className="sg-small-stat-card">
-                  <span className="card-label">SURVEILLANCE STORAGE</span>
-                  <h3>14.8 / 32 TB</h3>
-                  <span className="stat-pill info">46% Used</span>
+                  <span className="card-label">TOTAL ORDERS</span>
+                  <h3>{dashboardStats?.totalOrders !== undefined ? dashboardStats.totalOrders : orders.length}</h3>
+                  <span className="stat-pill success">Placed Orders</span>
                 </div>
                 <div className="sg-small-stat-card">
-                  <span className="card-label">NETWORK NODES</span>
-                  <h3>38 Active</h3>
-                  <span className="stat-pill success">Secure</span>
+                  <span className="card-label">TOTAL PRODUCTS</span>
+                  <h3>{dashboardStats?.totalProducts !== undefined ? dashboardStats.totalProducts : products.length}</h3>
+                  <span className="stat-pill info">In Catalog</span>
+                </div>
+                <div className="sg-small-stat-card">
+                  <span className="card-label">TOTAL USERS</span>
+                  <h3>{dashboardStats?.totalUsers !== undefined ? dashboardStats.totalUsers : customers.length}</h3>
+                  <span className="stat-pill success">Registered Users</span>
                 </div>
               </div>
 
@@ -1284,7 +1362,7 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, currentUse
                             </div>
                           </td>
                           <td>
-                            <span className="table-orders-count">{orders.filter(o => (o.customerName || 'Guest') === cust.name).length}</span>
+                             <span className="table-orders-count">{orders.filter(o => o.customerName === cust.email).length}</span>
                           </td>
                           <td>
                             <div className="status-toggle-wrapper">
@@ -1909,8 +1987,24 @@ const AdminPage: React.FC<AdminPageProps> = ({ products, setProducts, currentUse
                   <div className="profile-card photo-card">
                     <div className="photo-card-banner"></div>
                     <div className="photo-card-avatar-wrapper">
-                      <div className="photo-card-avatar" style={{ position: 'relative' }}>
-                        <img src={adminAvatar} alt="Admin Avatar" />
+                      <div 
+                        className="photo-card-avatar-letter" 
+                        style={{ 
+                          width: '100px', 
+                          height: '100px', 
+                          borderRadius: '50%', 
+                          backgroundColor: '#ea580c', 
+                          color: '#ffffff', 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          justifyContent: 'center', 
+                          fontWeight: '800', 
+                          fontSize: '3.2rem',
+                          border: '4px solid #ffffff',
+                          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.08)'
+                        }}
+                      >
+                        {(currentUser?.fullName || adminName).charAt(0).toUpperCase()}
                       </div>
                     </div>
                     <div className="photo-card-info">
