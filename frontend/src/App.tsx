@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import LoginPage from './components/LoginPage/LoginPage'
+import ForgotPasswordPage from './components/ForgotPasswordPage/ForgotPasswordPage'
 import SignupPage from './components/SignupPage/SignupPage'
 import HomePage from './components/HomePage/HomePage'
 import ProductsPage from './components/ProductsPage/ProductsPage'
@@ -44,7 +45,7 @@ interface CartItem extends Product {
   quantity: number;
 }
 
-type View = 'login' | 'signup' | 'home' | 'products' | 'services' | 'about' | 'cart' | 'favorites' | 'contact' | 'product-detail' | 'admin' | 'profile' | 'orders';
+type View = 'login' | 'signup' | 'home' | 'products' | 'services' | 'about' | 'cart' | 'favorites' | 'contact' | 'product-detail' | 'admin' | 'profile' | 'orders' | 'forgot-password';
 
 function App() {
   const { showConfirm } = useModal();
@@ -87,9 +88,9 @@ function App() {
       path = 'product-detail';
     }
 
-    // Force to login if user is not authenticated (except for signup or admin views)
+    // Force to login if user is not authenticated (except for signup, admin or forgot-password views)
     if (!savedUser) {
-      if (path === 'signup' || path === 'admin') {
+      if (path === 'signup' || path === 'admin' || path === 'forgot-password') {
         return path as View;
       }
       return 'login';
@@ -101,7 +102,7 @@ function App() {
     const validViews: View[] = [
       'login', 'signup', 'home', 'products', 'services', 'about', 
       'cart', 'favorites', 'contact', 'product-detail', 'admin', 
-      'profile', 'orders'
+      'profile', 'orders', 'forgot-password'
     ];
     if (validViews.includes(path as View)) {
       return path as View;
@@ -219,7 +220,7 @@ function App() {
         const validViews: View[] = [
           'login', 'signup', 'home', 'products', 'services', 'about', 
           'cart', 'favorites', 'contact', 'product-detail', 'admin', 
-          'profile', 'orders'
+          'profile', 'orders', 'forgot-password'
         ];
         if (validViews.includes(path as View)) {
           setView(path as View);
@@ -288,7 +289,7 @@ function App() {
 
   // Guard view navigation for unauthenticated users
   useEffect(() => {
-    if (!currentUser && view !== 'login' && view !== 'signup' && view !== 'admin') {
+    if (!currentUser && view !== 'login' && view !== 'signup' && view !== 'admin' && view !== 'forgot-password') {
       setView('login');
     }
   }, [currentUser, view]);
@@ -509,7 +510,14 @@ function App() {
       )}
       <main className="main-content">
         {view === 'login' && (
-          <LoginPage onToggle={toggleToSignup} onLogin={handleLoginSuccess} />
+          <LoginPage 
+            onToggle={toggleToSignup} 
+            onLogin={handleLoginSuccess} 
+            onForgotPassword={() => setView('forgot-password')} 
+          />
+        )}
+        {view === 'forgot-password' && (
+          <ForgotPasswordPage onBackToLogin={() => setView('login')} />
         )}
         {view === 'signup' && (
           <SignupPage onToggle={toggleToLogin} onLogin={handleLoginSuccess} />

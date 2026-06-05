@@ -70,4 +70,14 @@ public class User {
 
     public String getCountry() { return country; }
     public void setCountry(String country) { this.country = country; }
+
+    private String resetToken;
+
+    private java.time.LocalDateTime resetTokenExpiry;
+
+    public String getResetToken() { return resetToken; }
+    public void setResetToken(String resetToken) { this.resetToken = resetToken; }
+
+    public java.time.LocalDateTime getResetTokenExpiry() { return resetTokenExpiry; }
+    public void setResetTokenExpiry(java.time.LocalDateTime resetTokenExpiry) { this.resetTokenExpiry = resetTokenExpiry; }
 }
