@@ -8,9 +8,10 @@ interface LoginPageProps {
   onToggle: () => void;
   onLogin: (user: any) => void;
   onForgotPassword: () => void;
+  onAdminTrigger: () => void;
 }
 
-const LoginPage: React.FC<LoginPageProps> = ({ onToggle, onLogin, onForgotPassword }) => {
+const LoginPage: React.FC<LoginPageProps> = ({ onToggle, onLogin, onForgotPassword, onAdminTrigger }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -19,6 +20,40 @@ const LoginPage: React.FC<LoginPageProps> = ({ onToggle, onLogin, onForgotPasswo
 
   const socialAuthRef = useRef<HTMLDivElement>(null);
   const [socialWidth, setSocialWidth] = useState(320);
+
+  // Secret Admin Page Trigger: press 'a' 5 times (outside inputs)
+  useEffect(() => {
+    let count = 0;
+    let timer: number;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeEl = document.activeElement;
+      if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.getAttribute('contenteditable') === 'true')) {
+        return;
+      }
+
+      if (e.key && e.key.toLowerCase() === 'a') {
+        count++;
+        window.clearTimeout(timer);
+        if (count === 5) {
+          count = 0;
+          onAdminTrigger();
+        } else {
+          timer = window.setTimeout(() => {
+            count = 0;
+          }, 2000);
+        }
+      } else {
+        count = 0;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.clearTimeout(timer);
+    };
+  }, [onAdminTrigger]);
 
   useEffect(() => {
     if (!socialAuthRef.current) return;

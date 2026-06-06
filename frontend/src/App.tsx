@@ -232,39 +232,6 @@ function App() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, [view]);
 
-  // Secret Admin Page Trigger: press 'a' 5 times (outside inputs)
-  useEffect(() => {
-    let count = 0;
-    let timer: number;
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      const activeEl = document.activeElement;
-      if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.getAttribute('contenteditable') === 'true')) {
-        return;
-      }
-
-      if (e.key && e.key.toLowerCase() === 'a') {
-        count++;
-        window.clearTimeout(timer);
-        if (count === 5) {
-          count = 0;
-          setView('admin');
-        } else {
-          timer = window.setTimeout(() => {
-            count = 0;
-          }, 2000);
-        }
-      } else {
-        count = 0;
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      window.clearTimeout(timer);
-    };
-  }, []);
 
   useEffect(() => {
     sessionStorage.setItem('appCart', JSON.stringify(cart));
@@ -514,6 +481,7 @@ function App() {
             onToggle={toggleToSignup} 
             onLogin={handleLoginSuccess} 
             onForgotPassword={() => setView('forgot-password')} 
+            onAdminTrigger={() => setView('admin')}
           />
         )}
         {view === 'forgot-password' && (
@@ -584,7 +552,7 @@ function App() {
                 setCurrentUser(user);
                 setIsAdminLoggedIn(true);
               }} 
-              onCancel={() => setView('home')} 
+              onCancel={() => setView('login')} 
             />
           ) : (
             <AdminPage 
@@ -592,8 +560,7 @@ function App() {
               setProducts={setProducts}
               currentUser={currentUser}
               onBack={() => {
-                setIsAdminLoggedIn(false);
-                setView('home');
+                handleLogout();
                 fetchProducts();
               }}
             />
