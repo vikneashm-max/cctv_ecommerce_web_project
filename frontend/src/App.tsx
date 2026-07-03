@@ -379,11 +379,14 @@ function App() {
     }
   };
 
+  // Do not fetch orders on every login/home render (can be slow on cold starts).
+  // Fetch orders only when the user is actually viewing orders.
   useEffect(() => {
-    if (currentUser?.token && currentUser?.role === 'ROLE_USER') {
+    if (currentUser?.token && currentUser?.role === 'ROLE_USER' && view === 'profile' && profileActiveSection === 'orders') {
       fetchUserOrders();
     }
-  }, [currentUser]);
+  }, [currentUser, view, profileActiveSection]);
+
 
   const handleCheckout = async (shippingDetails: any) => {
     const itemsToOrder = buyNowItem ? [buyNowItem] : cart;

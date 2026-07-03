@@ -121,8 +121,10 @@ public class AuthController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = tokenProvider.generateToken(authentication);
 
-        User user = userRepository.findByEmail(request.getEmail());
-        return ResponseEntity.ok(new AuthResponse(jwt, user));
+        // Avoid an extra DB call during login. The authenticated principal already contains the user identity.
+        // Token generation already validated credentials via AuthenticationManager.
+        return ResponseEntity.ok(new AuthResponse(jwt, null));
+
     }
 
     @PostMapping("/google")
