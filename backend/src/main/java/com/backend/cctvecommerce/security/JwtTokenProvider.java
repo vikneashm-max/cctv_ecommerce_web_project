@@ -62,7 +62,7 @@ public class JwtTokenProvider {
     }
 
     public String getUsernameFromJWT(String token) {
-        return getClaimFromToken(token, Claims::getSubject);
+        return getClaimFromToken(token, claims -> claims.getSubject());
     }
 
     public String getRoleFromJWT(String token) {

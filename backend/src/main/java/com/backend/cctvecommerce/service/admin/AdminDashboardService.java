@@ -27,7 +27,7 @@ public class AdminDashboardService {
         
         double totalSales = orders.stream()
                 .filter(order -> !"CANCELLED".equalsIgnoreCase(order.getStatus()))
-                .mapToDouble(Order::getTotalAmount)
+                .mapToDouble(order -> order.getTotalAmount())
                 .sum();
         
         long totalOrders = orders.size();

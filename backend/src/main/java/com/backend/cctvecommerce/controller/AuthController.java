@@ -72,17 +72,16 @@ public class AuthController {
         user.setFullName(request.getFullName());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         
-        // Handle role assignment
+        // Handle role assignment (accept valid roles directly; default to ROLE_USER)
         String requestedRole = request.getRole();
         if (requestedRole == null || requestedRole.isEmpty()) {
             user.setRole("ROLE_USER");
         } else {
-            String roleUpper = requestedRole.toUpperCase();
-            if (!roleUpper.startsWith("ROLE_")) {
-                roleUpper = "ROLE_" + roleUpper;
-            }
-            if ("ROLE_ADMIN".equals(roleUpper) || "ROLE_USER".equals(roleUpper)) {
-                user.setRole(roleUpper);
+            String roleNorm = requestedRole.toUpperCase();
+            if ("ADMIN".equals(roleNorm) || "ROLE_ADMIN".equals(roleNorm)) {
+                user.setRole("ROLE_ADMIN");
+            } else if ("USER".equals(roleNorm) || "ROLE_USER".equals(roleNorm)) {
+                user.setRole("ROLE_USER");
             } else {
                 user.setRole("ROLE_USER");
             }
@@ -121,7 +120,9 @@ public ResponseEntity<?> loginUser(@RequestBody @Valid UserLoginRequest request)
     SecurityContextHolder.getContext().setAuthentication(authentication);
     String jwt = tokenProvider.generateToken(authentication);
 
-    return ResponseEntity.ok(new AuthResponse(jwt, null));
+    User user = userRepository.findByEmail(request.getEmail());
+
+    return ResponseEntity.ok(new AuthResponse(jwt, user));
 }
 
     @PostMapping("/google")
