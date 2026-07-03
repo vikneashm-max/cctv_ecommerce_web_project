@@ -110,22 +110,19 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> loginUser(@RequestBody @Valid UserLoginRequest request) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getEmail(),
-                        request.getPassword()
-                )
-        );
+public ResponseEntity<?> loginUser(@RequestBody @Valid UserLoginRequest request) {
+    Authentication authentication = authenticationManager.authenticate(
+            new UsernamePasswordAuthenticationToken(
+                    request.getEmail(),
+                    request.getPassword()
+            )
+    );
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = tokenProvider.generateToken(authentication);
+    SecurityContextHolder.getContext().setAuthentication(authentication);
+    String jwt = tokenProvider.generateToken(authentication);
 
-        // Avoid an extra DB call during login. The authenticated principal already contains the user identity.
-        // Token generation already validated credentials via AuthenticationManager.
-        return ResponseEntity.ok(new AuthResponse(jwt, null));
-
-    }
+    return ResponseEntity.ok(new AuthResponse(jwt, null));
+}
 
     @PostMapping("/google")
     public ResponseEntity<?> googleLogin(@RequestBody @Valid GoogleLoginRequest request) {
