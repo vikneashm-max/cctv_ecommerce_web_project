@@ -108,22 +108,30 @@ public class AuthController {
         return ResponseEntity.ok(new AuthResponse(token, savedUser));
     }
 
+    @GetMapping("/ping")
+    public ResponseEntity<String> ping() {
+        return ResponseEntity.ok("pong");
+    }
+
     @PostMapping("/login")
-public ResponseEntity<?> loginUser(@RequestBody @Valid UserLoginRequest request) {
-    Authentication authentication = authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(
-                    request.getEmail(),
-                    request.getPassword()
-            )
-    );
+    public ResponseEntity<?> loginUser(@RequestBody @Valid UserLoginRequest request) {
+        User user = userRepository.findByEmail(request.getEmail());
+        if (user == null) {
+            return ResponseEntity.badRequest().body("User not found.");
+        }
 
-    SecurityContextHolder.getContext().setAuthentication(authentication);
-    String jwt = tokenProvider.generateToken(authentication);
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getEmail(),
+                        request.getPassword()
+                )
+        );
 
-    User user = userRepository.findByEmail(request.getEmail());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        String jwt = tokenProvider.generateToken(authentication);
 
-    return ResponseEntity.ok(new AuthResponse(jwt, user));
-}
+        return ResponseEntity.ok(new AuthResponse(jwt, user));
+    }
 
     @PostMapping("/google")
     public ResponseEntity<?> googleLogin(@RequestBody @Valid GoogleLoginRequest request) {

@@ -17,6 +17,19 @@ const LoginPage: React.FC<LoginPageProps> = ({ onToggle, onLogin, onForgotPasswo
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isWakingServer, setIsWakingServer] = useState(false);
+
+  useEffect(() => {
+    let timer: number;
+    if (isLoading) {
+      timer = window.setTimeout(() => {
+        setIsWakingServer(true);
+      }, 1500);
+    } else {
+      setIsWakingServer(false);
+    }
+    return () => window.clearTimeout(timer);
+  }, [isLoading]);
 
   const socialAuthRef = useRef<HTMLDivElement>(null);
   const [socialWidth, setSocialWidth] = useState(320);
@@ -218,7 +231,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onToggle, onLogin, onForgotPasswo
             </div>
 
             <button type="submit" className="auth-submit-btn" disabled={isLoading}>
-              {isLoading ? 'Signing In...' : 'Sign In'}
+              {isLoading ? (isWakingServer ? 'Connecting to Server...' : 'Signing In...') : 'Sign In'}
               {!isLoading && <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" strokeWidth="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>}
             </button>
 

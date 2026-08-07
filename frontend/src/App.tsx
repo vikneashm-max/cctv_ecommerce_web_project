@@ -16,7 +16,7 @@ import AdminLoginPage from './components/AdminPage/AdminLoginPage';
 import ProfilePage from './components/ProfilePage/ProfilePage';
 import MyOrdersPage, { type Order } from './components/MyOrdersPage/MyOrdersPage';
 import { useModal } from './context/ModalContext';
-import api from './api/api';
+import api, { prewarmServer } from './api/api';
 import './App.css'
 
 interface WarrantyInfo {
@@ -74,6 +74,7 @@ function App() {
   };
 
   useEffect(() => {
+    prewarmServer();
     fetchProducts();
   }, []);
 

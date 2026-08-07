@@ -16,6 +16,19 @@ const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onLogin, onCancel }) =>
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isWakingServer, setIsWakingServer] = useState(false);
+
+  React.useEffect(() => {
+    let timer: number;
+    if (isLoading) {
+      timer = window.setTimeout(() => {
+        setIsWakingServer(true);
+      }, 1500);
+    } else {
+      setIsWakingServer(false);
+    }
+    return () => window.clearTimeout(timer);
+  }, [isLoading]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -123,7 +136,7 @@ const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onLogin, onCancel }) =>
 
           <button type="submit" className="admin-submit-btn" disabled={isLoading}>
             {isLoading ? (
-              <span>Signing In...</span>
+              <span>{isWakingServer ? 'Connecting to Server...' : 'Signing In...'}</span>
             ) : (
               <>
                 <span>Sign In</span>
