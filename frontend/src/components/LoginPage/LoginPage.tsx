@@ -88,6 +88,25 @@ const LoginPage: React.FC<LoginPageProps> = ({ onToggle, onLogin, onForgotPasswo
     return () => resizeObserver.disconnect();
   }, []);
 
+  const getErrorMessage = (err: any, defaultMsg: string): string => {
+    if (!err.response) {
+      return "Network error. Please check your connection and ensure backend server is running.";
+    }
+    const data = err.response.data;
+    if (typeof data === 'string') {
+      return data;
+    }
+    if (data && typeof data === 'object') {
+      if (typeof data.message === 'string' && data.message.trim()) {
+        return data.message;
+      }
+      if (typeof data.error === 'string' && data.error.trim()) {
+        return data.error;
+      }
+    }
+    return defaultMsg;
+  };
+
   const handleGoogleSuccess = async (credentialResponse: any) => {
     setError(null);
     setIsLoading(true);
@@ -97,11 +116,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onToggle, onLogin, onForgotPasswo
       });
       onLogin(response.data);
     } catch (err: any) {
-      if (err.response && err.response.data && typeof err.response.data === 'string') {
-        setError(err.response.data);
-      } else {
-        setError("Google authentication failed. Please try again.");
-      }
+      setError(getErrorMessage(err, "Google authentication failed. Please try again."));
     } finally {
       setIsLoading(false);
     }
@@ -118,17 +133,13 @@ const LoginPage: React.FC<LoginPageProps> = ({ onToggle, onLogin, onForgotPasswo
 
     try {
       const response = await api.post('/auth/login', {
-        email,
+        email: email.trim(),
         password
       });
-      // response.data will contain the User object
+      // response.data will contain the AuthResponse object
       onLogin(response.data);
     } catch (err: any) {
-      if (err.response && err.response.data && typeof err.response.data === 'string') {
-        setError(err.response.data);
-      } else {
-        setError("Network error or invalid credentials.");
-      }
+      setError(getErrorMessage(err, "Invalid email or password. Please try again."));
     } finally {
       setIsLoading(false);
     }

@@ -37,7 +37,7 @@ const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onLogin, onCancel }) =>
 
     try {
       const response = await api.post('/auth/login', {
-        email,
+        email: email.trim(),
         password
       });
       
@@ -48,8 +48,19 @@ const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onLogin, onCancel }) =>
         setError('Access Denied: You do not have administrator privileges.');
       }
     } catch (err: any) {
-      if (err.response && err.response.data && typeof err.response.data === 'string') {
-        setError(err.response.data);
+      if (!err.response) {
+        setError('Network error. Please ensure backend server is accessible.');
+      } else if (err.response.data) {
+        const data = err.response.data;
+        if (typeof data === 'string') {
+          setError(data);
+        } else if (typeof data.message === 'string' && data.message.trim()) {
+          setError(data.message);
+        } else if (typeof data.error === 'string' && data.error.trim()) {
+          setError(data.error);
+        } else {
+          setError('Invalid credentials. Please verify your system administrator privileges.');
+        }
       } else {
         setError('Invalid credentials. Please verify your system administrator privileges.');
       }

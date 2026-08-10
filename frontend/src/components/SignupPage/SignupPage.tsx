@@ -24,21 +24,29 @@ const SignupPage: React.FC<SignupPageProps> = ({ onToggle, onLogin }) => {
     setIsLoading(true);
 
     try {
-      console.log("Attempting to sign up with email:", email);
-      const payload = { fullName, email, password, role: "USER" };
-      console.log("Payload:", payload);
+      const cleanEmail = email.trim();
+      const payload = { fullName: fullName.trim(), email: cleanEmail, password, role: "USER" };
 
       const response = await api.post('/auth/register', payload);
-      console.log("Signup successful, response:", response.data);
       
       // Navigate to home page and set user on success
       onLogin(response.data);
     } catch (err: any) {
-      console.error("Signup failed:", err);
-      if (err.response && err.response.data) {
-        setError(err.response.data.message || "Failed to create account. Please try again.");
-      } else {
+      if (!err.response) {
         setError("Network error. Please make sure the backend is running.");
+      } else if (err.response.data) {
+        const data = err.response.data;
+        if (typeof data === 'string') {
+          setError(data);
+        } else if (typeof data.message === 'string' && data.message.trim()) {
+          setError(data.message);
+        } else if (typeof data.error === 'string' && data.error.trim()) {
+          setError(data.error);
+        } else {
+          setError("Failed to create account. Please try again.");
+        }
+      } else {
+        setError("Failed to create account. Please try again.");
       }
     } finally {
       setIsLoading(false);

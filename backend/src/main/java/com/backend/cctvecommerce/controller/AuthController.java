@@ -63,12 +63,15 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody @Valid UserRegisterRequest request) {
-        if (userRepository.findByEmail(request.getEmail()) != null) {
+        String rawEmail = request.getEmail();
+        String cleanEmail = rawEmail != null ? rawEmail.trim().toLowerCase() : "";
+        
+        if (userRepository.findByEmail(cleanEmail) != null || (rawEmail != null && userRepository.findByEmail(rawEmail) != null)) {
             return ResponseEntity.badRequest().body("Email address already in use.");
         }
 
         User user = new User();
-        user.setEmail(request.getEmail());
+        user.setEmail(cleanEmail);
         user.setFullName(request.getFullName());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         
@@ -115,14 +118,20 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody @Valid UserLoginRequest request) {
-        User user = userRepository.findByEmail(request.getEmail());
+        String rawEmail = request.getEmail();
+        String cleanEmail = rawEmail != null ? rawEmail.trim().toLowerCase() : "";
+
+        User user = userRepository.findByEmail(cleanEmail);
+        if (user == null && rawEmail != null) {
+            user = userRepository.findByEmail(rawEmail);
+        }
         if (user == null) {
             return ResponseEntity.badRequest().body("User not found.");
         }
 
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        request.getEmail(),
+                        user.getEmail(),
                         request.getPassword()
                 )
         );
@@ -153,7 +162,7 @@ public class AuthController {
             }
 
             GoogleIdToken.Payload payload = idToken.getPayload();
-            String email = payload.getEmail();
+            String email = payload.getEmail() != null ? payload.getEmail().trim().toLowerCase() : "";
             String name = (String) payload.get("name");
             if (name == null || name.isEmpty()) {
                 name = (String) payload.get("given_name");
@@ -192,7 +201,13 @@ public class AuthController {
 
     @PostMapping("/forgot-password")
     public ResponseEntity<?> forgotPassword(@RequestBody @Valid ForgotPasswordRequest request) {
-        User user = userRepository.findByEmail(request.getEmail());
+        String rawEmail = request.getEmail();
+        String cleanEmail = rawEmail != null ? rawEmail.trim().toLowerCase() : "";
+
+        User user = userRepository.findByEmail(cleanEmail);
+        if (user == null && rawEmail != null) {
+            user = userRepository.findByEmail(rawEmail);
+        }
         if (user == null) {
             return ResponseEntity.badRequest().body("Email address is not registered.");
         }
