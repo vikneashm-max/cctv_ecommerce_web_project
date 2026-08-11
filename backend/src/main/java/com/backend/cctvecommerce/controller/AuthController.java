@@ -27,7 +27,6 @@ import java.util.Collections;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "http://localhost:5173")
 public class AuthController {
 
     @Value("${google.client.id:}")

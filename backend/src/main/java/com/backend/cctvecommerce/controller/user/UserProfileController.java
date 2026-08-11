@@ -11,7 +11,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/user/profile")
-@CrossOrigin(origins = "http://localhost:5173")
 public class UserProfileController {
 
     @Autowired

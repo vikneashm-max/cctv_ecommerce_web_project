@@ -110,6 +110,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onToggle, onLogin, onForgotPasswo
   const handleGoogleSuccess = async (credentialResponse: any) => {
     setError(null);
     setIsLoading(true);
+    sessionStorage.removeItem('currentUser');
     try {
       const response = await api.post('/auth/google', {
         idToken: credentialResponse.credential
@@ -130,6 +131,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onToggle, onLogin, onForgotPasswo
     e.preventDefault();
     setError(null);
     setIsLoading(true);
+    sessionStorage.removeItem('currentUser');
 
     try {
       const response = await api.post('/auth/login', {

@@ -34,6 +34,7 @@ const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onLogin, onCancel }) =>
     e.preventDefault();
     setError('');
     setIsLoading(true);
+    sessionStorage.removeItem('currentUser');
 
     try {
       const response = await api.post('/auth/login', {

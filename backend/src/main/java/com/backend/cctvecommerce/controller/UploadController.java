@@ -9,7 +9,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/upload")
-@CrossOrigin(origins = "*")
 public class UploadController {
 
     @Autowired

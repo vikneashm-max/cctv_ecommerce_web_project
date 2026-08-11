@@ -58,19 +58,17 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-           .authorizeHttpRequests(auth -> auth
-               .requestMatchers("/api/auth/**").permitAll()
-               .requestMatchers("/api/upload/**").permitAll()
-               .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/service-requests").permitAll()
-               .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/contact").permitAll()
-               .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/user/products", "/api/user/products/**").permitAll()
-               .requestMatchers("/api/admin/**").hasRole("ADMIN")
-               .requestMatchers("/api/user/**").hasRole("USER")
-               .anyRequest().authenticated()
-             );
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/upload/**").permitAll()
+                .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/service-requests").permitAll()
+                .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/contact").permitAll()
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/user/products", "/api/user/products/**").permitAll()
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                .requestMatchers("/api/user/**").hasRole("USER")
+                .anyRequest().authenticated()
+              );
 
-             
-        http.authenticationProvider(authenticationProvider());
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
@@ -79,10 +77,9 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173", "https://tnautomations.shop",
-        "https://www.tnautomations.shop","https://tnautomations.vercel.app"));
+        configuration.setAllowedOriginPatterns(Arrays.asList("*"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With", "Accept"));
+        configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setExposedHeaders(Collections.singletonList("Authorization"));
         configuration.setAllowCredentials(true);
         

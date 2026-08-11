@@ -10,7 +10,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/user/cart")
-@CrossOrigin(origins = "http://localhost:5173")
 public class UserCartController {
 
     @Autowired
