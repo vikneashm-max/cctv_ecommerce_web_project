@@ -65,7 +65,7 @@ public class AuthController {
         String rawEmail = request.getEmail();
         String cleanEmail = rawEmail != null ? rawEmail.trim().toLowerCase() : "";
         
-        if (userRepository.findByEmail(cleanEmail) != null || (rawEmail != null && userRepository.findByEmail(rawEmail) != null)) {
+        if (userRepository.findByEmailIgnoreCase(cleanEmail) != null || (rawEmail != null && userRepository.findByEmail(rawEmail) != null)) {
             return ResponseEntity.badRequest().body("Email address already in use.");
         }
 
@@ -120,7 +120,7 @@ public class AuthController {
         String rawEmail = request.getEmail();
         String cleanEmail = rawEmail != null ? rawEmail.trim().toLowerCase() : "";
 
-        User user = userRepository.findByEmail(cleanEmail);
+        User user = userRepository.findByEmailIgnoreCase(cleanEmail);
         if (user == null && rawEmail != null) {
             user = userRepository.findByEmail(rawEmail);
         }
@@ -171,7 +171,10 @@ public class AuthController {
             }
 
             // Find or create user
-            User user = userRepository.findByEmail(email);
+            User user = userRepository.findByEmailIgnoreCase(email);
+            if (user == null) {
+                user = userRepository.findByEmail(email);
+            }
             if (user == null) {
                 user = new User();
                 user.setEmail(email);
@@ -203,7 +206,7 @@ public class AuthController {
         String rawEmail = request.getEmail();
         String cleanEmail = rawEmail != null ? rawEmail.trim().toLowerCase() : "";
 
-        User user = userRepository.findByEmail(cleanEmail);
+        User user = userRepository.findByEmailIgnoreCase(cleanEmail);
         if (user == null && rawEmail != null) {
             user = userRepository.findByEmail(rawEmail);
         }

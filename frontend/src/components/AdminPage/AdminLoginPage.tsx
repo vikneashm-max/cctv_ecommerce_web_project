@@ -43,7 +43,8 @@ const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onLogin, onCancel }) =>
       });
       
       const user = response.data;
-      if (user.role === 'ROLE_ADMIN') {
+      const normalizedRole = user?.role ? String(user.role).toUpperCase() : '';
+      if (normalizedRole === 'ROLE_ADMIN' || normalizedRole === 'ADMIN') {
         onLogin(user);
       } else {
         setError('Access Denied: You do not have administrator privileges.');
@@ -53,14 +54,19 @@ const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onLogin, onCancel }) =>
         setError('Network error. Please ensure backend server is accessible.');
       } else if (err.response.data) {
         const data = err.response.data;
-        if (typeof data === 'string') {
+        if (typeof data === 'string' && data.trim()) {
           setError(data);
         } else if (typeof data.message === 'string' && data.message.trim()) {
           setError(data.message);
         } else if (typeof data.error === 'string' && data.error.trim()) {
           setError(data.error);
         } else {
-          setError('Invalid credentials. Please verify your system administrator privileges.');
+          const values = Object.values(data).filter(v => typeof v === 'string' && (v as string).trim());
+          if (values.length > 0) {
+            setError(values[0] as string);
+          } else {
+            setError('Invalid credentials. Please verify your system administrator privileges.');
+          }
         }
       } else {
         setError('Invalid credentials. Please verify your system administrator privileges.');

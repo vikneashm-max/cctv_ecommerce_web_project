@@ -131,12 +131,27 @@ function App() {
   }, [currentUser]);
 
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState<boolean>(() => {
+    const savedUser = sessionStorage.getItem('currentUser');
+    if (savedUser) {
+      try {
+        const parsed = JSON.parse(savedUser);
+        const roleUpper = parsed?.role ? String(parsed.role).toUpperCase() : '';
+        if (roleUpper === 'ROLE_ADMIN' || roleUpper === 'ADMIN') return true;
+      } catch {}
+    }
     return sessionStorage.getItem('isAdminLoggedIn') === 'true';
   });
 
   useEffect(() => {
     sessionStorage.setItem('isAdminLoggedIn', String(isAdminLoggedIn));
   }, [isAdminLoggedIn]);
+
+  useEffect(() => {
+    const roleUpper = currentUser?.role ? String(currentUser.role).toUpperCase() : '';
+    if (roleUpper === 'ROLE_ADMIN' || roleUpper === 'ADMIN') {
+      setIsAdminLoggedIn(true);
+    }
+  }, [currentUser]);
 
   useEffect(() => {
     if (selectedProductId !== null) {
@@ -249,7 +264,13 @@ function App() {
   const toggleToSignup = () => setView('signup')
   const toggleToLogin = () => setView('login')
   const handleLoginSuccess = (user: any = null) => {
-    if (user) setCurrentUser(user);
+    if (user) {
+      setCurrentUser(user);
+      const roleUpper = user?.role ? String(user.role).toUpperCase() : '';
+      if (roleUpper === 'ROLE_ADMIN' || roleUpper === 'ADMIN') {
+        setIsAdminLoggedIn(true);
+      }
+    }
     setView('home');
   };
   const [profileActiveSection, setProfileActiveSection] = useState<'dashboard' | 'orders' | 'addresses' | 'wishlist' | 'personal'>('dashboard');

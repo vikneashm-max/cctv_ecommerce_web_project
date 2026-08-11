@@ -22,7 +22,7 @@ public class AuthResponse {
     public AuthResponse(String token, String email, String role, Long userId, String fullName) {
         this.token = token;
         this.email = email;
-        this.role = role;
+        this.role = normalizeRole(role);
         this.userId = userId;
         this.id = userId;
         this.fullName = fullName;
@@ -30,18 +30,29 @@ public class AuthResponse {
 
     public AuthResponse(String token, User user) {
         this.token = token;
-        this.email = user.getEmail();
-        this.role = user.getRole();
-        this.userId = user.getId();
-        this.id = user.getId();
-        this.fullName = user.getFullName();
-        this.profilePictureUrl = user.getProfilePictureUrl();
-        this.phoneNumber = user.getPhoneNumber();
-        this.address = user.getAddress();
-        this.city = user.getCity();
-        this.state = user.getState();
-        this.postalCode = user.getPostalCode();
-        this.country = user.getCountry();
+        this.email = user != null ? user.getEmail() : null;
+        this.role = normalizeRole(user != null ? user.getRole() : null);
+        this.userId = user != null ? user.getId() : null;
+        this.id = user != null ? user.getId() : null;
+        this.fullName = user != null ? user.getFullName() : null;
+        this.profilePictureUrl = user != null ? user.getProfilePictureUrl() : null;
+        this.phoneNumber = user != null ? user.getPhoneNumber() : null;
+        this.address = user != null ? user.getAddress() : null;
+        this.city = user != null ? user.getCity() : null;
+        this.state = user != null ? user.getState() : null;
+        this.postalCode = user != null ? user.getPostalCode() : null;
+        this.country = user != null ? user.getCountry() : null;
+    }
+
+    private String normalizeRole(String rawRole) {
+        if (rawRole == null || rawRole.trim().isEmpty()) {
+            return "ROLE_USER";
+        }
+        String upper = rawRole.trim().toUpperCase();
+        if (!upper.startsWith("ROLE_")) {
+            return "ROLE_" + upper;
+        }
+        return upper;
     }
 
     public Long getId() { return id; }

@@ -1,7 +1,12 @@
 import axios from "axios";
 
+const getBaseUrl = () => {
+  const raw = (import.meta.env.VITE_API_URL || 'http://localhost:8080').trim().replace(/\/+$/, '');
+  return raw.endsWith('/api') ? raw : `${raw}/api`;
+};
+
 const api = axios.create({
-  baseURL: `${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api`,
+  baseURL: getBaseUrl(),
   headers: {
     "Content-Type": "application/json",
   },
@@ -15,6 +20,7 @@ api.interceptors.request.use((config) => {
     if (config.headers) {
       if (typeof config.headers.delete === 'function') {
         config.headers.delete('Authorization');
+        config.headers.delete('authorization');
       } else {
         delete config.headers['Authorization'];
         delete config.headers['authorization'];
@@ -45,8 +51,10 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
-    // If token is invalid or expired (401), clean up stale session
-    if (error.response && error.response.status === 401) {
+    const isAuthEndpoint = error.config?.url && error.config.url.includes('/auth/');
+    
+    // If token is invalid or expired (401) on non-auth requests, clean up stale session
+    if (!isAuthEndpoint && error.response && error.response.status === 401) {
       sessionStorage.removeItem('currentUser');
       sessionStorage.removeItem('isAdminLoggedIn');
     }
@@ -56,8 +64,8 @@ api.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    // Do NOT retry for auth endpoints to prevent duplicate delays or masked errors
-    if (config.url && config.url.includes('/auth/')) {
+    // Do NOT retry for client-side errors (400-499) to present instant feedback
+    if (error.response && error.response.status >= 400 && error.response.status < 500) {
       return Promise.reject(error);
     }
 

@@ -93,7 +93,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onToggle, onLogin, onForgotPasswo
       return "Network error. Please check your connection and ensure backend server is running.";
     }
     const data = err.response.data;
-    if (typeof data === 'string') {
+    if (typeof data === 'string' && data.trim()) {
       return data;
     }
     if (data && typeof data === 'object') {
@@ -102,6 +102,11 @@ const LoginPage: React.FC<LoginPageProps> = ({ onToggle, onLogin, onForgotPasswo
       }
       if (typeof data.error === 'string' && data.error.trim()) {
         return data.error;
+      }
+      // If data is an object containing validation field errors e.g. { email: "..." }
+      const values = Object.values(data).filter(v => typeof v === 'string' && (v as string).trim());
+      if (values.length > 0) {
+        return values[0] as string;
       }
     }
     return defaultMsg;
