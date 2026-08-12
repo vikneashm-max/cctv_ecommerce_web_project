@@ -97,14 +97,19 @@ const LoginPage: React.FC<LoginPageProps> = ({ onToggle, onLogin, onForgotPasswo
       return data;
     }
     if (data && typeof data === 'object') {
+      if (data.validationErrors && typeof data.validationErrors === 'object') {
+        const valErrors = Object.values(data.validationErrors).filter((v: any) => typeof v === 'string' && v.trim());
+        if (valErrors.length > 0) {
+          return valErrors.join('. ');
+        }
+      }
       if (typeof data.message === 'string' && data.message.trim()) {
         return data.message;
       }
-      if (typeof data.error === 'string' && data.error.trim()) {
+      if (typeof data.error === 'string' && data.error.trim() && data.error !== 'Bad Request' && data.error !== 'Unauthorized') {
         return data.error;
       }
-      // If data is an object containing validation field errors e.g. { email: "..." }
-      const values = Object.values(data).filter(v => typeof v === 'string' && (v as string).trim());
+      const values = Object.values(data).filter(v => typeof v === 'string' && (v as string).trim() && v !== 'Bad Request' && v !== 'Unauthorized');
       if (values.length > 0) {
         return values[0] as string;
       }
@@ -115,13 +120,14 @@ const LoginPage: React.FC<LoginPageProps> = ({ onToggle, onLogin, onForgotPasswo
   const handleGoogleSuccess = async (credentialResponse: any) => {
     setError(null);
     setIsLoading(true);
-    sessionStorage.removeItem('currentUser');
     try {
       const response = await api.post('/auth/google', {
         idToken: credentialResponse.credential
       });
+      sessionStorage.setItem('currentUser', JSON.stringify(response.data));
       onLogin(response.data);
     } catch (err: any) {
+      sessionStorage.removeItem('currentUser');
       setError(getErrorMessage(err, "Google authentication failed. Please try again."));
     } finally {
       setIsLoading(false);
@@ -136,16 +142,17 @@ const LoginPage: React.FC<LoginPageProps> = ({ onToggle, onLogin, onForgotPasswo
     e.preventDefault();
     setError(null);
     setIsLoading(true);
-    sessionStorage.removeItem('currentUser');
 
     try {
       const response = await api.post('/auth/login', {
         email: email.trim(),
         password
       });
-      // response.data will contain the AuthResponse object
+      // Synchronously store user session before invoking onLogin callback
+      sessionStorage.setItem('currentUser', JSON.stringify(response.data));
       onLogin(response.data);
     } catch (err: any) {
+      sessionStorage.removeItem('currentUser');
       setError(getErrorMessage(err, "Invalid email or password. Please try again."));
     } finally {
       setIsLoading(false);

@@ -34,7 +34,6 @@ const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onLogin, onCancel }) =>
     e.preventDefault();
     setError('');
     setIsLoading(true);
-    sessionStorage.removeItem('currentUser');
 
     try {
       const response = await api.post('/auth/login', {
@@ -45,28 +44,45 @@ const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onLogin, onCancel }) =>
       const user = response.data;
       const normalizedRole = user?.role ? String(user.role).toUpperCase() : '';
       if (normalizedRole === 'ROLE_ADMIN' || normalizedRole === 'ADMIN') {
+        sessionStorage.setItem('currentUser', JSON.stringify(user));
+        sessionStorage.setItem('isAdminLoggedIn', 'true');
         onLogin(user);
       } else {
+        sessionStorage.removeItem('currentUser');
+        sessionStorage.setItem('isAdminLoggedIn', 'false');
         setError('Access Denied: You do not have administrator privileges.');
       }
     } catch (err: any) {
+      sessionStorage.removeItem('currentUser');
+      sessionStorage.setItem('isAdminLoggedIn', 'false');
       if (!err.response) {
         setError('Network error. Please ensure backend server is accessible.');
       } else if (err.response.data) {
         const data = err.response.data;
         if (typeof data === 'string' && data.trim()) {
           setError(data);
-        } else if (typeof data.message === 'string' && data.message.trim()) {
-          setError(data.message);
-        } else if (typeof data.error === 'string' && data.error.trim()) {
-          setError(data.error);
-        } else {
-          const values = Object.values(data).filter(v => typeof v === 'string' && (v as string).trim());
-          if (values.length > 0) {
-            setError(values[0] as string);
-          } else {
-            setError('Invalid credentials. Please verify your system administrator privileges.');
+        } else if (data && typeof data === 'object') {
+          if (data.validationErrors && typeof data.validationErrors === 'object') {
+            const valErrors = Object.values(data.validationErrors).filter((v: any) => typeof v === 'string' && v.trim());
+            if (valErrors.length > 0) {
+              setError(valErrors.join('. '));
+              return;
+            }
           }
+          if (typeof data.message === 'string' && data.message.trim()) {
+            setError(data.message);
+          } else if (typeof data.error === 'string' && data.error.trim() && data.error !== 'Bad Request' && data.error !== 'Unauthorized') {
+            setError(data.error);
+          } else {
+            const values = Object.values(data).filter(v => typeof v === 'string' && (v as string).trim() && v !== 'Bad Request' && v !== 'Unauthorized');
+            if (values.length > 0) {
+              setError(values[0] as string);
+            } else {
+              setError('Invalid credentials. Please verify your system administrator privileges.');
+            }
+          }
+        } else {
+          setError('Invalid credentials. Please verify your system administrator privileges.');
         }
       } else {
         setError('Invalid credentials. Please verify your system administrator privileges.');

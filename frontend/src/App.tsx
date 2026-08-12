@@ -83,18 +83,9 @@ function App() {
   }, [products]);
 
   const [view, setView] = useState<View>(() => {
-    const savedUser = sessionStorage.getItem('currentUser');
     let path = window.location.pathname.replace(/^\//, '');
     if (path === 'product_detail') {
       path = 'product-detail';
-    }
-
-    // Force to login if user is not authenticated (except for signup, admin or forgot-password views)
-    if (!savedUser) {
-      if (path === 'signup' || path === 'admin' || path === 'forgot-password') {
-        return path as View;
-      }
-      return 'login';
     }
 
     if (path === '') {
@@ -106,6 +97,11 @@ function App() {
       'profile', 'orders', 'forgot-password'
     ];
     if (validViews.includes(path as View)) {
+      const savedUser = sessionStorage.getItem('currentUser');
+      const protectedViews: View[] = ['profile', 'orders'];
+      if (!savedUser && protectedViews.includes(path as View)) {
+        return 'login';
+      }
       return path as View;
     }
     const savedView = sessionStorage.getItem('currentView');
@@ -265,9 +261,11 @@ function App() {
   const toggleToLogin = () => setView('login')
   const handleLoginSuccess = (user: any = null) => {
     if (user) {
+      sessionStorage.setItem('currentUser', JSON.stringify(user));
       setCurrentUser(user);
       const roleUpper = user?.role ? String(user.role).toUpperCase() : '';
       if (roleUpper === 'ROLE_ADMIN' || roleUpper === 'ADMIN') {
+        sessionStorage.setItem('isAdminLoggedIn', 'true');
         setIsAdminLoggedIn(true);
       }
     }
@@ -276,9 +274,10 @@ function App() {
   const [profileActiveSection, setProfileActiveSection] = useState<'dashboard' | 'orders' | 'addresses' | 'wishlist' | 'personal'>('dashboard');
   const [showCheckoutInitially, setShowCheckoutInitially] = useState(false);
 
-  // Guard view navigation for unauthenticated users
+  // Guard view navigation for unauthenticated users on protected pages only
   useEffect(() => {
-    if (!currentUser && view !== 'login' && view !== 'signup' && view !== 'admin' && view !== 'forgot-password') {
+    const protectedViews: View[] = ['profile', 'orders'];
+    if (!currentUser && protectedViews.includes(view)) {
       setView('login');
     }
   }, [currentUser, view]);
